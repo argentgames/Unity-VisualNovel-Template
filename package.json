@@ -1,0 +1,10 @@
+{
+    "name": "com.argentgames.visual-novel-template",
+    "displayName": "Visual Novel Template",
+    "description": "Opinionated template for making visual novel games in Unity.",
+    "version": "0.1.0",
+    "unity": "2020.3",
+    "license": "MIT",
+    "dependencies": {
+     }
+    }
