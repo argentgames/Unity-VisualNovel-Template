@@ -3,10 +3,10 @@
     "plugins": [                                                                               
       ["@semantic-release/commit-analyzer", { "preset": "angular" }],                          
       "@semantic-release/release-notes-generator",                                             
-      ["@semantic-release/changelog", { "preset": "angular", "pkgRoot": "Packages/VisualNovelTemplate" }],                                
-      ["@semantic-release/npm", { "npmPublish": false }],                      
+      ["@semantic-release/changelog", { "preset": "angular" }],                                
+      ["@semantic-release/npm", { "npmPublish": false, "pkgRoot": "Packages/VisualNovelTemplate" }],                      
       ["@semantic-release/git", {                                                              
-        "assets": ["Packages/VisualNovelTemplate/package.json", "CHANGELOG.md"],                                            
+        "assets": ["Packages/VisualNovelTemplate/package.json", "Packages/VisualNovelTemplate/CHANGELOG.md"],                                            
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"  
       }],                                                                                      
       "@semantic-release/github"                                                               
