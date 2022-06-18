@@ -5,6 +5,13 @@
     "version": "0.1.0",
     "unity": "2020.3",
     "license": "MIT",
-    "dependencies": {
-     }
-    }
+    "author": "Argent Games",
+    "dependencies": {},
+    "samples": [
+        {
+            "displayName": "Demo 1",
+            "description": "Full visual novel with character customization",
+            "path": "Samples~/Demo1"
+        }
+    ]
+}
