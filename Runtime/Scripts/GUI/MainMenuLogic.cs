@@ -8,6 +8,11 @@ using UnityEngine.SceneManagement;
 // using UnityEngine.UI.Extensions;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class MainMenuLogic : MonoBehaviour
 {
 
@@ -47,7 +52,7 @@ public class MainMenuLogic : MonoBehaviour
     public async UniTask ShowSettings(SettingsPage page)
     {
         Debug.Log("open da settings?");
-        await SettingsManager.Instance.OpenPage(page,SettingsType.MAINMENU);
+        await MenuManager.Instance.OpenPage(page,SettingsType.MAINMENU);
         Debug.Log("open settings page");
         
         
@@ -60,3 +65,5 @@ public class MainMenuLogic : MonoBehaviour
     
 }
 
+
+}

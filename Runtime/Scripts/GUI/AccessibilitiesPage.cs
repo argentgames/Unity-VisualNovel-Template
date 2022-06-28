@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using TMPro;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class AccessibilitiesPage : MonoBehaviour
 {
     [SerializeField]
@@ -90,4 +93,6 @@ public class AccessibilitiesPage : MonoBehaviour
     {
 
     }
+}
+
 }

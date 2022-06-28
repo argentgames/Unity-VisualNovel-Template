@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class ChoiceButton : MonoBehaviour
 {
     [SerializeField]
@@ -24,7 +29,7 @@ public class ChoiceButton : MonoBehaviour
 
     void SetChoiceStyle()
     {
-        if (DialogueSystem.Instance.PreviouslySelectedChoice(choiceText.text))
+        if (DialogueSystemManager.Instance.PreviouslySelectedChoice(choiceText.text))
         {
             // TODO: set the styles hasPrevoiuslySelectedChoice styles
         }
@@ -33,4 +38,5 @@ public class ChoiceButton : MonoBehaviour
             // TODO: do nothing, or set the regular choice style
         }
     }
+}
 }

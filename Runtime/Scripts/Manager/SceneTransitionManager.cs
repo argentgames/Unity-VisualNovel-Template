@@ -6,6 +6,9 @@ using UnityEngine.SceneManagement;
 using UniRx;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class SceneTransitionManager : MonoBehaviour
 {
     public static SceneTransitionManager Instance { get; set; }
@@ -43,14 +46,14 @@ public class SceneTransitionManager : MonoBehaviour
     bool doStopSound = true)
     {
         IsLoading = true;
-        SettingsManager.Instance.DisableSettingsUIControls();
+        MenuManager.Instance.DisableSettingsUIControls();
         if (fadeOutDuration == null)
         {
-            fadeOutDuration = GameManager.Instance.GlobalDefinitions.sceneFadeOutDuration;
+            fadeOutDuration = GameManager.Instance.DefaultConfig.sceneFadeOutDuration;
         }
         if (fadeInDuration == null)
         {
-            fadeInDuration = GameManager.Instance.GlobalDefinitions.sceneFadeInDuration;
+            fadeInDuration = GameManager.Instance.DefaultConfig.sceneFadeInDuration;
         }
         if (fadeOutDuration != 0)
         {
@@ -113,5 +116,7 @@ public class SceneTransitionManager : MonoBehaviour
 
     }
 
+
+}
 
 }

@@ -4,6 +4,9 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class HistoryPresenter : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -20,11 +23,11 @@ public class HistoryPresenter : MonoBehaviour
     {
         try
         {
-            var startIDX = Mathf.Clamp(DialogueSystem.Instance.DialogueHistory.Count - maxHistoryLines, 0, DialogueSystem.Instance.DialogueHistory.Count - maxHistoryLines);
+            var startIDX = Mathf.Clamp(DialogueSystemManager.Instance.PersistentDialogueHistory.Count - maxHistoryLines, 0, DialogueSystemManager.Instance.PersistentDialogueHistory.Count - maxHistoryLines);
             Debug.Log("startIDX for history is: " + startIDX.ToString());
-            for (int i = startIDX; i < DialogueSystem.Instance.DialogueHistory.Count - 1; i++)
+            for (int i = startIDX; i < DialogueSystemManager.Instance.PersistentDialogueHistory.Count - 1; i++)
             {
-                var line = DialogueSystem.Instance.DialogueHistory[i];
+                var line = DialogueSystemManager.Instance.PersistentDialogueHistory[i];
                 CreateHistoryObject(line.speaker, line.line);
             }
 
@@ -72,9 +75,10 @@ public class HistoryPresenter : MonoBehaviour
         }
         else if (speakerName == "mc")
         {
-            speakerName = (string)DialogueSystem.Instance.Story.variablesState["mc_name"];
+            speakerName = (string)DialogueSystemManager.Instance.Story.variablesState["mc_name"];
         }
         s.transform.GetChild(0).GetComponent<TMP_Text>().text = speakerName;
         s.transform.GetChild(1).GetComponent<TMP_Text>().text = content;
     }
+}
 }

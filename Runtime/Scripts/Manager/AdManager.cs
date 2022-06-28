@@ -1,46 +1,61 @@
-#if PLATFORM_ANDROID || UNITY_ANDROID
 using System;
 using UnityEngine;
-using GoogleMobileAds.Api;
 using UnityEngine.UI;
 using UniRx;
 using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+
+#if PLATFORM_ANDROID || UNITY_ANDROID
+using GoogleMobileAds.Api;
+#endif
 public class AdManager : MonoBehaviour
 {
     public static AdManager Instance;
     [SerializeField]
-    GameObject ShowAdPopup, gdprConsentPopup; 
+    GameObject ShowAdPopup, gdprConsentPopup;
     Popup popup;
+#if PLATFORM_ANDROID || UNITY_ANDROID
     private InterstitialAd interstitial;
+#endif
     public bool IsTryingToRunAd;
+
+    private void Awake()
+    {
+        // TODO: DEACTIVATE SELF IF ADS NOT ENABLED
+        gameObject.SetActive(false);
+    }
     public void Start()
     {
         Instance = this;
+#if PLATFORM_ANDROID || UNITY_ANDROID
         // Initialize the Google Mobile Ads SDK.
         MobileAds.Initialize(initStatus => { });
+#endif
 
         popup = ShowAdPopup.GetComponent<Popup>();
         ShowAdPopup.SetActive(false);
 
-        
+
 
     }
 
     public void Initialize()
     {
+#if PLATFORM_ANDROID || UNITY_ANDROID
         MobileAds.Initialize(initStatus => { });
+#endif
     }
     public void CloseAdPopup()
     {
         ShowAdPopup.SetActive(false);
     }
 
-    
 
+#if PLATFORM_ANDROID || UNITY_ANDROID
     public bool InterstitialAdIsLoaded { get { return this.interstitial.IsLoaded(); } }
+#endif
     public void RequestInterstitial()
     {
 #if UNITY_ANDROID
@@ -51,6 +66,7 @@ public class AdManager : MonoBehaviour
         string adUnitId = "unexpected_platform";
 #endif
 
+#if PLATFORM_ANDROID || UNITY_ANDROID
         // Initialize an InterstitialAd.
         this.interstitial = new InterstitialAd(adUnitId);
 
@@ -73,9 +89,12 @@ public class AdManager : MonoBehaviour
         // Load the interstitial with the request.
         this.interstitial.LoadAd(request);
 
+#endif
+
     }
     public async UniTask ShowInterstitial()
     {
+#if PLATFORM_ANDROID || UNITY_ANDROID
         if (interstitial == null)
         {
             RequestInterstitial();
@@ -91,17 +110,22 @@ public class AdManager : MonoBehaviour
         // }
         await UniTask.WaitUntil(() => interstitial == null);
 
+#endif
+
     }
     public void CleanupInterstitial()
     {
+#if PLATFORM_ANDROID || UNITY_ANDROID
         this.interstitial.Destroy();
         this.interstitial = null;
          GameManager.Instance.ResumeGame();
         IsTryingToRunAd = false;
+#endif
     }
     [Button]
     public void ShowAdPopupToContinue()
     {
+#if PLATFORM_ANDROID || UNITY_ANDROID
         IsTryingToRunAd = true;
         RequestInterstitial();
         GameManager.Instance.PauseGame();
@@ -109,8 +133,9 @@ public class AdManager : MonoBehaviour
         GameManager.Instance.SetAuto(false);
 
         ShowAdPopup.SetActive(true);
-        DialogueSystem.Instance.dialogueUIManager.DisableCTC();
-        DialogueSystem.Instance.dialogueUIManager.HideUI();
+        DialogueSystemManager.Instance.dialogueUIManager.DisableCTC();
+        DialogueSystemManager.Instance.dialogueUIManager.HideUI();
+#endif
     }
     public void ShowGDPRConsent()
     {
@@ -119,7 +144,7 @@ public class AdManager : MonoBehaviour
     }
 
 
-
+#if PLATFORM_ANDROID || UNITY_ANDROID
     public void HandleOnAdLoaded(object sender, EventArgs args)
     {
         MonoBehaviour.print("HandleAdLoaded event received");
@@ -148,11 +173,9 @@ public class AdManager : MonoBehaviour
         MonoBehaviour.print("HandleAdLeavingApplication event received");
         CleanupInterstitial();
     }
+#endif
 
 
 
 
 }
-
-
-#endif

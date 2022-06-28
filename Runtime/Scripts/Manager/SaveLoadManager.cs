@@ -15,6 +15,10 @@ public class SpriteSaveData
     public Vector3 position;
     public SpriteSaveData() { }
 }
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class SaveData
 {
     public string inkData;
@@ -125,7 +129,7 @@ public class SaveLoadManager : SerializedMonoBehaviour
                 await GameManager.Instance.TakeScreenshot();
                 string date = "Autosave: " + System.DateTime.Now.ToString("dddd, MMM dd yyyy, hh:mm");
 
-                var save = new SaveData(DialogueSystem.Instance.Story.state.ToJson(),
+                var save = new SaveData(DialogueSystemManager.Instance.Story.state.ToJson(),
                 GameManager.Instance.currentScreenshot, date);
 
                 save.spriteSaveDatas = ImageManager.Instance.GetAllCharacterOnScreenSaveData();
@@ -141,7 +145,7 @@ public class SaveLoadManager : SerializedMonoBehaviour
                 save.currentBGSize = ImageManager.Instance.BGCamera.orthographicSize;
                 save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
-                save.dialogueHistory = DialogueSystem.Instance.sessionDialogueHistory;
+                save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
                 save.isTinted = ImageManager.Instance.darkTintOn;
                 var filePath = autoSaveNamePrefix + extension;
                 SaveGame(SaveLoadManager.Instance.CreateSavePath("Saves/" + filePath), save);
@@ -215,18 +219,18 @@ public class SaveLoadManager : SerializedMonoBehaviour
 
         GameManager.Instance.SetSkipping(false);
         GameManager.Instance.SetAuto(false);
-        if (DialogueSystem.Instance != null)
+        if (DialogueSystemManager.Instance != null)
         {
             Debug.Log("please run cancellation on ds");
-            DialogueSystem.Instance.RunCancellationToken();
-            Destroy(DialogueSystem.Instance.gameObject);
+            DialogueSystemManager.Instance.RunCancellationToken();
+            Destroy(DialogueSystemManager.Instance.gameObject);
         }
         AudioManager.Instance.StopMusic(1);
         AudioManager.Instance.StopAllAmbient(1);
         await SceneTransitionManager.Instance.LoadScene("Ingame", 0, doFadeIn: false);
         try
         {
-            SettingsManager.Instance.CloseSettings();
+            MenuManager.Instance.CloseSettings();
         }
         catch
         {
@@ -289,4 +293,5 @@ public class SaveLoadManager : SerializedMonoBehaviour
     }
 
 
+}
 }

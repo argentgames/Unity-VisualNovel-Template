@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UnityEngine.UI;
+
+namespace com.argentgames.visualnoveltemplate
+{
 [RequireComponent(typeof(Selectable))]
 public class UIButtonInteraction : MonoBehaviour
 {
@@ -58,4 +61,5 @@ public class UIButtonInteraction : MonoBehaviour
         Debug.Log("who is playing a ui sound: " + this.gameObject.name);
         AudioManager.Instance.PlaySFX(EventSound);
     }
+}
 }

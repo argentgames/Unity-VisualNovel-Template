@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class GDPRConsent : MonoBehaviour
 {
     [SerializeField]
@@ -13,7 +16,7 @@ public class GDPRConsent : MonoBehaviour
     {
         close.OnClickAsObservable().Subscribe(val =>
         {
-            GameManager.Instance.Settings.gdprConsent = true;
+            GameManager.Instance.PersistentGameData.gdprConsent = true;
         }).AddTo(this);
     }
 
@@ -29,4 +32,5 @@ public class GDPRConsent : MonoBehaviour
 		// if( SimpleGDPR.IsDialogVisible )
 			// return;
     }
+}
 }

@@ -9,22 +9,49 @@ using UniRx;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+
+namespace com.argentgames.visualnoveltemplate
+{
+
+
+/// <summary>
+/// The big brain in the game~!
+/// Holds all the config and defaults.
+/// Controls game state, e.g. PAUSE, AUTODialogue, SKIPDialogue
+/// </summary>
 public class GameManager : SerializedMonoBehaviour
 {
+    public static GameManager Instance { get; set; }
+
+    [PropertyTooltip("Default config values such as transition rate between backgrounds, transition texture, text unwrap speed, etc.")]
     [SerializeField]
-    private GlobalDefinitions globalDefinitions;
+    [Required]
+    private DefaultConfig defaultConfig;
+    public DefaultConfig DefaultConfig { get { return defaultConfig; } }
+
     [SerializeField]
-    private SettingsData_SO settings;
+    [PropertyTooltip("Persistent game settings across all game sessions such as volume and screen resolution.")]
+    [Required]
+    private Settings_SO settings;
+    public Settings_SO Settings { get { return settings; } }
+
     [SerializeField]
+    [PropertyTooltip("Persistent game data such as all texts seen, routes currently unlocked, and cgs current unlocked.")]
+    [Required]
+    private PersistentGameData_SO persistentGameData;
+    public PersistentGameData_SO PersistentGameData { get { return persistentGameData;}}
+    
+    [SerializeField]
+    [PropertyTooltip("Texts that are reused throughout the game, such as quote characters and menu texts.")]
     private GenericTexts_SO genericTexts;
     public GenericTexts_SO GenericTexts { get { return genericTexts; } }
-    public static GameManager Instance { get; set; }
+    
     [SerializeField]
+    [PropertyTooltip("All characters that speak in the game.")]
+    [Required]
     private NPCBank_SO characterDatabase;
-    public Dictionary<NPC_NAME, NPC_SO> NamedCharacterDatabase;
-    private Dictionary<string, NPC_SO> _characterDatabase;
-    public SettingsData_SO Settings { get { return settings; } }
-    public GlobalDefinitions GlobalDefinitions { get { return globalDefinitions; } }
+    
+    
 
     // public Camera bgCamera, spriteCamera;
 
@@ -76,10 +103,8 @@ public class GameManager : SerializedMonoBehaviour
         {
             Instance = this;
         }
-        NamedCharacterDatabase = characterDatabase.namedNPCDatabase;
 
 
-        _characterDatabase = characterDatabase.allNPCDatabase;
         await UniTask.WaitUntil(() => SaveLoadManager.Instance != null);
         // load settings
         SaveLoadManager.Instance.LoadSettings();
@@ -88,22 +113,14 @@ public class GameManager : SerializedMonoBehaviour
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 #endif
 
-        this.currentScreenshot = globalDefinitions.defaultNullTexture;
+        this.currentScreenshot = defaultConfig.defaultNullTexture;
 
     }
 
 
     public NPC_SO GetNPC(string npcName)
     {
-        try
-        {
-            return _characterDatabase[npcName];
-        }
-        catch
-        {
-            Debug.LogWarningFormat("Character database does not contain npc: {0}", npcName);
-            return _characterDatabase["narrator"];
-        }
+        return characterDatabase.GetNPC(npcName);
 
     }
 
@@ -153,7 +170,7 @@ public class GameManager : SerializedMonoBehaviour
         catch (Exception e)
         {
             Debug.LogErrorFormat("couldn't save screenshot, using default null textureee, exception {0}",e);
-            currentScreenshot = GlobalDefinitions.defaultNullTexture;
+            currentScreenshot = DefaultConfig.defaultNullTexture;
         }
 
 #if PLATFORM_ANDROID
@@ -181,7 +198,7 @@ public class GameManager : SerializedMonoBehaviour
         Time.timeScale = 0;
         if (SceneManager.GetActiveScene().name == "Ingame")
         {
-            DialogueSystem.Instance.dialogueUIManager.PauseTypewriter();
+            DialogueSystemManager.Instance.DialogueUIManager.PauseTypewriter();
         }
     }
     [Button]
@@ -191,9 +208,9 @@ public class GameManager : SerializedMonoBehaviour
         Time.timeScale = 1;
         if (SceneManager.GetActiveScene().name == "Ingame")
         {
-            if (DialogueSystem.Instance.dialogueUIManager.IsDisplayingLine)
+            if (DialogueSystemManager.Instance.DialogueUIManager.IsDisplayingLine)
             {
-                DialogueSystem.Instance.dialogueUIManager.ContinueTypewriter();
+                DialogueSystemManager.Instance.DialogueUIManager.ContinueTypewriter();
 
             }
 
@@ -234,4 +251,5 @@ public class GameManager : SerializedMonoBehaviour
             File.Delete(sspath);
         }
     }
+}
 }

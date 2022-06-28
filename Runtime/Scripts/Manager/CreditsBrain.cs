@@ -8,77 +8,84 @@ using Cysharp.Threading.Tasks;
 using System.Threading.Tasks;
 using UniRx;
 using System.Threading;
-public class CreditsBrain : MonoBehaviour
+
+namespace com.argentgames.visualnoveltemplate
 {
-    [SerializeField]
-    GameObject goToMove;
-    [SerializeField]
-    TMP_Text creditsText;
-    [SerializeField]
-    float scrollingDuration, fadeinDuration, startY, endY;
-    PlayerControls _playerControls;
-    Sequence sequence;
-    CancellationTokenSource cts;
-    CancellationToken ct;
-    // Start is called before the first frame update
-    void Awake()
-    {
-        cts = new CancellationTokenSource();
-        ct = cts.Token;
-        _playerControls = new PlayerControls();
-        
 
 
-    }
-    private void OnDisable()
+    public class CreditsBrain : MonoBehaviour
     {
-        _playerControls.Disable();
-    }
-    void OnEnable()
-    {
-        _playerControls.Enable();
-    }
-    async UniTaskVoid Start()
-    {
-        AudioManager.Instance.PlayMusic("credits",0);
-        creditsText.alpha = 0;
-        sequence = DOTween.Sequence();
-        sequence.Pause();
-        sequence.Join(creditsText.DOFade(1,fadeinDuration));
-        sequence.Join(goToMove.transform.DOLocalMoveY(endY,scrollingDuration).From(startY).SetEase(Ease.Linear));
-        sequence.AppendInterval(3f);
-        sequence.AppendCallback(() => EndCredits());
-        SceneTransitionManager.Instance.FadeIn(1f);
-        await UniTask.Delay(System.TimeSpan.FromSeconds(.5f));
-        sequence.Play();
+        [SerializeField]
+        GameObject goToMove;
+        [SerializeField]
+        TMP_Text creditsText;
+        [SerializeField]
+        float scrollingDuration, fadeinDuration, startY, endY;
+        PlayerControls _playerControls;
+        Sequence sequence;
+        CancellationTokenSource cts;
+        CancellationToken ct;
+        // Start is called before the first frame update
+        void Awake()
+        {
+            cts = new CancellationTokenSource();
+            ct = cts.Token;
+            _playerControls = new PlayerControls();
 
-        _playerControls.UI.Click.performed += ctx =>
-       {
-           if (GameManager.Instance.Settings.watchedCredits)
+
+
+        }
+        private void OnDisable()
+        {
+            _playerControls.Disable();
+        }
+        void OnEnable()
+        {
+            _playerControls.Enable();
+        }
+        async UniTaskVoid Start()
+        {
+            AudioManager.Instance.PlayMusic("credits", 0);
+            creditsText.alpha = 0;
+            sequence = DOTween.Sequence();
+            sequence.Pause();
+            sequence.Join(creditsText.DOFade(1, fadeinDuration));
+            sequence.Join(goToMove.transform.DOLocalMoveY(endY, scrollingDuration).From(startY).SetEase(Ease.Linear));
+            sequence.AppendInterval(3f);
+            sequence.AppendCallback(() => EndCredits());
+            SceneTransitionManager.Instance.FadeIn(1f);
+            await UniTask.Delay(System.TimeSpan.FromSeconds(.5f));
+            sequence.Play();
+
+            _playerControls.UI.Click.performed += ctx =>
            {
-               EndCredits();
-               cts.Cancel();
-           }
-       };
+               if (GameManager.Instance.PersistentGameData.watchedCredits)
+               {
+                   EndCredits();
+                   cts.Cancel();
+               }
+           };
 
-        SettingsManager.Instance.EnableSettingsUIControls();
+            MenuManager.Instance.EnableSettingsUIControls();
 
-        // await sequence.WithCancellation(ct);
-        
+            // await sequence.WithCancellation(ct);
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+        }
+
+        async UniTaskVoid EndCredits()
+        {
+            GameManager.Instance.PersistentGameData.watchedCredits = true;
+            AudioManager.Instance.StopMusic(0);
+            await SceneTransitionManager.Instance.FadeToBlack(2.5f);
+            await UniTask.Delay(System.TimeSpan.FromSeconds(2));
+            SceneTransitionManager.Instance.LoadScene("MainMenu", 0, 2f);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    async UniTaskVoid EndCredits()
-    {
-        GameManager.Instance.Settings.watchedCredits = true;
-        AudioManager.Instance.StopMusic(0);
-        await SceneTransitionManager.Instance.FadeToBlack(2.5f);
-        await UniTask.Delay(System.TimeSpan.FromSeconds(2));
-        SceneTransitionManager.Instance.LoadScene("MainMenu",0,2f);
-    }
 }

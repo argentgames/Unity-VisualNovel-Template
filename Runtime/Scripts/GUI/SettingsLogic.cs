@@ -4,6 +4,10 @@ using UnityEngine;
 using DG.Tweening;
 using Cysharp.Threading.Tasks;
 
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class SettingsLogic : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -24,4 +28,5 @@ public class SettingsLogic : MonoBehaviour
         
     }
 
+}
 }
