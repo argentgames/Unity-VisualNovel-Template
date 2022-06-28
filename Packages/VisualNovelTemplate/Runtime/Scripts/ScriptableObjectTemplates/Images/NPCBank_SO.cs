@@ -18,39 +18,40 @@ public enum NPC_NAME
     HERMIA,
     GAGNEF
 }
-public class NPCBank_SO : SerializedScriptableObject
+namespace com.argentgames.visualnoveltemplate
 {
-    public Dictionary<NPC_NAME, NPC_SO> namedNPCDatabase = new Dictionary<NPC_NAME, NPC_SO>();
-    public Dictionary<string,NPC_SO> allNPCDatabase = new Dictionary<string, NPC_SO>();
-
-    private void OnEnable()
+    public class NPCBank_SO : SerializedScriptableObject
     {
-        allNPCDatabase.Clear();
-        namedNPCDatabase.Clear();
-
-        var loadStuff = Resources.LoadAll("Characters",typeof(NPC_SO));
-        for (int i=0; i < loadStuff.Length; i++)
+        public Dictionary<string, NPC_SO> allNPCDatabase = new Dictionary<string, NPC_SO>();
+        [SerializeField]
+        [PropertyTooltip("The Resources/<characterDir> locatino to automatically populate our NPCBank with.")]
+        string characterDir = "Characters";
+        private void OnEnable()
         {
-            var npc = (NPC_SO)loadStuff[i];
-            if (!allNPCDatabase.ContainsValue(npc))
+            allNPCDatabase.Clear();
+
+            var loadStuff = Resources.LoadAll(characterDir, typeof(NPC_SO));
+            for (int i = 0; i < loadStuff.Length; i++)
             {
-                allNPCDatabase[npc.internalName] = npc;
+                var npc = (NPC_SO)loadStuff[i];
+                if (!allNPCDatabase.ContainsValue(npc))
+                {
+                    allNPCDatabase[npc.internalName] = npc;
+                }
+
             }
-            if (npc.npcName != NPC_NAME.OTHER)
-            {
-                namedNPCDatabase.Add(npc.npcName,npc);
-            }
+
         }
 
+        public NPC_SO GetNPC(string npcName)
+        {
+            if (!allNPCDatabase.ContainsKey(npcName))
+            {
+                Debug.LogErrorFormat("{0} not in npcDatabase!", npcName);
+                return null;
+            }
+            return allNPCDatabase[npcName];
+        }
     }
 
-    public NPC_SO GetNPC(NPC_NAME npcName)
-    {
-        if (!namedNPCDatabase.ContainsKey(npcName))
-        {
-            Debug.LogErrorFormat("{0} not in npcDatabase!",npcName);
-            return null;
-        }
-        return namedNPCDatabase[npcName];
-    }
 }

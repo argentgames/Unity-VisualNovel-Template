@@ -8,6 +8,10 @@ using Sirenix.OdinInspector;
 using UniRx;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
+
+namespace com.argentgames.visualnoveltemplate
+{
+
 public class LoadPage : MonoBehaviour
 {
     [SerializeField]
@@ -147,4 +151,6 @@ if (SaveLoadManager.Instance.saveFiles.ContainsKey(filePath))
         await SceneTransitionManager.Instance.FadeToBlack(2f);
         SaveLoadManager.Instance.LoadGame(filePath);
     }
+}
+
 }

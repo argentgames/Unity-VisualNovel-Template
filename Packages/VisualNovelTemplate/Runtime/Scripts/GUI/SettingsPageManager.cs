@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using TMPro;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class SettingsPageManager : MonoBehaviour
 {
     [SerializeField]
@@ -237,4 +240,5 @@ public class SettingsPageManager : MonoBehaviour
 
 
     }
+}
 }

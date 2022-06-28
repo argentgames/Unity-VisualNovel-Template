@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
+namespace com.argentgames.visualnoveltemplate
+{
+
 public class SpriteWrapperController : SerializedMonoBehaviour
 {
     [SerializeField]
-    SpriteNPC_SO npc;
+    NPC_SO npc;
 
     public string currentExpression
     {
@@ -52,9 +55,9 @@ public class SpriteWrapperController : SerializedMonoBehaviour
 
         // this is dumb but hardcoding 
         // TECHDEBT:
-        if (DialogueSystem.Instance != null)
+        if (DialogueSystemManager.Instance != null)
         {
-            if ((bool)DialogueSystem.Instance.Story.variablesState["sidepanel"])
+            if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
             {
                 s.position = this.transform.parent.parent.position;
             }
@@ -75,4 +78,5 @@ public class SpriteWrapperController : SerializedMonoBehaviour
     {
 
     }
+}
 }

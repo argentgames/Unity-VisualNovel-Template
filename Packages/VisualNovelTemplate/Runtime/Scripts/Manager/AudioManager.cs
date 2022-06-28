@@ -7,6 +7,10 @@ using Sirenix.OdinInspector;
 using UniRx;
 using Cysharp.Threading.Tasks;
 
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
@@ -287,19 +291,4 @@ public class AudioManager : MonoBehaviour
 }
 
 
-public enum SoundType
-{
-    Music,
-    SFX,
-    Ambient
-}
-public enum UIEventType
-{
-    Use,
-    Drag,
-    Hover,
-    Pause,
-    UnPause,
-    Drop,
-    Close
 }

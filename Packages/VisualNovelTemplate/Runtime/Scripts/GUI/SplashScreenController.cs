@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class SplashScreenController : MonoBehaviour
 {
     
@@ -14,4 +17,5 @@ public class SplashScreenController : MonoBehaviour
         SaveLoadManager.Instance.LoadSaveFiles().Forget();
         AudioManager.Instance.GetFMODBuses();
     }
+}
 }

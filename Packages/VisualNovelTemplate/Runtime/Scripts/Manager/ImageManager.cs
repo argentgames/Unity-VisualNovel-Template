@@ -10,6 +10,10 @@ using DG.Tweening;
 using Sirenix.Serialization;
 using System.Threading;
 
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class ImageManager : SerializedMonoBehaviour
 {
     public static ImageManager Instance;
@@ -122,7 +126,7 @@ public class ImageManager : SerializedMonoBehaviour
             var p = (Vector3)position;
             if (p.z == 0)
             {
-                p.z = GameManager.Instance.GlobalDefinitions.defaultBGCameraPosition.z;
+                p.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
             }
             camera.transform.position = p;
         }
@@ -136,7 +140,7 @@ public class ImageManager : SerializedMonoBehaviour
             var _s = (float)size;
             if (_s == 0)
             {
-                _s = GameManager.Instance.GlobalDefinitions.defaultBGCameraSize;
+                _s = GameManager.Instance.DefaultConfig.defaultBGCameraSize;
             }
 
             camera.orthographicSize = _s;
@@ -149,7 +153,7 @@ public class ImageManager : SerializedMonoBehaviour
             var p = (Vector3)position;
             if (p.z == 0)
             {
-                p.z = GameManager.Instance.GlobalDefinitions.defaultBGCameraPosition.z;
+                p.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
             }
             BGCamera.transform.position = p;
         }
@@ -163,7 +167,7 @@ public class ImageManager : SerializedMonoBehaviour
             var _s = (float)size;
             if (_s == 0)
             {
-                _s = GameManager.Instance.GlobalDefinitions.defaultBGCameraSize;
+                _s = GameManager.Instance.DefaultConfig.defaultBGCameraSize;
             }
 
             BGCamera.orthographicSize = _s;
@@ -232,7 +236,7 @@ public class ImageManager : SerializedMonoBehaviour
         sequence = DOTween.Sequence();
         sequence.Pause();
         // if bg shot is black, turn off the noise
-        var noiseOpacity = GameManager.Instance.GlobalDefinitions.bgNoiseOpacity;
+        var noiseOpacity = GameManager.Instance.DefaultConfig.bgNoiseOpacity;
         float noiseStartTime = .8f * duration;
         float noiseDuration = .2f * duration;
         bool toggleParticleSystem = true;
@@ -370,7 +374,7 @@ public class ImageManager : SerializedMonoBehaviour
             case "position":
                 if (newPosition.z == 0)
                 {
-                    newPosition.z = GameManager.Instance.GlobalDefinitions.defaultBGCameraPosition.z;
+                    newPosition.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
                 }
                 sequence.Join(
                     BGCamera.transform.DOLocalMove(newPosition, duration)
@@ -428,14 +432,14 @@ public class ImageManager : SerializedMonoBehaviour
     // }
     public async UniTask SpawnCharFromSave(string charName, SpriteSaveData saveData)
     {
-        var npc = (SpriteNPC_SO)DialogueSystem.Instance.GetNPC(charName);
+        var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
         GameObject charSprite;
         AssetReference assetToLoad;
-        if ((bool)DialogueSystem.Instance.Story.variablesState["sidepanel"])
+        if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
         {
-            if (npc.sideSprite != null)
+            if (npc.portraitSprite != null)
             {
-                assetToLoad = npc.sideSprite;
+                assetToLoad = npc.portraitSprite;
             }
             else
             {
@@ -467,9 +471,9 @@ public class ImageManager : SerializedMonoBehaviour
     {
         if (duration == null)
         {
-            duration = (float)GameManager.Instance.GlobalDefinitions.spawnCharacterDuration;
+            duration = (float)GameManager.Instance.DefaultConfig.spawnCharacterDuration;
         }
-        var npc = (SpriteNPC_SO)DialogueSystem.Instance.GetNPC(charName);
+        var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
         GameObject charSprite;
         Debug.LogFormat("SpawnChar parmas: {0}, {1}, {2}", charName, expression, location);
         if (!charactersOnScreen.ContainsKey(charName.TrimStart(null).TrimEnd(null)))
@@ -477,11 +481,11 @@ public class ImageManager : SerializedMonoBehaviour
             Debug.Log("need to spawn new char");
             AssetReference assetToLoad = new AssetReference();
 
-            if ((bool)DialogueSystem.Instance.Story.variablesState["sidepanel"])
+            if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
             {
-                if (npc.sideSprite != null)
+                if (npc.portraitSprite != null)
                 {
-                    assetToLoad = npc.sideSprite;
+                    assetToLoad = npc.portraitSprite;
                 }
                 else
                 {
@@ -505,7 +509,7 @@ public class ImageManager : SerializedMonoBehaviour
 
         npc.SetInitialExpression(charSprite, expression);
         // Debug.Log(charactersOnScreen.Count);
-        if (!((bool)DialogueSystem.Instance.Story.variablesState["sidepanel"]))
+        if (!((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"]))
         {
             if (location == null)
             {
@@ -524,7 +528,7 @@ public class ImageManager : SerializedMonoBehaviour
         // Debug.Break();
 
         // TECHDEBT: sidepanel is basically a portrait so we want instant show
-        if ((bool)DialogueSystem.Instance.Story.variablesState["sidepanel"])
+        if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
         {
             duration = 0;
         }
@@ -552,7 +556,7 @@ public class ImageManager : SerializedMonoBehaviour
         { duration = 0.002f; }
         else
         {
-            duration = GameManager.Instance.GlobalDefinitions.spawnCharacterDuration;
+            duration = GameManager.Instance.DefaultConfig.spawnCharacterDuration;
         }
         if (!go.activeSelf)
         {
@@ -602,7 +606,7 @@ public class ImageManager : SerializedMonoBehaviour
         // animate showing with transition and duration
         if (!GameManager.Instance.IsSkipping)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.GlobalDefinitions.delayBeforeShowText));
+            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText));
         }
         else
         {
@@ -626,7 +630,7 @@ public class ImageManager : SerializedMonoBehaviour
         var go = charactersOnScreen[charName];
         if (duration == null)
         {
-            duration = GameManager.Instance.GlobalDefinitions.hideCharacterDuration;
+            duration = GameManager.Instance.DefaultConfig.hideCharacterDuration;
         }
         if (GameManager.Instance.IsSkipping)
         { duration = 0; }
@@ -679,7 +683,7 @@ public class ImageManager : SerializedMonoBehaviour
 
         //exp sandwich is currExp > newExp 
         // set new exp, fade out currexp, set currexp=newexp, 
-        var npc = (SpriteNPC_SO)DialogueSystem.Instance.GetNPC(charName);
+        var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
         currentNPC = npc;
         // if it's a portrait char, then get the portrait one, otherwise get the main big sprite
         // GameObject char_;
@@ -690,13 +694,17 @@ public class ImageManager : SerializedMonoBehaviour
             char_ = charactersOnScreen[charName];
         }
         else
+        
         {
             Debug.Log(charactersOnScreen.Count);
             foreach (var k in charactersOnScreen.Keys)
             {
                 Debug.LogFormat("char on screen: {0}", k);
             }
-            char_ = portraitPresenter.GetCharGO(npc.npcName);
+            /// TECHDEBT, commenting out for now...
+            /// GetCharGO used to get the current speaking character game object so that we could change its expression and/or make it visible.
+            // char_ = portraitPresenter.GetCharGO(npc.npcName);
+            char_ = null;
             needToShowPortrait = true;
         }
 
@@ -716,7 +724,7 @@ public class ImageManager : SerializedMonoBehaviour
 
         if (duration == null || duration == -1)
         {
-            duration = GameManager.Instance.GlobalDefinitions.expressionChangeDuration;
+            duration = GameManager.Instance.DefaultConfig.expressionChangeDuration;
         }
         if (GameManager.Instance.IsSkipping)
         {
@@ -736,7 +744,7 @@ public class ImageManager : SerializedMonoBehaviour
 
         if (!GameManager.Instance.IsSkipping)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.GlobalDefinitions.delayBeforeShowText));
+            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText));
         }
         else
         {
@@ -765,4 +773,5 @@ public class ImageManager : SerializedMonoBehaviour
         BGCamera.orthographicSize = shot.size;
         await ShowBG(shot.bgName);
     }
+}
 }

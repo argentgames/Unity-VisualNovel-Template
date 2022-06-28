@@ -7,6 +7,9 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using Cysharp.Threading.Tasks;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class SettingsPresenter : SerializedMonoBehaviour
 {
     SettingsLogic settingsLogic;
@@ -61,15 +64,15 @@ public class SettingsPresenter : SerializedMonoBehaviour
 
     async UniTaskVoid ConfirmMMPanelLogic()
     {
-        if (DialogueSystem.Instance != null)
+        if (DialogueSystemManager.Instance != null)
         {
-            DialogueSystem.Instance.RunCancellationToken();
+            DialogueSystemManager.Instance.RunCancellationToken();
         }
         GameManager.Instance.ResumeGame();
         AudioManager.Instance.StopMusic(1f);
         AudioManager.Instance.StopAllAmbient(1f);
         await SceneTransitionManager.Instance.FadeToBlack(2);
-        SettingsManager.Instance.CloseSettings();
+        MenuManager.Instance.CloseSettings();
         await UniTask.Delay(System.TimeSpan.FromSeconds(1));
         SceneTransitionManager.Instance.LoadScene("MainMenu", 0);
     }
@@ -126,7 +129,7 @@ public class SettingsPresenter : SerializedMonoBehaviour
 
         back.OnClickAsObservable().Subscribe(val =>
         {
-            SettingsManager.Instance.CloseSettings();
+            MenuManager.Instance.CloseSettings();
         }).AddTo(this);
     }
 
@@ -180,5 +183,7 @@ public class SettingsPresenter : SerializedMonoBehaviour
         }
         this.gameObject.SetActive(true);
     }
+
+}
 
 }

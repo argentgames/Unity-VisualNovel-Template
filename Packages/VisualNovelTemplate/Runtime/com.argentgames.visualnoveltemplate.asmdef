@@ -1,6 +1,6 @@
 {
     "name": "com.argentgames.visualnoveltemplate",
-    "rootNamespace": "com.argentgames",
+    "rootNamespace": "com.argentgames.visualnoveltemplate",
     "references": [
         "UniTask",
         "UniRx",

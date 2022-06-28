@@ -5,6 +5,10 @@ using Cysharp.Threading.Tasks;
 using System;
 using Ink.Runtime;
 using System.Threading;
+
+namespace com.argentgames.visualnoveltemplate
+{
+
 public class IngameSceneBrain : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -20,16 +24,16 @@ public class IngameSceneBrain : MonoBehaviour
         dialogueUIManager.HideUI();
         var customInkFunctions = GameObject.FindObjectOfType<CustomInkFunctions>();
         await UniTask.WaitUntil(() => customInkFunctions.registeredFunctions);
-        DialogueSystem.Instance.Story.ResetState();
-        story = DialogueSystem.Instance.Story;
+        DialogueSystemManager.Instance.Story.ResetState();
+        story = DialogueSystemManager.Instance.Story;
         // await UniTask.Delay(TimeSpan.FromSeconds(1));
 
         if (SaveLoadManager.Instance.currentSave != null)
         {
             Debug.Log("setting up save data like images...");
             var currentSave = SaveLoadManager.Instance.currentSave;
-            DialogueSystem.Instance.Story.state.LoadJson(SaveLoadManager.Instance.currentSave.inkData);
-            DialogueSystem.Instance.DialogueHistory = SaveLoadManager.Instance.currentSave.dialogueHistory;
+            DialogueSystemManager.Instance.Story.state.LoadJson(SaveLoadManager.Instance.currentSave.inkData);
+            DialogueSystemManager.Instance.PersistentDialogueHistory = SaveLoadManager.Instance.currentSave.dialogueHistory;
             ImageManager.Instance.SetTint(currentSave.isTinted);
             List<UniTask> tasks = new List<UniTask>();
             tasks.Add(ImageManager.Instance.ShowBG(currentSave.currentShot,duration:0));
@@ -70,8 +74,8 @@ public class IngameSceneBrain : MonoBehaviour
                 AudioManager.Instance.PlayAmbient(currentSave.currentAmbient3, 2, .3f);
             }
 
-            MC_NPC_SO mc = (MC_NPC_SO)GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];
-            mc.DisplayName =  (string)DialogueSystem.Instance.Story.variablesState["mc_name"];
+            // MC_NPC_SO mc = (MC_NPC_SO)GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];
+            // mc.DisplayName =  (string)DialogueSystemManager.Instance.Story.variablesState["mc_name"];
             await UniTask.WhenAll(tasks);
             ImageManager.Instance.SetAllCharactersOnScreenActive();
         }
@@ -79,11 +83,11 @@ public class IngameSceneBrain : MonoBehaviour
         else
         {
 
-            MC_NPC_SO mc = (MC_NPC_SO)GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];
-            if (mc.DisplayName != "")
-            {
-                 DialogueSystem.Instance.Story.variablesState["mc_name"] = mc.DisplayName;
-            }
+            // MC_NPC_SO mc = (MC_NPC_SO)GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];
+            // if (mc.DisplayName != "")
+            // {
+            //      DialogueSystemManager.Instance.Story.variablesState["mc_name"] = mc.DisplayName;
+            // }
            
 
         }
@@ -93,5 +97,7 @@ public class IngameSceneBrain : MonoBehaviour
     }
 
 
+
+}
 
 }

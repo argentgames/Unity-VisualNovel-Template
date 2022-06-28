@@ -8,6 +8,11 @@ using Sirenix.OdinInspector;
 using UniRx;
 using System.IO;
 using Cysharp.Threading.Tasks;
+
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class SavePage : MonoBehaviour
 {
     [SerializeField]
@@ -140,7 +145,7 @@ public class SavePage : MonoBehaviour
         ss.date.text = date;
         ss.emptyText.text = "";
 
-        var save = new SaveData(DialogueSystem.Instance.Story.state.ToJson(),
+        var save = new SaveData(DialogueSystemManager.Instance.Story.state.ToJson(),
         GameManager.Instance.currentScreenshot, date);
 
         save.spriteSaveDatas = ImageManager.Instance.GetAllCharacterOnScreenSaveData();
@@ -156,7 +161,7 @@ public class SavePage : MonoBehaviour
         save.currentBGSize = ImageManager.Instance.BGCamera.orthographicSize;
         save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
-        save.dialogueHistory = DialogueSystem.Instance.sessionDialogueHistory;
+        save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
         save.isTinted = ImageManager.Instance.darkTintOn;
 
         Debug.Log("now waiting for currentScreenshot != null");
@@ -169,4 +174,6 @@ public class SavePage : MonoBehaviour
         SaveLoadManager.Instance.saveFiles[filePath] = save;
 
     }
+}
+
 }

@@ -4,6 +4,11 @@ using System;
 using UnityEngine;
 using Ink.Runtime;
 using Cysharp.Threading.Tasks;
+
+namespace com.argentgames.visualnoveltemplate
+{
+
+
 public class CustomInkFunctions : MonoBehaviour
 {
     Story _inkStory;
@@ -12,8 +17,8 @@ public class CustomInkFunctions : MonoBehaviour
     public bool registeredFunctions = false;
     async UniTaskVoid Awake()
     {
-        await UniTask.WaitWhile(() => DialogueSystem.Instance == null);
-        _inkStory = GetComponent<DialogueSystem>().Story;
+        await UniTask.WaitWhile(() => DialogueSystemManager.Instance == null);
+        _inkStory = GetComponent<DialogueSystemManager>().Story;
         await UniTask.WaitWhile(() => AudioManager.Instance == null);
         audioManager = AudioManager.Instance;
         await UniTask.WaitWhile(() => ImageManager.Instance == null);
@@ -135,4 +140,5 @@ public class CustomInkFunctions : MonoBehaviour
         
     }
 
+}
 }

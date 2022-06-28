@@ -5,6 +5,9 @@ using UnityEngine.UI;
 using TMPro;
 using UniRx;
 using UnityEngine.EventSystems;
+
+namespace com.argentgames.visualnoveltemplate
+{
 public class CharacterCustomizationPresenter : MonoBehaviour
 {
     [SerializeField]
@@ -17,7 +20,7 @@ public class CharacterCustomizationPresenter : MonoBehaviour
     {
 
         // TECHDEBT manually reset mc displayname to default
-        ((MC_NPC_SO) GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC]).DisplayName = "Mika";
+        // ((MC_NPC_SO) GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC]).DisplayName = "Mika";
         SetRXSubscriptions();
         _playerControls = new PlayerControls();
     }
@@ -41,23 +44,24 @@ public class CharacterCustomizationPresenter : MonoBehaviour
 
     private void SetRXSubscriptions()
     {
-        MC_NPC_SO mc = (MC_NPC_SO) GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];
-        nameInput.onValueChanged.AsObservable().Subscribe(val =>
-        {
-            mc.DisplayName = val;
+        // MC_NPC_SO mc = (MC_NPC_SO) GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];
+        // nameInput.onValueChanged.AsObservable().Subscribe(val =>
+        // {
+        //     mc.DisplayName = val;
             
-        }).AddTo(this);
+        // }).AddTo(this);
 
-        finalize.OnClickAsObservable().Subscribe(val => 
-        {
-            if (mc.DisplayName == "")
-            {
-                mc.DisplayName = "Mika";
-            }
-            // TECHDEBT: change scene level name and the transition type/duration probably
-            AudioManager.Instance.StopMusic(3f);
-            SceneTransitionManager.Instance.LoadScene("Ingame",2f,1f,doStopSound: false);
-        }).AddTo(this);
+        // finalize.OnClickAsObservable().Subscribe(val => 
+        // {
+        //     if (mc.DisplayName == "")
+        //     {
+        //         mc.DisplayName = "Mika";
+        //     }
+        //     // TECHDEBT: change scene level name and the transition type/duration probably
+        //     AudioManager.Instance.StopMusic(3f);
+        //     SceneTransitionManager.Instance.LoadScene("Ingame",2f,1f,doStopSound: false);
+        // }).AddTo(this);
 
     }
+}
 }
