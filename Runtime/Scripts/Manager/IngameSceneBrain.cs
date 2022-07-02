@@ -33,7 +33,6 @@ public class IngameSceneBrain : MonoBehaviour
             Debug.Log("setting up save data like images...");
             var currentSave = SaveLoadManager.Instance.currentSave;
             DialogueSystemManager.Instance.Story.state.LoadJson(SaveLoadManager.Instance.currentSave.inkData);
-            DialogueSystemManager.Instance.PersistentDialogueHistory = SaveLoadManager.Instance.currentSave.dialogueHistory;
             ImageManager.Instance.SetTint(currentSave.isTinted);
             List<UniTask> tasks = new List<UniTask>();
             tasks.Add(ImageManager.Instance.ShowBG(currentSave.currentShot,duration:0));

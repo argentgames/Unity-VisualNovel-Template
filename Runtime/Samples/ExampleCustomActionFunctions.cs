@@ -479,15 +479,15 @@ namespace com.argentgames.visualnoveltemplate
                     Debug.Log("try to load scene?");
                     SceneTransitionManager.Instance.LoadScene(p[1], StringExtensions.ParseFloat(p[2]),
                     StringExtensions.ParseFloat(p[3]));
-                    DialogueSystemManager.Instance.endGame = true;
+                    DialogueSystemManager.Instance.SetEndGame(true);
                     break;
                 case "disablePlayerInput":
                     dialogueUIManager.DisableCTC();
-                    DialogueSystemManager.Instance.playerCanContinue = false;
+                    DialogueSystemManager.Instance.SetPlayerCanContinue(false);
                     break;
                 case "enablePlayerInput":
                     dialogueUIManager.EnableCTC();
-                    DialogueSystemManager.Instance.playerCanContinue = true;
+                    DialogueSystemManager.Instance.SetPlayerCanContinue(true);
                     break;
                 case "showAd":
 #if PLATFORM_ANDROID

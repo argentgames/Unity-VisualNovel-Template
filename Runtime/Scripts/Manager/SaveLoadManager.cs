@@ -38,6 +38,7 @@ public class SaveData
     public float currentBGSize;
     public List<DialogueHistoryLine> dialogueHistory = new List<DialogueHistoryLine>();
     public bool isTinted = false;
+    public string currentDialogueWindowMode = "";
     public SaveData(string saveData, Texture2D texture, string dateTime)
     {
         this.inkData = saveData;

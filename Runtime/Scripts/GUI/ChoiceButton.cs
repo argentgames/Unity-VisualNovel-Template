@@ -14,6 +14,7 @@ public class ChoiceButton : MonoBehaviour
     Sprite hasPreviouslySelectedChoiceStyle, hasPreviouslySelectedChoiceHoverStyle, regularChoiceStyle, regularHoverStyle;
     [SerializeField]
     TMP_Text choiceText;
+    public string pathString = "";
     
     // Start is called before the first frame update
     void Start()
@@ -29,7 +30,7 @@ public class ChoiceButton : MonoBehaviour
 
     void SetChoiceStyle()
     {
-        if (DialogueSystemManager.Instance.PreviouslySelectedChoice(choiceText.text))
+        if (DialogueSystemManager.Instance.PreviouslySelectedChoice(choiceText.text,pathString))
         {
             // TODO: set the styles hasPrevoiuslySelectedChoice styles
         }

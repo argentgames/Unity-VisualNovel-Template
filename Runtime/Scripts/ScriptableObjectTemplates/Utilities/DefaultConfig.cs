@@ -24,6 +24,9 @@ namespace com.argentgames.visualnoveltemplate
         public float spawnCharacterDuration = .3f;
         public float hideCharacterDuration = .3f;
         public float delayBeforeAutoNextLine = .5f;
+        [InfoBox("For now we only support changing text color for choices added to history. TODO: support style sheet!")]
+        [PropertyTooltip("If we are adding selected choices to history, what color should the text be?")]
+        public string historyChoiceColor = "#cfda5e";
 
         public float defaultBGCameraSize = 16f;
         [PropertyTooltip("How much Gaussian noise to apply to the background camera. Originally used in The Hepatica Spring.")]
