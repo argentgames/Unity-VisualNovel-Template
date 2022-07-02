@@ -9,6 +9,9 @@ using Cysharp.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+/// <summary>
+/// Manages dialogue system and all ink interfacing.
+/// </summary>
 namespace com.argentgames.visualnoveltemplate
 {
 
@@ -40,28 +43,23 @@ namespace com.argentgames.visualnoveltemplate
         Dictionary<string, GameObject> dialogueWindows = new Dictionary<string, GameObject>();
 
         /// <summary>
-        /// The dialogue lines that we have seen in a current play session. Resets if you load a save.
+        /// The dialogue lines that we have seen in a current play session. When you load a save, the lines seen in that save file are set to this variable.
         /// </summary>
         /// <typeparam name="DialogueHistoryLine"></typeparam>
         /// <returns></returns>
         public List<DialogueHistoryLine> currentSessionDialogueHistory = new List<DialogueHistoryLine>();
-        /// <summary>
-        /// All dialogue lines ever seen across multiple play sessions and saves. Used if we want to run "skip seen text".
-        /// </summary>
-        /// <typeparam name="DialogueHistoryLine"></typeparam>
-        /// <returns></returns>
-        private List<DialogueHistoryLine> persistentDialogueHistory = new List<DialogueHistoryLine>();
-        public List<DialogueHistoryLine> PersistentDialogueHistory { get { return persistentDialogueHistory; } set { this.persistentDialogueHistory = value; } }
 
         /// <summary>
         /// Used to block player input, e.g. if we don't want them to be able to skip the OP (on first playthrough...)
         /// </summary>
-        public bool playerCanContinue = true;
+        private bool playerCanContinue = true;
+        public bool PlayerCanContinue { get { return playerCanContinue; } }
 
         /// <summary>
         /// If we need to end the game, we want to ensure Ink no longer runs and such...?
         /// </summary>
-        public bool endGame = false;
+        private bool endGame = false;
+        public bool EndGame { get { return endGame;}}
         /// <summary>
         /// The Dialogue that we have already parsed for any characters, sprites, and extracted out the actual dialogue text line.
         /// </summary>
@@ -79,8 +77,6 @@ namespace com.argentgames.visualnoveltemplate
         Hash128 hash128 = new Hash128();
         void Awake()
         {
-            cts = new CancellationTokenSource();
-            ct = cts.Token;
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
@@ -90,17 +86,16 @@ namespace com.argentgames.visualnoveltemplate
                 Instance = this;
             }
 
-            story = new Story(_story.text);
-            dialogueUIManager = GetComponentInChildren<DialogueUIManager>();
-            currentSessionDialogueHistory.Clear();
+            cts = new CancellationTokenSource();
+            ct = cts.Token;
 
-            dialogueUIManager.DisableCTC();
-            playerCanContinue = false;
+            story = new Story(_story.text);
+            currentSessionDialogueHistory.Clear();
 
             customActionFunctions = GetComponent<CustomActionFunctions>();
 
-            // Spawn all the dialogue windows we want to use ingame and deactivate them
-            // hold a reference to them so we can select the one to use through ink!
+            // Spawn all the dialogue windows we want to use ingame and deactivate them.
+            // Hold a reference to them so we can select the one to use through ink!
             GameObject window;
             foreach (var dialogueWindowMode in dialogueWindowModes)
             {
@@ -124,7 +119,6 @@ namespace com.argentgames.visualnoveltemplate
         // URGENT: Need to update this because DSM is now persistent across all scenes, not just ingame!!!
         async UniTaskVoid Start()
         {
-            // RunCancellationToken();
             var brain = GameObject.FindObjectOfType<IngameSceneBrain>();
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             // Debug.LogError("waiting for brain to set up scene");
@@ -185,7 +179,6 @@ namespace com.argentgames.visualnoveltemplate
         {
             cts.Cancel();
             Debug.LogFormat("is cts cancellation requested {0}", cts.IsCancellationRequested);
-            Debug.Log("cancel pls... ds...");
             cts.Dispose();
             cts = new CancellationTokenSource();
             ct = cts.Token;
@@ -195,15 +188,16 @@ namespace com.argentgames.visualnoveltemplate
 
         /// <summary>
         /// TECHDEBT: Hacky hard coded way of giving a custom choice history style
+        /// Probably should replace with an actual stylesheet.
         /// </summary>
         /// <param name="choice"></param>
         public void AddSelectedChoiceToHistory(string choice)
         {
-            choice = "<color=#cfda5e>" + choice + "</color>";
+            choice = string.Format("<color={0}>{1}</color>",GameManager.Instance.DefaultConfig.historyChoiceColor, choice);
             var log = new DialogueHistoryLine();
             log.speaker = "";
             log.line = choice;
-            persistentDialogueHistory.Add(log);
+            GameManager.Instance.PersistentGameData.chosenChoices.Add(log.line);
             currentSessionDialogueHistory.Add(log);
 
         }
@@ -218,13 +212,13 @@ namespace com.argentgames.visualnoveltemplate
             // remove any inline << >> commands
             string pattern = @"<<.+?>>(?=\s?[a-zA-Z]?)";
             log.line = Regex.Replace(log.line, pattern, "");
-            persistentDialogueHistory.Add(log);
+            GameManager.Instance.PersistentGameData.seenText.Add(log.line);
             currentSessionDialogueHistory.Add(log);
         }
 
         /// <summary>
         /// We might want to give a custom choice history style.
-        /// NOT IMPLEMENTED!!!
+        /// NOT IMPLEMENTED!!! SWAP TO DEFAULTCONFIG!!!
         /// </summary>
         /// <param name="choice"></param>
         /// <returns></returns>
@@ -253,7 +247,7 @@ namespace com.argentgames.visualnoveltemplate
             IsContinueStoryRunning = true;
             InkContinueStory();
 
-            while (true && !endGame)
+            while (true && !EndGame)
             {
 
 
@@ -351,7 +345,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 return;
             }
-            if (endGame)
+            if (EndGame)
             {
                 IsContinueStoryRunning = false;
                 return;
@@ -396,11 +390,13 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void AddSelectedChoiceToPersistentHistory(string choice, string pathString)
         {
-            GameManager.Instance.PersistentGameData.chosenChoices.Add(choice + "_" + pathString);
+            var line = choice + "_" + pathString;
+            GameManager.Instance.PersistentGameData.chosenChoices.Add(line);
         }
-        public bool PreviouslySelectedChoice(string choice)
+        public bool PreviouslySelectedChoice(string choice, string pathString)
         {
-            if (GameManager.Instance.PersistentGameData.chosenChoices.Contains(choice))
+            var line = choice + "_" + pathString;
+            if (GameManager.Instance.PersistentGameData.chosenChoices.Contains(line))
             {
                 return true;
             }
@@ -424,7 +420,6 @@ namespace com.argentgames.visualnoveltemplate
 #if DEVELOPMENT_BUILD
         return s;
 #endif
-
             hash128 = new Hash128();
             hash128.Append(s);
             return hash128.ToString();
@@ -473,6 +468,7 @@ namespace com.argentgames.visualnoveltemplate
                 await UniTask.WaitWhile(() => waitingToContinueStory, cancellationToken: this.ct);
             }
         }
+
         public async UniTask RunActionFunction()
         {
             Debug.LogFormat("now running actionfunction: {0}", story.currentText);
@@ -484,10 +480,15 @@ namespace com.argentgames.visualnoveltemplate
             {
                 await customActionFunctions.ActionFunction(story.currentText, this.ct);
             }
-
-            // await UniTask.Yield();
             InkContinueStory();
         }
+
+        /// <summary>
+        /// If an inkLine starts with `>> `, then we want to run a custom action function!
+        /// The game will wait until the action function is done running before it automatically
+        /// moves to the next line.
+        /// </summary>
+        /// <returns></returns>
         public bool NeedToRunActionFunction()
         {
             if (story.currentText.StartsWith(">> "))
@@ -496,6 +497,10 @@ namespace com.argentgames.visualnoveltemplate
             }
             return false;
         }
+        /// <summary>
+        /// Are we in the process of displaying a line, such as with a typewriter?
+        /// </summary>
+        /// <value></value>
         public bool IsDisplayingLine { get { return dialogueUIManager.IsDisplayingLine; } }
 
         public void ClearText()
@@ -507,6 +512,24 @@ namespace com.argentgames.visualnoveltemplate
         {
             return GameManager.Instance.GetNPC(npcName);
         }
+
+        public void SetPlayerCanContinue(bool value)
+        {
+            playerCanContinue = value;
+        }
+        public void SetEndGame(bool value)
+        {
+            endGame = value;
+        }
+
+        /// <summary>
+        /// Parse an ink line into displayable text and any commands.
+        /// Our writing style is: <speaker name> <expressions> <transition duration>: <dialogue text>
+        /// Perhaps in the future we will support transition types, if you want to do something other 
+        /// than a dissolve/fade between expressions...
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private Dialogue ProcessDialogue(string text)
         {
             Dialogue dialogue = new Dialogue();

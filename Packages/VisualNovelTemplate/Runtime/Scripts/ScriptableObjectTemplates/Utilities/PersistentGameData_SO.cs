@@ -8,8 +8,8 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class PersistentGameData_SO : SerializedScriptableObject
     {
-        public HashSet<string> seenText = new HashSet<string>();
-        public HashSet<string> chosenChoices = new HashSet<string>();
+        public List<string> seenText = new List<string>();
+        public List<string> chosenChoices = new List<string>();
         public List<UnlockableItem> cgUnlocked = new List<UnlockableItem>();
         public List<UnlockableItem> routeUnlocked = new List<UnlockableItem>();
         public List<UnlockableItem> routeCompleted = new List<UnlockableItem>();

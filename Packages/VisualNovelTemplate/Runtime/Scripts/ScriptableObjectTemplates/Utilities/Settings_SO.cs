@@ -9,12 +9,14 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class Settings_SO : SerializedScriptableObject
     {
+        public FloatReactiveProperty MasterVolume = new FloatReactiveProperty(.5f);
+        public FloatReactiveProperty AmbientVolume = new FloatReactiveProperty(.5f);
         public FloatReactiveProperty MusicVolume = new FloatReactiveProperty(.5f);
         public FloatReactiveProperty SFXVolume = new FloatReactiveProperty(.5f);
-        public string Resolution = "1920x1080";
         public FloatReactiveProperty TextSpeed = new FloatReactiveProperty(100f);
         [InfoBox("Fraction of minimum delay between lines")]
         public FloatReactiveProperty AutoSpeed = new FloatReactiveProperty(.5f);
+        [InfoBox("When skipping through the game, do we skip unseen text?")]
         public bool skipAllText = false;
         public bool enableScreenShake = true;
         public BoolReactiveProperty useOpenDSFont = new BoolReactiveProperty(false);
@@ -23,6 +25,8 @@ namespace com.argentgames.visualnoveltemplate
         [Button]
         public void ResetDefaults()
         {
+            MasterVolume.Value = .5f;
+            AmbientVolume.Value = .5f;
             MusicVolume.Value = .5f;
             SFXVolume.Value = .5f;
             TextSpeed.Value = 250;

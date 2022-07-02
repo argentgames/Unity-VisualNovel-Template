@@ -87,7 +87,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("player click so toggle UI");
                 if (!UIHolder.activeSelf)
                 {
-                    if (GameObject.Find("Popup") == null && GameObject.Find("Ad") == null && DialogueSystemManager.Instance.playerCanContinue)
+                    if (GameObject.Find("Popup") == null && GameObject.Find("Ad") == null && DialogueSystemManager.Instance.PlayerCanContinue)
                     {
 
                         ToggleUI();

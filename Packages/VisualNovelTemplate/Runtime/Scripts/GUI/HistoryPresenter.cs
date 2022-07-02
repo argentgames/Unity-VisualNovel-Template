@@ -23,11 +23,11 @@ public class HistoryPresenter : MonoBehaviour
     {
         try
         {
-            var startIDX = Mathf.Clamp(DialogueSystemManager.Instance.PersistentDialogueHistory.Count - maxHistoryLines, 0, DialogueSystemManager.Instance.PersistentDialogueHistory.Count - maxHistoryLines);
+            var startIDX = Mathf.Clamp(DialogueSystemManager.Instance.currentSessionDialogueHistory.Count - maxHistoryLines, 0, DialogueSystemManager.Instance.currentSessionDialogueHistory.Count - maxHistoryLines);
             Debug.Log("startIDX for history is: " + startIDX.ToString());
-            for (int i = startIDX; i < DialogueSystemManager.Instance.PersistentDialogueHistory.Count - 1; i++)
+            for (int i = startIDX; i < DialogueSystemManager.Instance.currentSessionDialogueHistory.Count - 1; i++)
             {
-                var line = DialogueSystemManager.Instance.PersistentDialogueHistory[i];
+                var line = DialogueSystemManager.Instance.currentSessionDialogueHistory[i];
                 CreateHistoryObject(line.speaker, line.line);
             }
 
