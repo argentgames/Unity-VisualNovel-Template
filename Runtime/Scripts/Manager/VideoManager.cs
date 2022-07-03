@@ -15,7 +15,9 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         Canvas canvas;
         PlayerControls _playerControls;
-
+        [SerializeField]
+        VideoBank_SO videoBank;
+        Video_SO currentVideo;
         public bool IsVideoPlaying { get { return videoPlayer.isPlaying; } }
         async UniTaskVoid Awake()
         {
@@ -23,13 +25,12 @@ namespace com.argentgames.visualnoveltemplate
 
             _playerControls.UI.Click.performed += ctx =>
            {
-               if (GameManager.Instance.PersistentGameData.watchedOP && videoPlayer.isPlaying)
+               if (currentVideo.isSkippableWithoutWatching || currentVideo.HasWatchedOnce)
                {
-                   Debug.Log("skip op");
-                   videoPlayer.frame = (long)videoPlayer.frameCount;
-                   videoPlayer.Pause();
-                   AudioManager.Instance.StopMusic(0);
-
+                   if (videoPlayer.isPlaying)
+                   {
+                        StopVideo();
+                   }
                }
 
            };
@@ -41,8 +42,6 @@ namespace com.argentgames.visualnoveltemplate
 
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
-
-            videoPlayer.Prepare();
             videoPlayer.frame = 0;
 
         }
@@ -55,16 +54,24 @@ namespace com.argentgames.visualnoveltemplate
             _playerControls.Enable();
         }
         [Button]
-        public async UniTask PlayVideo()
+        public async UniTask PlayVideo(string videoName)
         {
+            currentVideo = videoBank.GetVideo(videoName);
+            videoPlayer.clip = currentVideo.videoClip;
             videoPlayer.Prepare();
             videoPlayer.frame = 0;
             canvas.gameObject.SetActive(true);
-            AudioManager.Instance.PlayMusic("op", 0);
+            AudioManager.Instance.PlayMusic(currentVideo.audioName, 0);
             videoPlayer.Play();
             await UniTask.WaitWhile(() => IsVideoPlaying);
             canvas.gameObject.SetActive(false);
-            GameManager.Instance.PersistentGameData.watchedOP = true;
+            currentVideo.watchCount += 1;
+        }
+        public void StopVideo()
+        {
+            videoPlayer.frame = (long)videoPlayer.frameCount;
+            videoPlayer.Pause();
+            AudioManager.Instance.StopMusic(0);
         }
 
 

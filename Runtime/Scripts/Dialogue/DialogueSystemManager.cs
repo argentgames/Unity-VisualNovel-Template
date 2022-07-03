@@ -292,7 +292,6 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     dialogueUIManager.EnableCTC();
                     Debug.Log("actually displaying choices now");
-                    Debug.Log("need to display choicesssss");
                     stopwatch.Restart();
                     // TECHDEBT: something wrong with choice collection above.
                     // why does the line before choices section get combined into 
@@ -322,15 +321,6 @@ namespace com.argentgames.visualnoveltemplate
 
 
             }
-
-            // if (NeedToDisplayChoices() && !dialogueUIManager.waitingForPlayerToSelectChoice)
-            //     {
-            //         // TECHDEBT: something wrong with choice collection above.
-            //         // why does the line before choices section get combined into 
-            //         // current choices collection?
-            //         await DisplayLine();
-            //         await DisplayChoices();
-            //     }
         }
 
         public async UniTaskVoid InkContinueStory()
