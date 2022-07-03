@@ -8,10 +8,8 @@ using UnityEngine;
 /// </summary>
 namespace com.argentgames.visualnoveltemplate
 {
-    [CreateAssetMenu(fileName = "NPC", menuName = "Argent Games/Visual Novel Template/ScriptableObjects/Dialogue Window")]
-    public class DialogueWindowMode_SO : ScriptableObject
+    [CreateAssetMenu(fileName = "Dialogue Window", menuName = "Argent Games/Visual Novel Template/ScriptableObjects/Dialogue Window")]
+    public class DialogueWindowMode_SO : NamedGameObject_SO
     {
-        public GameObject prefab;
-        public string windowModeName = "";
     }
 }

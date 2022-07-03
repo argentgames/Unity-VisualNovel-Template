@@ -59,6 +59,7 @@ namespace com.argentgames.visualnoveltemplate
             catch
             {
                 Debug.LogErrorFormat("Could not find video [{0}]",videoName);
+                return null;
             }
         }
 
