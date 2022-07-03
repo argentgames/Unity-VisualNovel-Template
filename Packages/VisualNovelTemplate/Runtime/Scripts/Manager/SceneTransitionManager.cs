@@ -16,7 +16,7 @@ namespace com.argentgames.visualnoveltemplate {
         Color black = new Color (0, 0, 0, 255);
         Color transparent = new Color (0, 0, 0, 0);
         public bool IsLoading { get { return IsLoading; } }
-        private bool isloading = false;
+        private bool isLoading = false;
         Tween tween;
         async void Awake () {
             // DOTween.Init();

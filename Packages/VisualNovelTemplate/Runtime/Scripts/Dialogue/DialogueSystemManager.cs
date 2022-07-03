@@ -100,12 +100,12 @@ namespace com.argentgames.visualnoveltemplate
             foreach (var dialogueWindowMode in dialogueWindowModes)
             {
                 window = Instantiate(dialogueWindowMode.prefab, this.transform);
-                dialogueWindows[dialogueWindowMode.windowModeName] = window;
+                dialogueWindows[dialogueWindowMode.internalName] = window;
                 window.SetActive(false);
             }
 
             // Set our default dialogue ui window 
-            dialogueUIManager = dialogueWindows[GameManager.Instance.DefaultConfig.defaultDialogueWindow.windowModeName]
+            dialogueUIManager = dialogueWindows[GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName]
             .GetComponent<DialogueUIManager>();
 
             // RunCancellationToken();
