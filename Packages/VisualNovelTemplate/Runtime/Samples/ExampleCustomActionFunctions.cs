@@ -44,8 +44,8 @@ namespace com.argentgames.visualnoveltemplate
             float duration = .35f;
             switch (funcName)
             {
-                case "playOP":
-                    await VideoManager.Instance.PlayVideo();
+                case "playVideo":
+                    await VideoManager.Instance.PlayVideo(p[1]);
                     break;
                 case "toggleTint":
                     ImageManager.Instance.SetTint(bool.Parse(p[1]));
