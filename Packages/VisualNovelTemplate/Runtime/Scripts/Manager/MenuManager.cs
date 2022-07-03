@@ -22,28 +22,38 @@ namespace com.argentgames.visualnoveltemplate {
         public static MenuManager Instance;
 
         [SerializeField]
+        List<MenuPrefab_SO> menuPrefabs;
+        Dictionary<string,MenuPrefab_SO> menuMap = new Dictionary<string, MenuPrefab_SO>();
         GameObject ingameSettingsPrefab, mainmenuSettingsPrefab, extrasPrefab;
 
         [SerializeField] GameObject settings;
 
         PlayerControls _playerControls;
 
-        static readonly ProfilerMarker s_PreparePerfMarker = new ProfilerMarker ("OpenSettings");
         CancellationTokenSource cts;
         CancellationToken ct;
-        Tween tween;
+
+        List<GameObject> openMenus = new List<GameObject>();
+        GameObject currentMenu;
 
         async UniTaskVoid Awake () {
             Instance = this;
             cts = new CancellationTokenSource ();
             ct = cts.Token;
 
+            foreach (var menu in menuPrefabs)
+            {
+                menuMap[menu.internalName] = menu;
+            }
+
             _playerControls = new PlayerControls ();
             _playerControls.UI.Settings.performed += ctx => {
                 try {
+                    // Don't let player skip SplashScreen scene because we are doing loading during it.
                     if (SceneManager.GetActiveScene ().name == "SplashScreens") {
                         return;
                     }
+                    // Don't open menus while a video is playing
                     if (VideoManager.Instance != null) {
                         if (VideoManager.Instance.IsVideoPlaying) {
                             return;
@@ -98,6 +108,34 @@ namespace com.argentgames.visualnoveltemplate {
         }
         void Update () { }
 
+        public async UniTask OpenPage(string menuName, string pageName="")
+        {
+
+            // we shouldn't need this, but we may need to check that saves are done loading
+            // before we allow any opening of settings pages
+            // TECHDEBT
+            if (SceneManager.GetActiveScene ().name == "MainMenu") {
+                await UniTask.WaitUntil (() => SaveLoadManager.Instance.DoneLoadingSaves);
+            } else if (!SaveLoadManager.Instance.DoneLoadingSaves) {
+                await SaveLoadManager.Instance.LoadSaveFiles ();
+            }
+
+            if (currentMenu == null)
+            {
+                if (openMenus.Count == 0)
+                {
+                    var go = Instantiate(menuMap[menuName].prefab,this.transform);
+                    openMenus.Add(go);
+                }
+                else
+                {
+                    currentMenu = openMenus[openMenus.Count -1];
+                }
+            }
+            var settingsPresenter = currentMenu.GetComponent<SettingsPresenter>();
+            settingsPresenter.OpenPage(pageName);
+        }
+
         [Button]
         public async UniTask OpenPage (SettingsPage page, SettingsType _type) {
             // this should only occur if you open the settings in main menu
@@ -108,9 +146,6 @@ namespace com.argentgames.visualnoveltemplate {
                 await SaveLoadManager.Instance.LoadSaveFiles ();
             }
 
-            var start = System.Diagnostics.Stopwatch.StartNew ();
-
-            // s_PreparePerfMarker.Begin();
             if (settings == null) {
                 if (SceneManager.GetActiveScene ().name == "Ingame") {
 #if PLATFORM_ANDROID
