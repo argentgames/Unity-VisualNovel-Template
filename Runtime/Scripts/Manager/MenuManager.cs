@@ -23,7 +23,7 @@ namespace com.argentgames.visualnoveltemplate {
 
         [SerializeField]
         List<MenuPrefab_SO> menuPrefabs;
-        Dictionary<string,MenuPrefab_SO> menuMap = new Dictionary<string, MenuPrefab_SO>();
+        Dictionary<string, MenuPrefab_SO> menuMap = new Dictionary<string, MenuPrefab_SO> ();
         GameObject ingameSettingsPrefab, mainmenuSettingsPrefab, extrasPrefab;
 
         [SerializeField] GameObject settings;
@@ -33,7 +33,7 @@ namespace com.argentgames.visualnoveltemplate {
         CancellationTokenSource cts;
         CancellationToken ct;
 
-        List<GameObject> openMenus = new List<GameObject>();
+        Dictionary<string,GameObject> openMenus = new Dictionary<string,GameObject> ();
         GameObject currentMenu;
 
         async UniTaskVoid Awake () {
@@ -41,8 +41,7 @@ namespace com.argentgames.visualnoveltemplate {
             cts = new CancellationTokenSource ();
             ct = cts.Token;
 
-            foreach (var menu in menuPrefabs)
-            {
+            foreach (var menu in menuPrefabs) {
                 menuMap[menu.internalName] = menu;
             }
 
@@ -65,8 +64,6 @@ namespace com.argentgames.visualnoveltemplate {
                             return;
                         }
 
-                        // s_PreparePerfMarker.Begin();
-
                         if (SceneManager.GetActiveScene ().name == "MainMenu") {
                             OpenPage (SettingsPage.RegularSettings, SettingsType.MAINMENU);
                         } else {
@@ -80,7 +77,7 @@ namespace com.argentgames.visualnoveltemplate {
                     GameManager.Instance.SetSkipping (false);
                     GameManager.Instance.SetAuto (false);
                 } catch {
-                    Debug.Log ("someon eis spam clicking D:<");
+                    Debug.Log ("someon is spam clicking D:<");
                 }
 
             };
@@ -108,8 +105,7 @@ namespace com.argentgames.visualnoveltemplate {
         }
         void Update () { }
 
-        public async UniTask OpenPage(string menuName, string pageName="")
-        {
+        public async UniTask OpenPage (string menuName, string pageName = "") {
 
             // we shouldn't need this, but we may need to check that saves are done loading
             // before we allow any opening of settings pages
@@ -120,20 +116,37 @@ namespace com.argentgames.visualnoveltemplate {
                 await SaveLoadManager.Instance.LoadSaveFiles ();
             }
 
-            if (currentMenu == null)
-            {
-                if (openMenus.Count == 0)
-                {
-                    var go = Instantiate(menuMap[menuName].prefab,this.transform);
-                    openMenus.Add(go);
-                }
-                else
-                {
-                    currentMenu = openMenus[openMenus.Count -1];
+            // if we are ingame, we need to take a screenshot before the settings page shows up and covers the screen
+            // in theory we would not be doing this take screenshot nonsense but just reading a camera texture composite
+            // android screenshot has some extra delay needed because it returns immediately.
+            // TECHDEBT
+            if (SceneManager.GetActiveScene ().name == "Ingame") {
+#if PLATFORM_ANDROID
+                await UniTask.Delay (100);
+#endif
+                GameManager.Instance.TakeScreenshot ();
+
+#if PLATFORM_ANDROID
+                await UniTask.Delay (100);
+#endif
+            }
+
+            // if we don't have any menus open right now, then we need to instantiate one
+            // otherwise find the open menu and bring it forward and make it the focused menu
+            if (currentMenu == null) {
+                if (openMenus.Count == 0) {
+                    // NO ADDRESSABLES SUPPORTED RIGHT NOW
+                    // TODO
+                    var go = Instantiate (menuMap[menuName].prefab, this.transform);
+                    openMenus.Add (go);
+                } else {
+                    currentMenu = openMenus[menuName];
+                    // move the menu order to the top, which means making it the last child of menumanager
+                    currentMenu.transform.SetSiblingIndex(this.transform.childCount-1);
                 }
             }
-            var settingsPresenter = currentMenu.GetComponent<SettingsPresenter>();
-            settingsPresenter.OpenPage(pageName);
+            var settingsPresenter = currentMenu.GetComponent<MenuPresenter> ();
+            settingsPresenter.OpenPage (pageName);
         }
 
         [Button]
@@ -180,6 +193,16 @@ namespace com.argentgames.visualnoveltemplate {
             // s_PreparePerfMarker.End();
             // Debug.LogErrorFormat("took {0} time to open settings", start.ElapsedMilliseconds);
 
+        }
+        public void CloseAllMenus()
+        {
+            for (int i=0; i < transform.childCount; i++)
+            {
+                i.GetComponent<MenuPresenter>().CloseMenu();
+            }
+            GameManager.Instance.ResumeGame ();
+
+            SaveLoadManager.Instance.SaveSettings ();
         }
         public async UniTaskVoid CloseSettings () {
             // HACK: why do i have to reset this a bunch of places
