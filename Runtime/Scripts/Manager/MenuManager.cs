@@ -133,52 +133,52 @@ namespace com.argentgames.visualnoveltemplate {
                 }
             }
             var settingsPresenter = currentMenu.GetComponent<SettingsPresenter>();
-            settingsPresenter.OpenPage(pageName);
+            // settingsPresenter.OpenPage(pageName);
         }
 
         [Button]
         public async UniTask OpenPage (SettingsPage page, SettingsType _type) {
-            // this should only occur if you open the settings in main menu
-            // we need to make sure all the saves have been loaded in before someone tries to hit the load button 0;
-            if (SceneManager.GetActiveScene ().name == "MainMenu") {
-                await UniTask.WaitUntil (() => SaveLoadManager.Instance.DoneLoadingSaves);
-            } else if (!SaveLoadManager.Instance.DoneLoadingSaves) {
-                await SaveLoadManager.Instance.LoadSaveFiles ();
-            }
+//             // this should only occur if you open the settings in main menu
+//             // we need to make sure all the saves have been loaded in before someone tries to hit the load button 0;
+//             if (SceneManager.GetActiveScene ().name == "MainMenu") {
+//                 await UniTask.WaitUntil (() => SaveLoadManager.Instance.DoneLoadingSaves);
+//             } else if (!SaveLoadManager.Instance.DoneLoadingSaves) {
+//                 await SaveLoadManager.Instance.LoadSaveFiles ();
+//             }
 
-            if (settings == null) {
-                if (SceneManager.GetActiveScene ().name == "Ingame") {
-#if PLATFORM_ANDROID
-                    await UniTask.Delay (100);
-#endif
-                    GameManager.Instance.TakeScreenshot ();
+//             if (settings == null) {
+//                 if (SceneManager.GetActiveScene ().name == "Ingame") {
+// #if PLATFORM_ANDROID
+//                     await UniTask.Delay (100);
+// #endif
+//                     GameManager.Instance.TakeScreenshot ();
 
-#if PLATFORM_ANDROID
-                    await UniTask.Delay (100);
-#endif
-                }
+// #if PLATFORM_ANDROID
+//                     await UniTask.Delay (100);
+// #endif
+//                 }
 
-                await UniTask.Yield ();
+//                 await UniTask.Yield ();
 
-                switch (_type) {
-                    case SettingsType.INGAME:
-                        settings = await AssetRefLoader.Instance.LoadAsset (ingameSettingsPrefab, this.gameObject.transform);
-                        break;
-                    case SettingsType.MAINMENU:
-                        settings = await AssetRefLoader.Instance.LoadAsset (mainmenuSettingsPrefab, this.gameObject.transform);
-                        break;
+//                 switch (_type) {
+//                     case SettingsType.INGAME:
+//                         settings = await AssetRefLoader.Instance.LoadAsset (ingameSettingsPrefab, this.gameObject.transform);
+//                         break;
+//                     case SettingsType.MAINMENU:
+//                         settings = await AssetRefLoader.Instance.LoadAsset (mainmenuSettingsPrefab, this.gameObject.transform);
+//                         break;
 
-                }
+//                 }
 
-            }
+//             }
 
-            var settingsPresenter = settings.GetComponent<SettingsPresenter> ();
-            // settings.SetActive(false);
+//             var settingsPresenter = settings.GetComponent<SettingsPresenter> ();
+//             // settings.SetActive(false);
 
-            settingsPresenter.OpenPage (page);
-            // settings.SetActive(true);
-            // s_PreparePerfMarker.End();
-            // Debug.LogErrorFormat("took {0} time to open settings", start.ElapsedMilliseconds);
+//             settingsPresenter.OpenPage (page);
+//             // settings.SetActive(true);
+//             // s_PreparePerfMarker.End();
+//             // Debug.LogErrorFormat("took {0} time to open settings", start.ElapsedMilliseconds);
 
         }
         public async UniTaskVoid CloseSettings () {

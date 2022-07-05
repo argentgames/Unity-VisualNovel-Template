@@ -29,6 +29,14 @@ namespace com.argentgames.visualnoveltemplate
         [PropertyTooltip("If we are adding selected choices to history, what color should the text be?")]
         public string historyChoiceColor = "#cfda5e";
 
+        [PropertySpace(SpaceBefore =15f)]
+        [InfoBox("Do we use addressable loading mechanism? If so, for which objects?")]
+        [BoxGroup("Addressables")]
+        public bool addressableSettings = false;
+        public bool addressableSprites = false;
+        public bool addressableBackgrounds = false;
+        public bool addressableGUI = false;
+
         public float defaultBGCameraSize = 16f;
         [PropertyTooltip("How much Gaussian noise to apply to the background camera. Originally used in The Hepatica Spring.")]
         public float bgNoiseOpacity = .4f;
