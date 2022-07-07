@@ -52,7 +52,7 @@ public class MainMenuLogic : MonoBehaviour
     public async UniTask ShowSettings(SettingsPage page)
     {
         Debug.Log("open da settings?");
-        await MenuManager.Instance.OpenPage(page,SettingsType.MAINMENU);
+        await MenuManager.Instance.OpenPage("mainMenuSettings");
         Debug.Log("open settings page");
         
         

@@ -72,7 +72,7 @@ public class SettingsPresenter : SerializedMonoBehaviour
         AudioManager.Instance.StopMusic(1f);
         AudioManager.Instance.StopAllAmbient(1f);
         await SceneTransitionManager.Instance.FadeToBlack(2);
-        MenuManager.Instance.CloseSettings();
+        MenuManager.Instance.CloseAllMenus();
         await UniTask.Delay(System.TimeSpan.FromSeconds(1));
         SceneTransitionManager.Instance.LoadScene("MainMenu", 0);
     }
@@ -129,7 +129,7 @@ public class SettingsPresenter : SerializedMonoBehaviour
 
         back.OnClickAsObservable().Subscribe(val =>
         {
-            MenuManager.Instance.CloseSettings();
+            MenuManager.Instance.CloseAllMenus();
         }).AddTo(this);
     }
 

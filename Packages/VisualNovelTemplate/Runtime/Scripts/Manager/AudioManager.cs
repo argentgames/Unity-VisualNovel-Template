@@ -6,6 +6,7 @@ using FMOD.Studio;
 using Sirenix.OdinInspector;
 using UniRx;
 using Cysharp.Threading.Tasks;
+using System;
 
 /// <summary>
 /// Ingame audio management. Access your typical sound control methods such as Play/Stop music/ambient/sfx.
@@ -59,7 +60,6 @@ namespace com.argentgames.visualnoveltemplate
 
         private FMODEventInstanceData fmodEvent;
         private EventInstance musicInstance, ambientInstance, sfxInstance;
-        public string currentMusic = "", currentAmbient1 = "", currentAmbient2 = "", currentAmbient3 = "";
 
         FMOD.Studio.Bus MusicBus;
         FMOD.Studio.Bus SFXBus;
@@ -90,6 +90,35 @@ namespace com.argentgames.visualnoveltemplate
 
             SetRXSubscriptions();
 
+        }
+
+        /// <summary>
+        /// TODO: We might want to return an object that contains soundName, eventInstanceVolume, and other information.
+        /// </summary>
+        /// <returns></returns>
+        public string GetCurrentPlayingMusic()
+        {
+            if (eventInstanceMap["music"].IsPlaying)
+            {
+                return eventInstanceMap["music"].soundName;
+            }
+            else
+            {
+                return "";
+            }
+        }
+        public List<Tuple<string,int>> GetCurrentPlayingAmbients()
+        {
+            List<Tuple<string,int>> currAmbs = new List<Tuple<string, int>>();
+            for (int i=0; i < numAmbientTracks; i++)
+            {
+                var instance = eventInstanceMap["ambient"+i.ToString()];
+                if (instance.IsPlaying)
+                {
+                    currAmbs.Add(new Tuple<string, int>(instance.soundName,i));
+                }
+            }
+            return currAmbs;
         }
 
         public void GetFMODBuses()

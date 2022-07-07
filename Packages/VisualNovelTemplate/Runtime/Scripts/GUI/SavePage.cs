@@ -150,10 +150,10 @@ public class SavePage : MonoBehaviour
 
         save.spriteSaveDatas = ImageManager.Instance.GetAllCharacterOnScreenSaveData();
 
-        save.currentAmbient1 = AudioManager.Instance.currentAmbient1;
-        save.currentAmbient2 = AudioManager.Instance.currentAmbient2;
-        save.currentAmbient3 = AudioManager.Instance.currentAmbient3;
-        save.currentMusic = AudioManager.Instance.currentMusic;
+        // save.currentAmbient1 = AudioManager.Instance.currentAmbient1;
+        // save.currentAmbient2 = AudioManager.Instance.currentAmbient2;
+        // save.currentAmbient3 = AudioManager.Instance.currentAmbient3;
+        save.currentMusic = AudioManager.Instance.GetCurrentPlayingMusic();
 
         save.currentBGCameraPosition = ImageManager.Instance.BGCamera.transform.position;
         save.currentBGCameraRotation = ImageManager.Instance.BGCamera.transform.eulerAngles;

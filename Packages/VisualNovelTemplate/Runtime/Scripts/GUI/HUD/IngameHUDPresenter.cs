@@ -63,28 +63,28 @@ SetRXSubscriptions();
         settings.OnClickAsObservable()
             .Subscribe(_ =>
            {
-               MenuManager.Instance.OpenPage(SettingsPage.RegularSettings, SettingsType.INGAME);
+               MenuManager.Instance.OpenPage("ingameSettings");
            }
             )
             .AddTo(this);
         save.OnClickAsObservable()
             .Subscribe(_ =>
            {
-               MenuManager.Instance.OpenPage(SettingsPage.Save, SettingsType.INGAME);
+               MenuManager.Instance.OpenPage("ingameSettings","save");
            }
             )
             .AddTo(this);
         load.OnClickAsObservable()
             .Subscribe(_ =>
            {
-               MenuManager.Instance.OpenPage(SettingsPage.Load, SettingsType.INGAME);
+               MenuManager.Instance.OpenPage("ingameSettings","load");
            }
             )
             .AddTo(this);
         history.OnClickAsObservable()
             .Subscribe(_ =>
            {
-               MenuManager.Instance.OpenPage(SettingsPage.History, SettingsType.INGAME);
+               MenuManager.Instance.OpenPage("ingameSettings","history");
            }
             )
             .AddTo(this);
