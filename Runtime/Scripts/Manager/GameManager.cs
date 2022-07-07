@@ -62,7 +62,6 @@ public class GameManager : SerializedMonoBehaviour
     public bool isGamePaused = false;
     public Texture2D currentScreenshot;
     public IngameHUDPresenter ingameHUDPresenter;
-    public bool IsExtrasOpen = false;
 
     public void SetSkipping(bool val)
     {

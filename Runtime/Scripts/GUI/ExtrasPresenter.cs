@@ -114,7 +114,6 @@ namespace com.argentgames.visualnoveltemplate
             {
                 go.SetActive(false);
             }
-            GameManager.Instance.IsExtrasOpen = true;
         }
 
         void SetRXSubscriptions()
@@ -187,7 +186,6 @@ namespace com.argentgames.visualnoveltemplate
 
         async UniTaskVoid ClosePages()
         {
-            GameManager.Instance.IsExtrasOpen = false;
             canvasGroup.DOFade(0, .4f);
             await UniTask.WaitUntil(() => canvasGroup.alpha == 0);
             this.gameObject.SetActive(false);

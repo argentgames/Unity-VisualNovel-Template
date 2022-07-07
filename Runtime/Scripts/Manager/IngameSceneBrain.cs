@@ -60,17 +60,9 @@ public class IngameSceneBrain : MonoBehaviour
             {
                 AudioManager.Instance.PlayMusic(currentSave.currentMusic);
             }
-            if (currentSave.currentAmbient1 != "" && currentSave.currentAmbient1 != null)
+            foreach (var amb in currentSave.currentAmbients)
             {
-                AudioManager.Instance.PlayAmbient(currentSave.currentAmbient1, 0, .3f);
-            }
-            if (currentSave.currentAmbient2 != "" && currentSave.currentAmbient2 != null)
-            {
-                AudioManager.Instance.PlayAmbient(currentSave.currentAmbient2, 1, .3f);
-            }
-            if (currentSave.currentAmbient3 != "" && currentSave.currentAmbient3 != null)
-            {
-                AudioManager.Instance.PlayAmbient(currentSave.currentAmbient3, 2, .3f);
+                AudioManager.Instance.PlayAmbient(amb.Item1,amb.Item2,0,.3f);
             }
 
             // MC_NPC_SO mc = (MC_NPC_SO)GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];

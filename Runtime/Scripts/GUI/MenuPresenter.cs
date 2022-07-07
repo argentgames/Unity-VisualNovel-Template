@@ -16,11 +16,9 @@ using UnityEngine.UI;
 
 namespace com.argentgames.visualnoveltemplate {
     public abstract class MenuPresenter : MonoBehaviour {
-        [SerializeField]
-        string defaultPage;
-        [SerializeField]
-        GameObject menuContainer;
-        public abstract UniTask OpenPage(string pageName="") {}
+        public string defaultPage;
+        public GameObject menuContainer;
+        public abstract UniTask OpenPage(string pageName="");
         public virtual void CloseMenu()
         {
             menuContainer.SetActive(false);

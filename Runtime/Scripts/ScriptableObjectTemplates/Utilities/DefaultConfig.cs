@@ -12,7 +12,7 @@ using Sirenix.OdinInspector;
 /// </summary>
 namespace com.argentgames.visualnoveltemplate
 {
-    public class DefaultConfig : SerializedScriptableObject
+    public abstract class DefaultConfig : SerializedScriptableObject
     {
         [PropertyTooltip("Default dialogue window to use if not specified to activate another window mode. Typicall either ADV or NVL.")]
         public DialogueWindowMode_SO defaultDialogueWindow;

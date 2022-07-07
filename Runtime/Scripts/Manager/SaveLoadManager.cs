@@ -19,111 +19,58 @@ namespace com.argentgames.visualnoveltemplate
 {
 
 
-public class SaveData
-{
-    public string inkData;
-    [NonSerialized]
-    public Texture2D screenshot;
-    public string dateTime;
-    public Dictionary<string, SpriteSaveData> spriteSaveDatas = new Dictionary<string, SpriteSaveData>();
-    public string currentMusic = "";
-    public string currentAmbient1 = "";
-    public string currentAmbient2 = "";
-    public string currentAmbient3 = "";
-    // this is only used if we are at a choice
-    public string currentDialogue = "";
-    public string currentShot = "black";
-    public Vector3 currentBGCameraPosition;
-    public Vector3 currentBGCameraRotation;
-    public float currentBGSize;
-    public List<DialogueHistoryLine> dialogueHistory = new List<DialogueHistoryLine>();
-    public bool isTinted = false;
-    public string currentDialogueWindowMode = "";
-    public SaveData(string saveData, Texture2D texture, string dateTime)
+
+    public class SaveLoadManager : SerializedMonoBehaviour
     {
-        this.inkData = saveData;
-        //Convert to png
-        this.screenshot = texture;
-        this.dateTime = dateTime;
-    }
-    public SaveData()
-    {
+        public static SaveLoadManager Instance { get; set; }
 
-    }
-    public void Save(string filePath)
-    {
-        byte[] bytes = SerializationUtility.SerializeValue(this, DataFormat.Binary);
-        File.WriteAllBytes(filePath, bytes);
-
-        var ss = this.screenshot.EncodeToPNG();
-        File.WriteAllBytes(filePath + ".PNG", ss);
-
-        Debug.Log("done saving to: " + filePath);
-    }
-    public SaveData Load(string filePath)
-    {
-        byte[] bytes = File.ReadAllBytes(filePath);
-
-        var save = SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.Binary);
-        var ss = File.ReadAllBytes(filePath + ".PNG");
-        Texture2D loadTexture = new Texture2D(2, 2);
-        loadTexture.LoadImage(ss);
-        save.screenshot = loadTexture;
-        return save;
-    }
-
-}
-public class SaveLoadManager : SerializedMonoBehaviour
-{
-    public static SaveLoadManager Instance { get; set; }
-
-    public SaveData currentSave;
+        public SaveData currentSave;
 
 
-    // each saveFile is a json
-    public Dictionary<string, SaveData> saveFiles = new Dictionary<string, SaveData>();
-    [SerializeField]
-    public string saveFileNamePrefix = "gameSave_";
-    public string autoSaveNamePrefix = "autosave";
-    [SerializeField]
-    bool jsonFormat = true;
-    public string extension = ".json";
+        // each saveFile is a json
+        public Dictionary<string, SaveData> saveFiles = new Dictionary<string, SaveData>();
+        [SerializeField]
+        public string saveFileNamePrefix = "gameSave_";
+        public string autoSaveNamePrefix = "autosave";
+        [SerializeField]
+        bool jsonFormat = true;
+        public string extension = ".json";
 
-    public bool DoneLoadingSaves = false;
-    async UniTaskVoid Awake()
-    {
-        if (Instance != null && Instance != this)
+        public bool DoneLoadingSaves = false;
+        async UniTaskVoid Awake()
         {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Instance = this;
+            }
 
-        if (!jsonFormat)
-        {
-            extension = ".save";
-        }
+            if (!jsonFormat)
+            {
+                extension = ".save";
+            }
 
 
-        if (!Directory.Exists(CreateSavePath("Saves")))
-        {
-            Debug.Log("saves directory doesnt exist, creating now");
-            Directory.CreateDirectory(CreateSavePath("Saves"));
-        }
-        // await LoadSaveFiles();
+            if (!Directory.Exists(CreateSavePath("Saves")))
+            {
+                Debug.Log("saves directory doesnt exist, creating now");
+                Directory.CreateDirectory(CreateSavePath("Saves"));
+            }
+            // await LoadSaveFiles();
 
 #if PLATFORM_ANDROID
         // auto save game if we are ingame, every 5? minutes
         InvokeRepeating("AutoSave", 3f,30f);
 #endif
-    }
+        }
 
-    async UniTask AutoSave()
-    {
-        // while (true)
-        // {
+        async UniTask AutoSave()
+        {
+            // while (true)
+            // {
             if (SceneManager.GetActiveScene().name == "Ingame")
             {
 
@@ -135,10 +82,10 @@ public class SaveLoadManager : SerializedMonoBehaviour
 
                 save.spriteSaveDatas = ImageManager.Instance.GetAllCharacterOnScreenSaveData();
 
-                save.currentAmbient1 = AudioManager.Instance.currentAmbient1;
-                save.currentAmbient2 = AudioManager.Instance.currentAmbient2;
-                save.currentAmbient3 = AudioManager.Instance.currentAmbient3;
-                save.currentMusic = AudioManager.Instance.currentMusic;
+                // save.currentAmbient1 = AudioManager.Instance.currentAmbient1;
+                // save.currentAmbient2 = AudioManager.Instance.currentAmbient2;
+                // save.currentAmbient3 = AudioManager.Instance.currentAmbient3;
+                save.currentMusic = AudioManager.Instance.GetCurrentPlayingMusic();
 
                 save.currentBGCameraPosition = ImageManager.Instance.BGCamera.transform.position;
                 save.currentBGCameraRotation = ImageManager.Instance.BGCamera.transform.eulerAngles;
@@ -153,146 +100,146 @@ public class SaveLoadManager : SerializedMonoBehaviour
                 this.saveFiles[filePath] = save;
                 Debug.Log("auto saving now...");
             }
-        // }    
-    }
+            // }    
+        }
 
-    public string CreateSavePath(string subPath)
+        public string CreateSavePath(string subPath)
 
-    {
-        // var s = "";
-        // #if PLATFORM_ANDROID && !UNITY_EDITOR
-        // Debug.Log("we are on android");
-        // s = subPath;
-        // #else
-        // s = Application.persistentDataPath + "/" + subPath;
-        // #endif
-
-        var s = Application.persistentDataPath + "/" + subPath;
-        Debug.Log("our save path is: " + s);
-        return s;
-    }
-
-    public async UniTask LoadSaveFiles()
-    {
-        try
         {
-            var path = CreateSavePath("Saves");
-            Debug.Log("Load saves from: " + path);
-            string[] fileArray = Directory.GetFiles(path, "*" + extension);
-            var taskList = new List<UniTask>();
-            for (int i = 0; i < fileArray.Length; i++)
+            // var s = "";
+            // #if PLATFORM_ANDROID && !UNITY_EDITOR
+            // Debug.Log("we are on android");
+            // s = subPath;
+            // #else
+            // s = Application.persistentDataPath + "/" + subPath;
+            // #endif
+
+            var s = Application.persistentDataPath + "/" + subPath;
+            Debug.Log("our save path is: " + s);
+            return s;
+        }
+
+        public async UniTask LoadSaveFiles()
+        {
+            try
             {
-                Debug.Log(fileArray[i]);
-                taskList.Add(LoadSaveFile(fileArray[i]));
+                var path = CreateSavePath("Saves");
+                Debug.Log("Load saves from: " + path);
+                string[] fileArray = Directory.GetFiles(path, "*" + extension);
+                var taskList = new List<UniTask>();
+                for (int i = 0; i < fileArray.Length; i++)
+                {
+                    Debug.Log(fileArray[i]);
+                    taskList.Add(LoadSaveFile(fileArray[i]));
 
 
+                }
+
+                await UniTask.WhenAll(taskList);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogErrorFormat("failed to lod saves??? {0}", e);
             }
 
-            await UniTask.WhenAll(taskList);
+            DoneLoadingSaves = true;
+
         }
-        catch (System.Exception e)
+        async UniTask LoadSaveFile(string filePath)
         {
-            Debug.LogErrorFormat("failed to lod saves??? {0}", e);
+            Debug.Log("reading save file..." + filePath);
+
+            // byte[] bytes = File.ReadAllBytes(filePath);
+
+            var save = new SaveData().Load(filePath);// SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
+
+            await UniTask.Yield();
+            await UniTask.Yield();
+
+            // var saveData = File.ReadAllText(fileArray[i]);
+            // SaveData save = JsonUtility.FromJson<SaveData>(saveData);
+            saveFiles[Path.GetFileName(filePath)] = save;
         }
-
-        DoneLoadingSaves = true;
-
-    }
-    async UniTask LoadSaveFile(string filePath)
-    {
-        Debug.Log("reading save file..." + filePath);
-
-        // byte[] bytes = File.ReadAllBytes(filePath);
-
-        var save = new SaveData().Load(filePath);// SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
-
-        await UniTask.Yield();
-        await UniTask.Yield();
-
-        // var saveData = File.ReadAllText(fileArray[i]);
-        // SaveData save = JsonUtility.FromJson<SaveData>(saveData);
-        saveFiles[Path.GetFileName(filePath)] =  save;
-    }
-    public async UniTaskVoid LoadGame(string filePath)
-    {
-        Debug.Log("loading game from: " + filePath);
-        this.currentSave = saveFiles[filePath];
-
-        GameManager.Instance.SetSkipping(false);
-        GameManager.Instance.SetAuto(false);
-        if (DialogueSystemManager.Instance != null)
+        public async UniTaskVoid LoadGame(string filePath)
         {
-            Debug.Log("please run cancellation on ds");
-            DialogueSystemManager.Instance.RunCancellationToken();
-            Destroy(DialogueSystemManager.Instance.gameObject);
+            Debug.Log("loading game from: " + filePath);
+            this.currentSave = saveFiles[filePath];
+
+            GameManager.Instance.SetSkipping(false);
+            GameManager.Instance.SetAuto(false);
+            if (DialogueSystemManager.Instance != null)
+            {
+                Debug.Log("please run cancellation on ds");
+                DialogueSystemManager.Instance.RunCancellationToken();
+                Destroy(DialogueSystemManager.Instance.gameObject);
+            }
+            AudioManager.Instance.StopMusic(1);
+            AudioManager.Instance.StopAllAmbient(1);
+            await SceneTransitionManager.Instance.LoadScene("Ingame", 0, doFadeIn: false);
+            try
+            {
+                MenuManager.Instance.CloseAllMenus();
+            }
+            catch
+            {
+                Debug.Log("dont need to close settings when loading game?");
+            }
+
         }
-        AudioManager.Instance.StopMusic(1);
-        AudioManager.Instance.StopAllAmbient(1);
-        await SceneTransitionManager.Instance.LoadScene("Ingame", 0, doFadeIn: false);
-        try
+        public void SaveGame(string filePath, SaveData save)
         {
-            MenuManager.Instance.CloseSettings();
+            Debug.Log("saving game to: " + filePath);
+            save.Save(filePath);
+            // byte[] bytes = SerializationUtility.SerializeValue(save, DataFormat.JSON);
+            // File.WriteAllBytes(filePath, bytes);
+
+            // string saveToJson = JsonUtility.ToJson(save, true);
+            // File.WriteAllText(filePath, saveToJson);
+
+
+
+
         }
-        catch
+        public void SaveSettings()
         {
-            Debug.Log("dont need to close settings when loading game?");
+            Debug.Log("save path to save settings to is: " + CreateSavePath("settings.json"));
+            Debug.Log("saving settings now");
+            byte[] bytes = SerializationUtility.SerializeValue(GameManager.Instance.Settings.Save(), DataFormat.JSON);
+            File.WriteAllBytes(CreateSavePath("settings.json"), bytes);
         }
-
-    }
-    public void SaveGame(string filePath, SaveData save)
-    {
-        Debug.Log("saving game to: " + filePath);
-        save.Save(filePath);
-        // byte[] bytes = SerializationUtility.SerializeValue(save, DataFormat.JSON);
-        // File.WriteAllBytes(filePath, bytes);
-
-        // string saveToJson = JsonUtility.ToJson(save, true);
-        // File.WriteAllText(filePath, saveToJson);
-
-        
-
-
-    }
-    public void SaveSettings()
-    {
-        Debug.Log("save path to save settings to is: " + CreateSavePath("settings.json"));
-        Debug.Log("saving settings now");
-        byte[] bytes = SerializationUtility.SerializeValue(GameManager.Instance.Settings.Save(), DataFormat.JSON);
-        File.WriteAllBytes(CreateSavePath("settings.json"), bytes);
-    }
-    public void LoadSettings()
-    {
-        // if settings file doesn't exist, do nothing
-        var savePath = CreateSavePath("settings.json");
-        Debug.Log("save path to check for loading settings is: " + savePath);
-        Debug.Log("does settings.json already exist?: " + File.Exists(savePath).ToString());
-        if (!File.Exists(savePath))
+        public void LoadSettings()
         {
-            Debug.Log("file doesnt exist, resetting settings to default");
-            GameManager.Instance.Settings.ResetDefaults();
+            // if settings file doesn't exist, do nothing
+            var savePath = CreateSavePath("settings.json");
+            Debug.Log("save path to check for loading settings is: " + savePath);
+            Debug.Log("does settings.json already exist?: " + File.Exists(savePath).ToString());
+            if (!File.Exists(savePath))
+            {
+                Debug.Log("file doesnt exist, resetting settings to default");
+                GameManager.Instance.Settings.ResetDefaults();
+            }
+            else
+            {
+                Debug.Log("loading settings");
+                byte[] bytes = File.ReadAllBytes(savePath);
+                var settings = SerializationUtility.DeserializeValue<SettingsSaveData>(bytes, DataFormat.JSON);
+                GameManager.Instance.Settings.Load(settings);
+            }
+
         }
-        else
+
+        private Texture2D ConvertToTextureAndLoad(string path)
         {
-            Debug.Log("loading settings");
-            byte[] bytes = File.ReadAllBytes(savePath);
-            var settings = SerializationUtility.DeserializeValue<SettingsSaveData>(bytes, DataFormat.JSON);
-            GameManager.Instance.Settings.Load(settings);
+            //Read
+            byte[] bytes = File.ReadAllBytes(path);
+            //Convert image to texture
+            Texture2D loadTexture = new Texture2D(2, 2);
+            loadTexture.LoadImage(bytes);
+            //Convert textures to sprites
+            return loadTexture;
+            // _paintImage.sprite = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), Vector2.zero);
         }
 
+
     }
-
-    private Texture2D ConvertToTextureAndLoad(string path)
-    {
-        //Read
-        byte[] bytes = File.ReadAllBytes(path);
-        //Convert image to texture
-        Texture2D loadTexture = new Texture2D(2, 2);
-        loadTexture.LoadImage(bytes);
-        //Convert textures to sprites
-        return loadTexture;
-        // _paintImage.sprite = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), Vector2.zero);
-    }
-
-
-}
 }

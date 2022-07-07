@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 using UniRx;
 namespace com.argentgames.visualnoveltemplate
 {
-    public class PersistentGameData_SO : SerializedScriptableObject
+    public abstract class PersistentGameData_SO : SerializedScriptableObject
     {
         public List<string> seenText = new List<string>();
         public List<string> chosenChoices = new List<string>();
@@ -25,7 +25,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             PopulateMaps();
         }
-        private void PopulateMaps()
+        public virtual void PopulateMaps()
         {
             cgMap.Clear();
             routeUnlockedMap.Clear();
@@ -43,7 +43,7 @@ namespace com.argentgames.visualnoveltemplate
                 routeCompletedMap[route.internalName] = route;
             }
         }
-        public void ResetDefaults()
+        public virtual void ResetDefaults()
         {
             seenText.Clear();
             chosenChoices.Clear();
@@ -104,7 +104,7 @@ namespace com.argentgames.visualnoveltemplate
                 return false;
             }
         }
-        public void SetUnlockableState(string unlockableName, bool newState)
+        public virtual void SetUnlockableState(string unlockableName, bool newState)
         {
             if (cgMap.ContainsKey(unlockableName))
             {
@@ -124,11 +124,11 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
 
-        public void Save()
+        public virtual void Save()
         {
 
         }
-        public void Load()
+        public virtual void Load()
         {
 
         }
