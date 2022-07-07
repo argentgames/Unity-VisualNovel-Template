@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "com.cysharp.unitask": "2.3.1",
-    "com.demigiant.dotween": "1.2.632",
     "com.inklestudios.ink-unity-integration": "1.0.2",
     "com.neuecc.unirx": "7.1.0",
     "com.unity.addressables": "1.18.19",
@@ -45,7 +44,8 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.demigiant.dotween": "1.2.632"
   },
   "scopedRegistries": [
     {

@@ -8,9 +8,9 @@
     "author": "Argent Games",
     "dependencies": {
         "com.inklestudios.ink-unity-integration": "file:../Ink Unity Integration",
-        "com.demigiant.dotween": "file:../DOTween",
         "com.neuecc.unirx": "file:../UniRx",
-        "com.cysharp.unitask": "file:../UniTask"
+        "com.cysharp.unitask": "file:../UniTask",
+        "com.demigiant.dotween": "file:../DOTween"
     },
     "samples": [
         {
