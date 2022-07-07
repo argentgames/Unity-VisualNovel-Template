@@ -127,8 +127,9 @@ namespace com.argentgames.visualnoveltemplate
             {
                 try
                 {
-                    transitionObject.GetComponent<Image>().DOFade(0, duration); //.OnStart(() => {Debug.Log("start");}).OnUpdate(() => {Debug.Log("hello");});
-                    await UniTask.WaitUntil(() => transitionObject.GetComponent<Image>().color.a == 0);
+                    var image = transitionObject.GetComponent<Image>();
+                    DOTween.ToAlpha(() => image.color, x => image.color = x, 0, (float)duration).From(1);
+                    await UniTask.WaitUntil(() => image.color.a == 0);
 
                 }
                 // TODO: add specific null compoennt exception
@@ -164,16 +165,8 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     transitionObject.GetComponent<Image>().color = transparent;
                     transitionObject.transform.parent.gameObject.SetActive(true);
-                    transitionObject.GetComponent<Image>().DOFade(1, duration)
-                        .OnStart(() =>
-                        {
-                            // Debug.Log("start222");
-                        })
-                        .OnUpdate(() =>
-                        {
-                            // Debug.Log("hello22222")
-                            ;
-                        });
+                    var image = transitionObject.GetComponent<Image>();
+                    DOTween.ToAlpha(() => image.color, x => image.color = x, 1, (float)duration).From(0);
                     await UniTask.WaitUntil(() => transitionObject.GetComponent<Image>().color.a == 1);
                 }
                 catch
