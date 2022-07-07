@@ -8,6 +8,8 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace com.argentgames.visualnoveltemplate
+{
 public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
 {
     [SerializeField]
@@ -44,5 +46,7 @@ public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
     {
         AnimationComplete = true;
     }
+
+}
 
 }

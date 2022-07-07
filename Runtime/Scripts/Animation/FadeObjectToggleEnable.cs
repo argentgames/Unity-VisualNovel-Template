@@ -8,112 +8,118 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class FadeObjectToggleEnable : AnimateObjectsToggleEnable
+namespace com.argentgames.visualnoveltemplate
 {
-    [SerializeField]
-    float disableAnimationDuration = .5f, enableAnimationDuration = .5f;
 
-    [SerializeField]
-    CanvasGroup canvasGroup;
-    [SerializeField]
-    Image image;
-    SpriteRenderer sprite;
 
-    void Awake()
+    public class FadeObjectToggleEnable : AnimateObjectsToggleEnable
     {
-        sprite = GetComponentInChildren<SpriteRenderer>();
-        image = GetComponentInChildren<Image>();
-        canvasGroup = GetComponentInChildren<CanvasGroup>();
-    }
-    public async override UniTask Disable()
-    {
-        Debug.Log("who is calling me...");
-        AnimationComplete = false;
-        if (canvasGroup != null)
+        [SerializeField]
+        float disableAnimationDuration = .5f, enableAnimationDuration = .5f;
+
+        [SerializeField]
+        CanvasGroup canvasGroup;
+        [SerializeField]
+        Image image;
+        SpriteRenderer sprite;
+
+        void Awake()
         {
+            sprite = GetComponentInChildren<SpriteRenderer>();
+            image = GetComponentInChildren<Image>();
+            canvasGroup = GetComponentInChildren<CanvasGroup>();
+        }
+        public async override UniTask Disable()
+        {
+            Debug.Log("who is calling me...");
+            AnimationComplete = false;
+            if (canvasGroup != null)
+            {
 
-            canvasGroup.DOFade(0, disableAnimationDuration)
+                canvasGroup.DOFade(0, disableAnimationDuration)
+                .OnComplete(OnCompleteDisableAnimation);
+
+            }
+
+            else if (image != null)
+            {
+                image.DOFade(0, disableAnimationDuration)
             .OnComplete(OnCompleteDisableAnimation);
-
-        }
-
-        else if (image != null)
-        {
-            image.DOFade(0, disableAnimationDuration)
-        .OnComplete(OnCompleteDisableAnimation);
-        }
-        else if (sprite != null)
-        {
-            if (sprite.material.HasProperty("AlphaAmount"))
+            }
+            else if (sprite != null)
             {
-                sprite.material.DOFloat(0, "AlphaAmount", disableAnimationDuration).OnComplete(OnCompleteDisableAnimation);
+                if (sprite.material.HasProperty("AlphaAmount"))
+                {
+                    sprite.material.DOFloat(0, "AlphaAmount", disableAnimationDuration).OnComplete(OnCompleteDisableAnimation);
+                }
+                else
+                {
+                    sprite.DOFade(0, disableAnimationDuration)
+                            .OnComplete(OnCompleteDisableAnimation);
+                }
+
             }
             else
             {
-                sprite.DOFade(0, disableAnimationDuration)
-                        .OnComplete(OnCompleteDisableAnimation);
+                Debug.LogWarning("No image or canvasGroup or spriterenderr component found, and gameObject fading not supported yet.");
             }
 
+            // await UniTask.WaitUntil(() => AnimationComplete);
         }
-        else
+        public async override UniTask Enable()
         {
-            Debug.LogWarning("No image or canvasGroup or spriterenderr component found, and gameObject fading not supported yet.");
-        }
+            // Debug.Log(canvasGroup == null);
+            AnimationComplete = false;
+            if (canvasGroup != null)
+            {
 
-        // await UniTask.WaitUntil(() => AnimationComplete);
-    }
-    public async override UniTask Enable()
-    {
-        // Debug.Log(canvasGroup == null);
-        AnimationComplete = false;
-        if (canvasGroup != null)
-        {
+                canvasGroup.DOFade(1, enableAnimationDuration)
+                .OnComplete(OnCompleteEnableAnimation);
 
-            canvasGroup.DOFade(1, enableAnimationDuration)
+            }
+
+            else if (image != null)
+            {
+                image.DOFade(1, enableAnimationDuration)
             .OnComplete(OnCompleteEnableAnimation);
-
-        }
-
-        else if (image != null)
-        {
-            image.DOFade(1, enableAnimationDuration)
-        .OnComplete(OnCompleteEnableAnimation);
-        }
-        else if (sprite != null)
-        {
-            if (sprite.material.HasProperty("AlphaAmount"))
+            }
+            else if (sprite != null)
             {
-                sprite.material.DOFloat(1, "AlphaAmount", enableAnimationDuration).OnComplete(OnCompleteEnableAnimation);
+                if (sprite.material.HasProperty("AlphaAmount"))
+                {
+                    sprite.material.DOFloat(1, "AlphaAmount", enableAnimationDuration).OnComplete(OnCompleteEnableAnimation);
+                }
+                else
+                {
+                    sprite.DOFade(1, enableAnimationDuration)
+                            .OnComplete(OnCompleteEnableAnimation);
+                }
             }
             else
             {
-                sprite.DOFade(1, enableAnimationDuration)
-                        .OnComplete(OnCompleteEnableAnimation);
+                Debug.LogWarning("No image or canvasGroup or spriterenderr component found, and gameObject fading not supported yet.");
+            }
+
+
+            // await UniTask.WaitUntil(() => AnimationComplete);
+        }
+
+
+        public override void OnCompleteDisableAnimation()
+        {
+            AnimationComplete = true;
+            this.gameObject.SetActive(false);
+            if (DestroyOnDisable)
+            {
+                Destroy(this.gameObject);
             }
         }
-        else
+        public override void OnCompleteEnableAnimation()
         {
-            Debug.LogWarning("No image or canvasGroup or spriterenderr component found, and gameObject fading not supported yet.");
+            AnimationComplete = true;
         }
 
 
-        // await UniTask.WaitUntil(() => AnimationComplete);
     }
-
-
-    public override void OnCompleteDisableAnimation()
-    {
-        AnimationComplete = true;
-        this.gameObject.SetActive(false);
-        if (DestroyOnDisable)
-        {
-            Destroy(this.gameObject);
-        }
-    }
-    public override void OnCompleteEnableAnimation()
-    {
-        AnimationComplete = true;
-    }
-
 
 }
