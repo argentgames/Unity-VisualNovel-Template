@@ -29,6 +29,7 @@ MonoBehaviour:
     m_Url: https://package.openupm.com
     m_Scopes:
     - com.cysharp.unitask
+    - com.dbrizov.naughtyattributes
     - com.demigiant.dotween
     - com.inklestudios.ink-unity-integration
     - com.neuecc.unirx
@@ -45,6 +46,7 @@ MonoBehaviour:
       m_Url: https://package.openupm.com
       m_Scopes:
       - com.cysharp.unitask
+      - com.dbrizov.naughtyattributes
       - com.demigiant.dotween
       - com.inklestudios.ink-unity-integration
       - com.neuecc.unirx
@@ -56,6 +58,7 @@ MonoBehaviour:
     m_Url: https://package.openupm.com
     m_Scopes:
     - com.cysharp.unitask
+    - com.dbrizov.naughtyattributes
     - com.demigiant.dotween
     - com.inklestudios.ink-unity-integration
     - com.neuecc.unirx

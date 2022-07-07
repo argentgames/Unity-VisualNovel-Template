@@ -45,7 +45,8 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
-    "com.demigiant.dotween": "1.2.632"
+    "com.demigiant.dotween": "1.2.632",
+    "com.dbrizov.naughtyattributes": "2.1.4"
   },
   "scopedRegistries": [
     {
@@ -53,6 +54,7 @@
       "url": "https://package.openupm.com",
       "scopes": [
         "com.cysharp.unitask",
+        "com.dbrizov.naughtyattributes",
         "com.demigiant.dotween",
         "com.inklestudios.ink-unity-integration",
         "com.neuecc.unirx",
