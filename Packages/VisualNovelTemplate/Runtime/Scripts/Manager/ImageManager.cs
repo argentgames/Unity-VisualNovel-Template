@@ -10,36 +10,109 @@ using DG.Tweening;
 using Sirenix.Serialization;
 using System.Threading;
 using NaughtyAttributes;
+/// <summary>
+/// Controls character and background images! Attached to a large prefab. 
+/// 
+/// HOW THIS WORKS: We spawn 
+/// 
+/// BACKGROUNDS
+/// 
+/// ProjectedBGObject: The final flat background image visible to the player. Has a shader
+/// that allows transitioning from preTransition ==> postTransition image states.
+/// CurrentBGCamera: Outputs to the preTransition renderTexture
+/// NewBGCamera: Outputs to the postTransition renderTexture. "origin" at (0,1000,0)
+/// 
+/// 1. Spawn a new background under NewBGContainer (which has some weird origin like (0,1000,0) 
+/// so that it's inviisble to the CurrentBGCamera)
+/// 2. Run transition from preTransition ==> postTransition. ProjectedBGObject now shows NewBG.
+/// 3. IN A SINGLE FRAME: parent new newBG to CurrentBGContainer, reset the transform position to (0,0,0),
+/// delete currentBG. Reset transition to preTransition state.
+/// 4. DOUBLE CHECK THIS WORKS WITH ANIMATIONS/CAMERA PANNING??
+/// 
+/// 
+/// 
+/// </summary>
 namespace com.argentgames.visualnoveltemplate
 {
-
-
     public class ImageManager : MonoBehaviour
     {
         public static ImageManager Instance;
+        [BoxGroup("Image containers")]
         [SerializeField]
-        public Camera BGCamera, OnscreenSpriteCamera, PortraitCamera, NewBGCamera;
+        GameObject NewBackgroundContainer;
+        [BoxGroup("Image containers")]
+        [InfoBox("Parents that hold spawned characters and overlays.")]
+        [SerializeField]
+        GameObject BackgroundContainer;
+        [BoxGroup("Image containers")]
+        [SerializeField]
+        GameObject MidgroundCharacterContainer;
+        [BoxGroup("Image containers")]
+        [SerializeField]
+        GameObject ForegroundCharacterContainer; 
+        [BoxGroup("Image containers")]
+        [SerializeField]
+        GameObject OverlayContainer;
+
+        [BoxGroup("Cameras")]
+        [InfoBox("Cameras that view SpriteRenderers and then project them to render textures.")]
+        [SerializeField]
+        public Camera CurrentBGCamera, MidgroundCharactersCamera, ForegroundCharactersContainer, NewBGCamera;
         [SerializeField]
         RawImage NewBG;
         Material newBGMaterial, newPortraitMaterial, currPortraitMaterial, newSpriteMaterial, currSpriteMaterial;
-        [SerializeField]
-        GameObject BackgroundHolder; // holds a NEW and CURRENT bgPrefab; all bgs are prefabs that have animations baked into them
-        [SerializeField]
-        GameObject CharacterLayer;
+
+
+        [InfoBox("Controller for a side portrait that lives on the ForegroundCharacter layer. Only one portrait is allowed on screen at a time!")]
         [SerializeField]
         PortraitPresenter portraitPresenter;
 
+        /// <summary>
+        /// Mapping of shots for where to place camera and which background prefab to spawn.
+        /// </summary>
+        /// <typeparam name="string"></typeparam>
+        /// <typeparam name="Shot"></typeparam>
+        /// <returns></returns>
         Dictionary<string, Shot> cameraShots = new Dictionary<string, Shot>();
+        /// <summary>
+        /// Mapping for transition wipes, such as screen dissolve or ink blot.
+        /// </summary>
+        /// <typeparam name="string"></typeparam>
+        /// <typeparam name="Wipe_SO"></typeparam>
+        /// <returns></returns>
         Dictionary<string, Wipe_SO> wipes = new Dictionary<string, Wipe_SO>();
 
+        /// <summary>
+        /// Keep reference of which characters are currently on screen (including portrait character)
+        /// so we can manipulate them without respawning them.
+        /// </summary>
+        /// <typeparam name="string">internal character name reference</typeparam>
+        /// <typeparam name="GameObject"></typeparam>
+        /// <returns></returns>
         [SerializeField]
         private Dictionary<string, GameObject> charactersOnScreen = new Dictionary<string, GameObject>();
+
+        /// <summary>
+        /// Keep track of which characters have what tints currently active. Mainly a save/load thing.
+        /// If a character has activeTint="", then no tint is being applied.
+        /// </summary>
+        /// <typeparam name="string">character name</typeparam>
+        /// <typeparam name="string">active tint name</typeparam>
+        /// <returns></returns>
+        private Dictionary<string,string> activeCharacterTints = new Dictionary<string, string>();
+
         Sequence sequence;
-        public string CurrentCameraShot;
+
+        /// <summary>
+        /// Keep track of the current Shot on screen for Save/Load purposes
+        /// </summary>
+        /// <value></value>
+        public string CurrentCameraShot { get { return currentCameraShot;}}
+        private string currentCameraShot;
+
         private CancellationTokenSource cts = new CancellationTokenSource();
         private CancellationToken ct;
 
-        public bool darkTintOn = false;
 
         [SerializeField]
         GameObject particleSystemHolder;
@@ -77,10 +150,10 @@ namespace com.argentgames.visualnoveltemplate
         {
             cts.Cancel();
         }
-        public void SetTint(bool val)
-        {
-            darkTintOn = val;
-        }
+        // public void SetTint(bool val)
+        // {
+        //     darkTintOn = val;
+        // }
         public void SetAllCharactersOnScreenActive()
         {
             foreach (var v in charactersOnScreen.Values)
@@ -90,9 +163,9 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void ClearCharactersOnScreen()
         {
-            for (int i = 0; i < CharacterLayer.transform.childCount; i++)
+            for (int i = 0; i < MidgroundCharacterContainer.transform.childCount; i++)
             {
-                AssetRefLoader.Instance.ReleaseAsset(CharacterLayer.transform.GetChild(i).gameObject);
+                AssetRefLoader.Instance.ReleaseAsset(MidgroundCharacterContainer.transform.GetChild(i).gameObject);
                 // Destroy(CharacterLayer.transform.GetChild(i).gameObject);
             }
             charactersOnScreen.Clear();
@@ -155,11 +228,11 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     p.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
                 }
-                BGCamera.transform.position = p;
+                CurrentBGCamera.transform.position = p;
             }
             if (rotation != null)
             {
-                BGCamera.transform.rotation = Quaternion.Euler((Vector3)rotation);
+                CurrentBGCamera.transform.rotation = Quaternion.Euler((Vector3)rotation);
 
             }
             if (size != null)
@@ -170,7 +243,7 @@ namespace com.argentgames.visualnoveltemplate
                     _s = GameManager.Instance.DefaultConfig.defaultBGCameraSize;
                 }
 
-                BGCamera.orthographicSize = _s;
+                CurrentBGCamera.orthographicSize = _s;
             }
 
         }
@@ -183,9 +256,9 @@ namespace com.argentgames.visualnoveltemplate
             }
             GameObject oldBG = null;
             // get ref to old bg so we can kill it |:
-            if (BackgroundHolder.transform.childCount > 0)
+            if (BackgroundContainer.transform.childCount > 0)
             {
-                oldBG = BackgroundHolder.transform.GetChild(BackgroundHolder.transform.childCount - 1).gameObject;
+                oldBG = BackgroundContainer.transform.GetChild(BackgroundContainer.transform.childCount - 1).gameObject;
             }
 
             // (optionally enable newBGCam)
@@ -193,12 +266,12 @@ namespace com.argentgames.visualnoveltemplate
 
             // spawn BG
             Debug.Log("trying to spawn bg: " + bgName);
-            CurrentCameraShot = bgName;
+            currentCameraShot = bgName;
             var shot = cameraShots[bgName];
             var bgAsset = shot.bgPrefab;
             // first spawn the prefab
-            var go = await AssetRefLoader.Instance.LoadAsset(bgAsset, BackgroundHolder.transform);
-            go.transform.SetSiblingIndex(BackgroundHolder.transform.childCount - 1);
+            var go = await AssetRefLoader.Instance.LoadAsset(bgAsset, BackgroundContainer.transform);
+            go.transform.SetSiblingIndex(BackgroundContainer.transform.childCount - 1);
 
 
             // set layer to NewBG
@@ -308,7 +381,7 @@ namespace com.argentgames.visualnoveltemplate
             // newBGMaterial.SetFloat("Alpha",1);
 
             // set currBGCamera shot to same shot as newBGCamera
-            SetCameraShot(BGCamera, shot.position, shot.rotation, shot.size);
+            SetCameraShot(CurrentBGCamera, shot.position, shot.rotation, shot.size);
 
 
 
@@ -316,9 +389,9 @@ namespace com.argentgames.visualnoveltemplate
             // only destroyOld BG if there is a preexisting bg, and also
             // if it isn't the one we just spawned, just in case
 
-            for (int i = 0; i < BackgroundHolder.transform.childCount - 1; i++)
+            for (int i = 0; i < BackgroundContainer.transform.childCount - 1; i++)
             {
-                BackgroundHolder.transform.GetChild(i).gameObject.SetActive(false);
+                BackgroundContainer.transform.GetChild(i).gameObject.SetActive(false);
             }
 
 
@@ -358,7 +431,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void HideBG(string bgName, string transition = "wipe", float duration = .4f)
         {
-            BackgroundHolder.gameObject.SetActive(false);
+            BackgroundContainer.gameObject.SetActive(false);
         }
         public async UniTaskVoid MoveCam(string moveType, Vector3 newPosition, float duration = 0f)
         {
@@ -377,19 +450,19 @@ namespace com.argentgames.visualnoveltemplate
                         newPosition.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
                     }
                     sequence.Join(
-                        BGCamera.transform.DOLocalMove(newPosition, duration)
+                        CurrentBGCamera.transform.DOLocalMove(newPosition, duration)
                     );
 
                     break;
                 case "rotation":
                     sequence.Join(
-                        BGCamera.transform.DOLocalRotate(newPosition, duration)
+                        CurrentBGCamera.transform.DOLocalRotate(newPosition, duration)
                     );
 
                     break;
                 case "size":
                     sequence.Join(
-                        BGCamera.DOOrthoSize(newPosition.x, duration)
+                        CurrentBGCamera.DOOrthoSize(newPosition.x, duration)
                     );
 
                     break;
@@ -402,8 +475,8 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (GameManager.Instance.Settings.enableScreenShake)
             {
-                BGCamera.DOShakePosition(duration, 1.3f, 4);
-                OnscreenSpriteCamera.DOShakePosition(duration, 1.3f, 4);
+                CurrentBGCamera.DOShakePosition(duration, 1.3f, 4);
+                MidgroundCharactersCamera.DOShakePosition(duration, 1.3f, 4);
             }
 
         }
@@ -451,7 +524,7 @@ namespace com.argentgames.visualnoveltemplate
                 assetToLoad = npc.mainSprite;
             }
 
-            charSprite = await AssetRefLoader.Instance.LoadAsset(assetToLoad, CharacterLayer.transform);
+            charSprite = await AssetRefLoader.Instance.LoadAsset(assetToLoad, MidgroundCharacterContainer.transform);
             charSprite.SetActive(false);
             // Debug.Break();
             // TECHDEBT this should never have stuff in it???
@@ -496,7 +569,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     assetToLoad = npc.mainSprite;
                 }
-                charSprite = await AssetRefLoader.Instance.LoadAsset(assetToLoad, CharacterLayer.transform);
+                charSprite = await AssetRefLoader.Instance.LoadAsset(assetToLoad, MidgroundCharacterContainer.transform);
                 charSprite.SetActive(false);
                 // Debug.Break();
                 charactersOnScreen[charName.TrimStart(null).TrimEnd(null)] = charSprite;
@@ -576,20 +649,20 @@ namespace com.argentgames.visualnoveltemplate
                         Debug.Log("where is my spawn fade in basic alpha");
                     }
 
-                    if (sr.material.HasProperty("DoTint"))
-                    {
-                        if (this.darkTintOn)
-                        {
-                            Debug.Log("turn tint on");
-                            // 1 is true
-                            sr.material.SetFloat("DoTint", 1);
-                        }
-                        else
-                        {
-                            Debug.Log("turn tint off");
-                            sr.material.SetFloat("DoTint", 0);
-                        }
-                    }
+                    // if (sr.material.HasProperty("DoTint"))
+                    // {
+                    //     if (this.darkTintOn)
+                    //     {
+                    //         Debug.Log("turn tint on");
+                    //         // 1 is true
+                    //         sr.material.SetFloat("DoTint", 1);
+                    //     }
+                    //     else
+                    //     {
+                    //         Debug.Log("turn tint off");
+                    //         sr.material.SetFloat("DoTint", 0);
+                    //     }
+                    // }
 
 
                 }
@@ -673,9 +746,15 @@ namespace com.argentgames.visualnoveltemplate
                 HideChar(charsOnScreen[i], duration: duration);
             }
         }
-        [SerializeField]
-        NPC_SO currentNPC;
-        public GameObject char_;
+        private GameObject char_;
+        /// <summary>
+        /// Change the expression of a specific character!
+        /// Returns UniTask<bool> because we want to check whether we needed to show the portrait.
+        /// </summary>
+        /// <param name="charName">Character to change the expression of</param>
+        /// <param name="expression">The new expression</param>
+        /// <param name="duration">The transition duration</param>
+        /// <returns></returns>
         public async UniTask<bool> ExpressionChange(string charName, string expression, float? duration = .35f)
         {
             Debug.LogFormat("expchange args for char {0}: {1}", charName, expression);
@@ -684,7 +763,7 @@ namespace com.argentgames.visualnoveltemplate
             //exp sandwich is currExp > newExp 
             // set new exp, fade out currexp, set currexp=newexp, 
             var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
-            currentNPC = npc;
+
             // if it's a portrait char, then get the portrait one, otherwise get the main big sprite
             // GameObject char_;
             bool needToShowPortrait = false;
@@ -768,9 +847,9 @@ namespace com.argentgames.visualnoveltemplate
         public async UniTask ShowShot(string shotName)
         {
             Shot shot = cameraShots[shotName];
-            BGCamera.transform.position = shot.position;
-            BGCamera.transform.rotation = Quaternion.Euler(shot.rotation);
-            BGCamera.orthographicSize = shot.size;
+            CurrentBGCamera.transform.position = shot.position;
+            CurrentBGCamera.transform.rotation = Quaternion.Euler(shot.rotation);
+            CurrentBGCamera.orthographicSize = shot.size;
             await ShowBG(shot.bgName);
         }
     }

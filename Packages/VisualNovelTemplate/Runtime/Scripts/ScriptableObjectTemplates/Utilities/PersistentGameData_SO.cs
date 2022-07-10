@@ -4,18 +4,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using UniRx;
+
+/// <summary>
+/// Game progress data that you want to save forever between launches of the game!
+/// Some common variables are in this class, such as the text you've seen before, so that
+/// a player can choose to skip only seen text.
+/// 
+/// Extend this class with your own custom game-specific variables!
+/// </summary>
 namespace com.argentgames.visualnoveltemplate
 {
     public abstract class PersistentGameData_SO : SerializedScriptableObject
     {
         public List<string> seenText = new List<string>();
         public List<string> chosenChoices = new List<string>();
+        
+        /// <summary>
+        /// By default, unlockable items start off as LOCKED. If you don't want to lock items,
+        /// make sure to set them as unlocked when you start up the game!
+        /// </summary>
+        /// <typeparam name="UnlockableItem"></typeparam>
+        /// <returns></returns>
         public List<UnlockableItem> cgUnlocked = new List<UnlockableItem>();
         public List<UnlockableItem> routeUnlocked = new List<UnlockableItem>();
         public List<UnlockableItem> routeCompleted = new List<UnlockableItem>();
         public bool watchedOP = false;
         public bool watchedCredits = false;
+        /// <summary>
+        /// Used to check for GDPR Consent. Mainly an Advertisements/Mobile thing.
+        /// </summary>
         public bool gdprConsent = false;
+        public int numGamesPlayed = 0;
 
         private Dictionary<string, UnlockableItem> cgMap = new Dictionary<string, UnlockableItem>();
         private Dictionary<string, UnlockableItem> routeUnlockedMap = new Dictionary<string, UnlockableItem>();
