@@ -46,47 +46,62 @@ namespace com.argentgames.visualnoveltemplate
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
         public Dictionary<string, string> expressionsMapForHead = new Dictionary<string, string>();
-        
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
         public Dictionary<string, Sprite> expressions = new Dictionary<string, Sprite>();
-        
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
-        public virtual void SetExpressionTextures(GameObject go, string exp, string textureName) {}
-        
+        public virtual void SetExpressionTextures(GameObject go, string exp, string textureName) { }
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
-        public virtual void SetMainTextureExpression(GameObject go, string exp) {}
-        
+        public virtual void SetMainTextureExpression(GameObject go, string exp) { }
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
         public Vector3 defaultSpawnPosition;
-        
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
         public Dictionary<ScreenPosition, Vector2> positions = new Dictionary<ScreenPosition, Vector2>();
-        
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
         [PropertyTooltip("Pose/expression of sprite spawned without any parameters, e.g. head_neutral, eyes_neutral")]
         public string defaultExpression = "";
-        
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
         public virtual string CurrentExpression { get; set; }
-        
+
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
         private GameObject bodyPartsHolder;
-        
-        [ShowIf("HasSpriteImages")]       
-        [BoxGroup("Sprite data")]
-        [PropertyTooltip("Color tint applied to sprite image, often used for nighttime or outdoor scenes to make the sprite blend in more with the environment.")]
-        public Color tintColor = new Color(89, 81, 81, 0);
 
+        [ShowIf("HasSpriteImages")]
+        [BoxGroup("Sprite data")]
+        [PropertyTooltip("Color tints applied to sprite image, often used for nighttime or outdoor scenes to make the sprite blend in more with the environment.")]
+        public List<ColorTint> colorTints = new List<ColorTint>();
+        private Dictionary<string, ColorTint> colorTintsMap = new Dictionary<string, ColorTint>();
         Sequence sequence;
         string tag = "sprite expression holder";
+        void OnEnable()
+        {
+            colorTintsMap.Clear();
+            foreach (var tint in colorTints)
+            {
+                colorTintsMap[tint.internalName] = tint;
+            }
+        }
+        public virtual void ApplyTint(string tintName)
+        {
+            foreach (var sr in bodyPartsHolder.GetComponentsInChildren<SpriteRenderer>())
+            {
+                sr.material.SetColor("_Tint", colorTintsMap[tintName].color);
+            }
+        }
         public void GenerateExpressionsMapForHead()
         {
             expressionsMapForHead.Clear();
@@ -149,7 +164,6 @@ namespace com.argentgames.visualnoveltemplate
             {
 
                 sr.material.SetFloat("_TransitionAmount", 0);
-                sr.material.SetColor("Tint", tintColor);
             }
 
         }
@@ -238,5 +252,11 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
 
+    }
+
+    public struct ColorTint
+    {
+        public Color color;
+        public string internalName;
     }
 }

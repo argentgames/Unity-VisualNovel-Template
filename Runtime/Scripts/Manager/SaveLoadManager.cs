@@ -13,6 +13,7 @@ public class SpriteSaveData
 {
     public string expressionImageName;
     public Vector3 position;
+    public string activeTintColor;
     public SpriteSaveData() { }
 }
 namespace com.argentgames.visualnoveltemplate
@@ -87,14 +88,14 @@ namespace com.argentgames.visualnoveltemplate
                 // save.currentAmbient3 = AudioManager.Instance.currentAmbient3;
                 save.currentMusic = AudioManager.Instance.GetCurrentPlayingMusic();
 
-                save.currentBGCameraPosition = ImageManager.Instance.BGCamera.transform.position;
-                save.currentBGCameraRotation = ImageManager.Instance.BGCamera.transform.eulerAngles;
+                save.currentBGCameraPosition = ImageManager.Instance.CurrentBGCamera.transform.position;
+                save.currentBGCameraRotation = ImageManager.Instance.CurrentBGCamera.transform.eulerAngles;
                 ;
-                save.currentBGSize = ImageManager.Instance.BGCamera.orthographicSize;
+                save.currentBGSize = ImageManager.Instance.CurrentBGCamera.orthographicSize;
                 save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
                 save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
-                save.isTinted = ImageManager.Instance.darkTintOn;
+                // save.isTinted = ImageManager.Instance.darkTintOn;
                 var filePath = autoSaveNamePrefix + extension;
                 SaveGame(SaveLoadManager.Instance.CreateSavePath("Saves/" + filePath), save);
                 this.saveFiles[filePath] = save;

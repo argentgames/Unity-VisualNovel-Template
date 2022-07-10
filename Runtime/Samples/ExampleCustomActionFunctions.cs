@@ -47,10 +47,10 @@ namespace com.argentgames.visualnoveltemplate
                 case "playVideo":
                     await VideoManager.Instance.PlayVideo(p[1]);
                     break;
-                case "toggleTint":
-                    ImageManager.Instance.SetTint(bool.Parse(p[1]));
+                // case "toggleTint":
+                //     ImageManager.Instance.SetTint(bool.Parse(p[1]));
 
-                    break;
+                //     break;
                 case "stop":
                     // stop music duration?
                     // stop ambient duration? channel?

@@ -155,14 +155,14 @@ public class SavePage : MonoBehaviour
         // save.currentAmbient3 = AudioManager.Instance.currentAmbient3;
         save.currentMusic = AudioManager.Instance.GetCurrentPlayingMusic();
 
-        save.currentBGCameraPosition = ImageManager.Instance.BGCamera.transform.position;
-        save.currentBGCameraRotation = ImageManager.Instance.BGCamera.transform.eulerAngles;
+        save.currentBGCameraPosition = ImageManager.Instance.CurrentBGCamera.transform.position;
+        save.currentBGCameraRotation = ImageManager.Instance.CurrentBGCamera.transform.eulerAngles;
         ;
-        save.currentBGSize = ImageManager.Instance.BGCamera.orthographicSize;
+        save.currentBGSize = ImageManager.Instance.CurrentBGCamera.orthographicSize;
         save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
         save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
-        save.isTinted = ImageManager.Instance.darkTintOn;
+        // save.isTinted = ImageManager.Instance.darkTintOn;
 
         Debug.Log("now waiting for currentScreenshot != null");
         await UniTask.WaitUntil(() => GameManager.Instance.currentScreenshot != null);
