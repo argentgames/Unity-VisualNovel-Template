@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using FMOD.Studio;
 using FMODUnity;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 // using UnityEngine.UI.Extensions;
@@ -11,6 +10,7 @@ using System.Threading;
 using DG.Tweening;
 using Unity.Profiling;
 using UnityEngine.SceneManagement;
+using NaughtyAttributes;
 
 public enum SettingsType
 {
@@ -20,7 +20,7 @@ public enum SettingsType
 namespace com.argentgames.visualnoveltemplate
 {
 
-    public class MenuManager : SerializedMonoBehaviour
+    public class MenuManager : MonoBehaviour
     {
         public static MenuManager Instance;
 
