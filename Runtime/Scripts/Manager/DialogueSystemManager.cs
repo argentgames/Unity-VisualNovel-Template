@@ -331,7 +331,7 @@ namespace com.argentgames.visualnoveltemplate
                 cts = new CancellationTokenSource();
                 ct = cts.Token;
             }
-            if (VideoManager.Instance.IsVideoPlaying)
+            if (VideoPlayerManager.Instance.IsVideoPlaying)
             {
                 return;
             }

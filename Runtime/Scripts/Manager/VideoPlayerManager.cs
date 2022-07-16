@@ -8,9 +8,9 @@ using FMODUnity;
 
 namespace com.argentgames.visualnoveltemplate
 {
-    public class VideoManager : MonoBehaviour
+    public class VideoPlayerManager : MonoBehaviour
     {
-        public static VideoManager Instance { get; set; }
+        public static VideoPlayerManager Instance { get; set; }
         VideoPlayer videoPlayer;
         [SerializeField]
         Canvas canvas;

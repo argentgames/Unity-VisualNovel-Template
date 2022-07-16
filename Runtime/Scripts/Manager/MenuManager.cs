@@ -59,9 +59,9 @@ namespace com.argentgames.visualnoveltemplate
                         return;
                     }
                     // Don't open menus while a video is playing
-                    if (VideoManager.Instance != null)
+                    if (VideoPlayerManager.Instance != null)
                     {
-                        if (VideoManager.Instance.IsVideoPlaying)
+                        if (VideoPlayerManager.Instance.IsVideoPlaying)
                         {
                             return;
                         }

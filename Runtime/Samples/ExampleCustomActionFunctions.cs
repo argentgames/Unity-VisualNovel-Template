@@ -45,7 +45,7 @@ namespace com.argentgames.visualnoveltemplate
             switch (funcName)
             {
                 case "playVideo":
-                    await VideoManager.Instance.PlayVideo(p[1]);
+                    await VideoPlayerManager.Instance.PlayVideo(p[1]);
                     break;
                 // case "toggleTint":
                 //     ImageManager.Instance.SetTint(bool.Parse(p[1]));
