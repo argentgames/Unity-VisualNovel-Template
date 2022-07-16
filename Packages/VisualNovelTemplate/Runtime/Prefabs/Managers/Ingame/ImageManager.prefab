@@ -59,7 +59,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: 0
   m_CullingMask:
@@ -176,7 +176,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: 0
   m_CullingMask:
@@ -324,7 +324,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: 0
   m_CullingMask:
@@ -501,7 +501,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: 0
   m_CullingMask:
@@ -699,7 +699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 952aaaf6478142c4d87646aa86d6eef3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NewBackgroundContainer: {fileID: 0}
+  NewBackgroundContainer: {fileID: 2688447807559443717}
   BackgroundContainer: {fileID: 1061645656455121190}
   MidgroundCharacterContainer: {fileID: 1061645657532046109}
   ForegroundCharacterContainer: {fileID: 1061645657177264678}
@@ -707,7 +707,7 @@ MonoBehaviour:
   CurrentBGCamera: {fileID: 1061645656384113752}
   MidgroundCharactersCamera: {fileID: 1061645656562353045}
   ForegroundCharactersContainer: {fileID: 5151679303614679486}
-  NewBGCamera: {fileID: 0}
+  NewBGCamera: {fileID: 4246433376860576002}
   NewBG: {fileID: 0}
   portraitPresenter: {fileID: 0}
   particleSystemHolder: {fileID: 0}
