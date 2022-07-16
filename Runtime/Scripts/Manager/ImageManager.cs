@@ -25,9 +25,9 @@ using NaughtyAttributes;
 /// 1. Spawn a new background under NewBGContainer (which has some weird origin like (0,1000,0) 
 /// so that it's inviisble to the CurrentBGCamera)
 /// 2. Run transition from preTransition ==> postTransition. ProjectedBGObject now shows NewBG.
-/// 3. IN A SINGLE FRAME: parent new newBG to CurrentBGContainer, reset the transform position to (0,0,0),
+/// 3. IN A SINGLE FRAME: parent new newBG to CurrentBGContainer, reset the transform position to (0,0,0) + newBGAnimatinoTransform,
 /// delete currentBG. Reset transition to preTransition state.
-/// 4. DOUBLE CHECK THIS WORKS WITH ANIMATIONS/CAMERA PANNING??
+/// 4. DOUBLE CHECK THIS WORKS WITH ANIMATIONS/BG PANNING?? (our cameras are STATIC. any image panning adjusts the image transform, NOT the camera transform)
 /// 
 /// 
 /// 
@@ -36,7 +36,7 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class ImageManager : MonoBehaviour
     {
-        public static ImageManager Instance;
+        public static ImageManager Instance { get; set; }
         [BoxGroup("Image containers")]
         [SerializeField]
         GameObject NewBackgroundContainer;
@@ -49,7 +49,7 @@ namespace com.argentgames.visualnoveltemplate
         GameObject MidgroundCharacterContainer;
         [BoxGroup("Image containers")]
         [SerializeField]
-        GameObject ForegroundCharacterContainer; 
+        GameObject ForegroundCharacterContainer;
         [BoxGroup("Image containers")]
         [SerializeField]
         GameObject OverlayContainer;
@@ -60,7 +60,7 @@ namespace com.argentgames.visualnoveltemplate
         public Camera CurrentBGCamera, MidgroundCharactersCamera, ForegroundCharactersContainer, NewBGCamera;
         [SerializeField]
         RawImage NewBG;
-        Material newBGMaterial, newPortraitMaterial, currPortraitMaterial, newSpriteMaterial, currSpriteMaterial;
+        Material newBGMaterial;
 
 
         [InfoBox("Controller for a side portrait that lives on the ForegroundCharacter layer. Only one portrait is allowed on screen at a time!")]
@@ -77,7 +77,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <summary>
         /// Mapping for transition wipes, such as screen dissolve or ink blot.
         /// </summary>
-        /// <typeparam name="string"></typeparam>
+        /// <typeparam name="string">name by which we refer to the wipe elsewhere</typeparam>
         /// <typeparam name="Wipe_SO"></typeparam>
         /// <returns></returns>
         Dictionary<string, Wipe_SO> wipes = new Dictionary<string, Wipe_SO>();
@@ -99,7 +99,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="string">character name</typeparam>
         /// <typeparam name="string">active tint name</typeparam>
         /// <returns></returns>
-        private Dictionary<string,string> activeCharacterTints = new Dictionary<string, string>();
+        private Dictionary<string, string> activeCharacterTints = new Dictionary<string, string>();
 
         Sequence sequence;
 
@@ -107,7 +107,7 @@ namespace com.argentgames.visualnoveltemplate
         /// Keep track of the current Shot on screen for Save/Load purposes
         /// </summary>
         /// <value></value>
-        public string CurrentCameraShot { get { return currentCameraShot;}}
+        public string CurrentCameraShot { get { return currentCameraShot; } }
         private string currentCameraShot;
 
         private CancellationTokenSource cts = new CancellationTokenSource();
@@ -117,9 +117,21 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         GameObject particleSystemHolder;
 
+        Vector3 newBGContainerPosition = new Vector3(0,0,0);
+
         private void Awake()
         {
-            Instance = this;
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Instance = this;
+            }
+
+            newBGContainerPosition = NewBackgroundContainer.transform.position;
+
             NewBG.GetComponent<RawImage>().material = Instantiate<Material>(NewBG.GetComponent<RawImage>().material);
 
             newBGMaterial = NewBG.material;
@@ -150,10 +162,6 @@ namespace com.argentgames.visualnoveltemplate
         {
             cts.Cancel();
         }
-        // public void SetTint(bool val)
-        // {
-        //     darkTintOn = val;
-        // }
         public void SetAllCharactersOnScreenActive()
         {
             foreach (var v in charactersOnScreen.Values)
@@ -221,32 +229,16 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void SetBGCameraShot(Vector3? position, Vector3? rotation, float? size)
         {
-            if (position != null)
-            {
-                var p = (Vector3)position;
-                if (p.z == 0)
-                {
-                    p.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
-                }
-                CurrentBGCamera.transform.position = p;
-            }
-            if (rotation != null)
-            {
-                CurrentBGCamera.transform.rotation = Quaternion.Euler((Vector3)rotation);
-
-            }
-            if (size != null)
-            {
-                var _s = (float)size;
-                if (_s == 0)
-                {
-                    _s = GameManager.Instance.DefaultConfig.defaultBGCameraSize;
-                }
-
-                CurrentBGCamera.orthographicSize = _s;
-            }
-
+            SetCameraShot(CurrentBGCamera,position,rotation,size);
         }
+
+        /// <summary>
+        /// Show a new background with a given transition such as a dissolve or wipe.
+        /// </summary>
+        /// <param name="bgName"></param>
+        /// <param name="transition"></param>
+        /// <param name="duration"></param>
+        /// <returns></returns>
         public async UniTask ShowBG(string bgName, string transition = "w9", float duration = 1.4f)
         {
             if (bgName == "")
@@ -270,15 +262,11 @@ namespace com.argentgames.visualnoveltemplate
             var shot = cameraShots[bgName];
             var bgAsset = shot.bgPrefab;
             // first spawn the prefab
-            var go = await AssetRefLoader.Instance.LoadAsset(bgAsset, BackgroundContainer.transform);
-            go.transform.SetSiblingIndex(BackgroundContainer.transform.childCount - 1);
+            var newBGGO = await AssetRefLoader.Instance.LoadAsset(bgAsset, NewBackgroundContainer.transform);
+            newBGGO.transform.SetSiblingIndex(BackgroundContainer.transform.childCount - 1);
 
-
-            // set layer to NewBG
-            var transforms = go.GetComponentsInChildren<Transform>();
-
-            // set all layer sorts to -= 200 so that it doesn't show up in currCam
-            var spriteRenderers = go.GetComponentsInChildren<SpriteRenderer>();
+            // set all spriteRenderer sorting order to -= 1000 so that it doesn't show up in currCam
+            var spriteRenderers = newBGGO.GetComponentsInChildren<SpriteRenderer>();
             for (int i = 0; i < spriteRenderers.Length; i++)
             {
                 if (spriteRenderers[i].sortingOrder < -500)
@@ -288,41 +276,37 @@ namespace com.argentgames.visualnoveltemplate
                 spriteRenderers[i].sortingOrder -= 1000;
             }
 
-            for (int i = 0; i < transforms.Length; i++)
-            {
-                transforms[i].gameObject.layer = LayerMask.NameToLayer("NewBG");
-            }
-
-            NewBG.material.SetFloat("TransitionAmount", 0);
-            NewBG.material.SetTexture("NewTex", NewBGCamera.activeTexture);
-
             var transitionWipe = wipes[transition];
             var ease = transitionWipe.ease;
             newBGMaterial.SetFloat("TransitionAmount", 0);
-
+            newBGMaterial.SetTexture("NewTex", NewBGCamera.activeTexture);
+            newBGMaterial.SetTexture("Wipe", transitionWipe.wipePrefab);
 
             SetCameraShot(NewBGCamera, shot.position, shot.rotation, shot.size);
 
-
-            newBGMaterial.SetTexture("Wipe", transitionWipe.wipePrefab);
-
             sequence = DOTween.Sequence();
             sequence.Pause();
-            // if bg shot is black, turn off the noise
+
+            // if bg shot is black, turn off the noise and particle system
             var noiseOpacity = GameManager.Instance.DefaultConfig.bgNoiseOpacity;
+            // TECHDEBT: random hardcoded noise time/duration multiplication
             float noiseStartTime = .8f * duration;
             float noiseDuration = .2f * duration;
             bool toggleParticleSystem = true;
-#if ANDROID_PLATFORM
-        toggleParticleSystem = false;
-#endif
+// #if ANDROID_PLATFORM
+//         toggleParticleSystem = false;
+// #endif
 
+            // TECHDEBT: maybe later you want to transition to black without turning off particle system/noise...
+            // should switch to requiring explicitly using the overlay camera?
             if (bgName == "black")
             {
                 Debug.Log("bg name is black, turning off particle system!");
                 noiseOpacity = 0;
                 toggleParticleSystem = false;
             }
+
+            // add in some small transition duration when skipping so things to don't bug out
             if (GameManager.Instance.IsSkipping)
             {
                 duration = 0.01f;
@@ -330,6 +314,12 @@ namespace com.argentgames.visualnoveltemplate
                 noiseDuration = 0.01f;
             }
 
+            // set up the animation sequencer
+            // create a sequence to simultaneously play the transition wipe and turn on/off noise
+            if (transition == "dissolve")
+            {
+                sequence.Join(newBGMaterial.DOFloat(0, "Alpha", duration).SetEase(ease).From(1));
+            }
             sequence.Join(newBGMaterial.DOFloat(1, "TransitionAmount", duration).SetEase(ease).From(0));
             sequence.Insert(noiseStartTime, newBGMaterial.DOFloat(noiseOpacity, "NoiseOpacity", noiseDuration));
 
@@ -337,16 +327,11 @@ namespace com.argentgames.visualnoveltemplate
 
 
             var animationComplete = false;
-            go.SetActive(true);
-            sequence.Play().OnStart(() =>
+            newBGGO.SetActive(true);
+            sequence.Play().OnComplete(() =>
             {
-
-
-
-            }).OnComplete(() =>
-            {
-            // Debug.Break();
-            animationComplete = true;
+                // Debug.Break();
+                animationComplete = true;
                 if (oldBG != null)
                 {
                     var oldSpriteRenderers = oldBG.GetComponentsInChildren<SpriteRenderer>();
@@ -361,77 +346,57 @@ namespace com.argentgames.visualnoveltemplate
                     spriteRenderers[i].sortingOrder += 1000;
                 }
 
-            // EXTRA TURN OFF PARTICLE SYSTEM??
-            particleSystemHolder.SetActive(toggleParticleSystem);
+                // EXTRA TURN OFF PARTICLE SYSTEM??
+                particleSystemHolder.SetActive(toggleParticleSystem);
 
 
             });
 
+            // if we are skipping, automatically run the entire sequence
+            // idk if this actually works or only runs through the first tween??
             if (GameManager.Instance.IsSkipping)
             {
                 sequence.Complete();
             }
 
             await UniTask.WaitUntil(() => animationComplete);
-            // set newBG sort order to +200.
-
-            // }
-
-            // // reset alpha in case we ran a regular fade...
-            // newBGMaterial.SetFloat("Alpha",1);
 
             // set currBGCamera shot to same shot as newBGCamera
             SetCameraShot(CurrentBGCamera, shot.position, shot.rotation, shot.size);
-
+            // move newBG down to currBGContainer
+            newBGGO.transform.position -= newBGContainerPosition;
+            newBGGO.transform.SetParent(BackgroundContainer.transform);
 
 
             // destroy oldBG, so currBGCam can see newBG now.
             // only destroyOld BG if there is a preexisting bg, and also
             // if it isn't the one we just spawned, just in case
 
-            for (int i = 0; i < BackgroundContainer.transform.childCount - 1; i++)
-            {
-                BackgroundContainer.transform.GetChild(i).gameObject.SetActive(false);
-            }
-
-
-            // if (oldBG != null)
-            // {
-            //     var oldSpriteRenderers = oldBG.GetComponentsInChildren<SpriteRenderer>();
-            //     for (int i = 0; i < oldSpriteRenderers.Length; i++)
-            //     {
-            //         oldSpriteRenderers[i].sortingOrder -= 1000;
-            //     }
-            // }
+            oldBG.gameObject.SetActive(false);
 
             // reset transitionAmount 
             newBGMaterial.SetFloat("TransitionAmount", 0);
-            // change newBG layer to Layer:Default 
-            for (int i = 0; i < transforms.Length; i++)
+            if (transition == "dissolve")
             {
-                transforms[i].gameObject.layer = LayerMask.NameToLayer("Default");
+                newBGMaterial.SetFloat("Alpha", 1);
             }
 
             // (optionally disable newBGCam since not using to free up resources) 
             // NewBGCamera.gameObject.SetActive(false);
 
-#if PLATFORM_ANDROID
 
-        if (BackgroundHolder.transform.childCount > 3)
-        {
-            for (int i = 0; i < BackgroundHolder.transform.childCount - 2; i++)
-            {
-                            AssetRefLoader.Instance.ReleaseAsset(BackgroundHolder.transform.GetChild(i).gameObject);
+                            AssetRefLoader.Instance.ReleaseAsset(oldBG.gameObject);
 
                 // Destroy(BackgroundHolder.transform.GetChild(i).gameObject);
-            }
-        }
-#endif
+            
+        
+
 
         }
-        public void HideBG(string bgName, string transition = "wipe", float duration = .4f)
+
+        public void HideBG(string bgName, string transition = "dissolve", float duration = .4f)
         {
-            BackgroundContainer.gameObject.SetActive(false);
+            ShowBG("black",duration:duration);
         }
         public async UniTaskVoid MoveCam(string moveType, Vector3 newPosition, float duration = 0f)
         {
@@ -714,16 +679,16 @@ namespace com.argentgames.visualnoveltemplate
             sequence.AppendCallback(() =>
             {
                 go.SetActive(false);
-            // charactersOnScreen.Remove(charName);
-            if (GameManager.Instance.IsSkipping)
+                // charactersOnScreen.Remove(charName);
+                if (GameManager.Instance.IsSkipping)
                 {
                     SkipBGTween();
                 }
-            // #if PLATFORM_ANDROID
-            // // destroy some old chars that aren't used anymore
-            // if (CharacterLayer.transform.childCount > 2)
-            // {
-            foreach (var character in charactersOnScreen)
+                // #if PLATFORM_ANDROID
+                // // destroy some old chars that aren't used anymore
+                // if (CharacterLayer.transform.childCount > 2)
+                // {
+                foreach (var character in charactersOnScreen)
                 {
                     if (!character.Value.activeSelf)
                     {
@@ -731,9 +696,9 @@ namespace com.argentgames.visualnoveltemplate
                         AssetRefLoader.Instance.ReleaseAsset(character.Value);
                     }
                 }
-            // }
-            // #endif
-        });
+                // }
+                // #endif
+            });
 
         }
         [Button]
