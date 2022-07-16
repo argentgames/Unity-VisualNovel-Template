@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Sirenix.OdinInspector;
 using System;
 using System.IO;
 using Cysharp.Threading.Tasks;
@@ -9,7 +8,7 @@ using UniRx;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-
+using NaughtyAttributes;
 namespace com.argentgames.visualnoveltemplate
 {
 
@@ -19,35 +18,35 @@ namespace com.argentgames.visualnoveltemplate
 /// Holds all the config and defaults.
 /// Controls game state, e.g. PAUSE, AUTODialogue, SKIPDialogue
 /// </summary>
-public class GameManager : SerializedMonoBehaviour
+public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; set; }
 
-    [PropertyTooltip("Default config values such as transition rate between backgrounds, transition texture, text unwrap speed, etc.")]
+    [Tooltip("Default config values such as transition rate between backgrounds, transition texture, text unwrap speed, etc.")]
     [SerializeField]
     [Required]
     private DefaultConfig defaultConfig;
     public DefaultConfig DefaultConfig { get { return defaultConfig; } }
 
     [SerializeField]
-    [PropertyTooltip("Persistent game settings across all game sessions such as volume and screen resolution.")]
+    [Tooltip("Persistent game settings across all game sessions such as volume and screen resolution.")]
     [Required]
     private Settings_SO settings;
     public Settings_SO Settings { get { return settings; } }
 
     [SerializeField]
-    [PropertyTooltip("Persistent game data such as all texts seen, routes currently unlocked, and cgs current unlocked.")]
+    [Tooltip("Persistent game data such as all texts seen, routes currently unlocked, and cgs current unlocked.")]
     [Required]
     private PersistentGameData_SO persistentGameData;
     public PersistentGameData_SO PersistentGameData { get { return persistentGameData;}}
     
     [SerializeField]
-    [PropertyTooltip("Texts that are reused throughout the game, such as quote characters and menu texts.")]
+    [Tooltip("Texts that are reused throughout the game, such as quote characters and menu texts.")]
     private GenericTexts_SO genericTexts;
     public GenericTexts_SO GenericTexts { get { return genericTexts; } }
     
     [SerializeField]
-    [PropertyTooltip("All characters that speak in the game.")]
+    [Tooltip("All characters that speak in the game.")]
     [Required]
     private NPCBank_SO characterDatabase;
     
