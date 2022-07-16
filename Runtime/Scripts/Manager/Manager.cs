@@ -7,7 +7,7 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class Manager : MonoBehaviour
     {
-        public BoolReactiveProperty allManagersLoaded = new BoolReactiveProperty(false);
+        public static BoolReactiveProperty allManagersLoaded = new BoolReactiveProperty(false);
         
         async UniTaskVoid Awake()
         {

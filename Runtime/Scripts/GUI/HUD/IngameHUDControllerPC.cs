@@ -27,11 +27,7 @@ namespace com.argentgames.visualnoveltemplate
         async UniTaskVoid Awake()
         {
             // wait for all our managers to exist because we are subscribing to their values
-            await UniTask.WaitUntil(() => MenuManager.Instance != null);
-            await UniTask.WaitUntil(() => GameManager.Instance != null);
-            await UniTask.WaitUntil(() => DialogueSystemManager.Instance != null);
-
-            // GameManager.Instance.ingameHUDPresenter = this;
+            await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
 
             menuVisibility.SetIsOnWithoutNotify(false);
             menuWrapperHolder.DOFade(0, 0f).OnComplete(() => menuWrapper.SetActive(false));

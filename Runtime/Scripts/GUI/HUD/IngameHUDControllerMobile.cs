@@ -26,14 +26,13 @@ namespace com.argentgames.visualnoveltemplate
         IngameHUDLogic logic;
         [SerializeField]
         CanvasGroup menuWrapperHolder;
-    public TweenPosition tweenPosition;
+        public TweenPosition tweenPosition;
 
         // Start is called before the first frame update
         async UniTaskVoid Awake()
         {
-            await UniTask.WaitUntil(() => MenuManager.Instance != null);
-            await UniTask.WaitUntil(() => GameManager.Instance != null);
-            await UniTask.WaitUntil(() => DialogueSystemManager.Instance != null);
+             // wait for all our managers to exist because we are subscribing to their values
+            await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
 
             // GameManager.Instance.ingameHUDPresenter = this;
 
