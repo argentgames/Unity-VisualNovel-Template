@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Sirenix.OdinInspector;
 using System;
 using System.IO;
 using Cysharp.Threading.Tasks;
@@ -9,6 +8,7 @@ using System.Threading;
 using UniRx;
 using Sirenix.Serialization;
 using UnityEngine.SceneManagement;
+using NaughtyAttributes;
 public class SpriteSaveData
 {
     public string expressionImageName;
@@ -21,7 +21,7 @@ namespace com.argentgames.visualnoveltemplate
 
 
 
-    public class SaveLoadManager : SerializedMonoBehaviour
+    public class SaveLoadManager : MonoBehaviour
     {
         public static SaveLoadManager Instance { get; set; }
 
