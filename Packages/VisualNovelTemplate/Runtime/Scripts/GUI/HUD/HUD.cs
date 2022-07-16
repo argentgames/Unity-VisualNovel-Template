@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace com.argentgames.visualnoveltemplate
 {
-    public class HUDController : MonoBehaviour
+    public class HUD : MonoBehaviour
     {
         [SerializeField]
         GameObject pc, mobile;
@@ -21,16 +21,7 @@ namespace com.argentgames.visualnoveltemplate
             mobile.SetActive(false);
             #endif
         }
-        // Start is called before the first frame update
-        void Start()
-        {
-        
-        }
 
-        // Update is called once per frame
-        void Update()
-        {
-        
-        }
+
     }
 }

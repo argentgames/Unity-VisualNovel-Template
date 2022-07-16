@@ -61,20 +61,20 @@ public class GameManager : SerializedMonoBehaviour
     public bool IsSkipping { get { return isSkipping.Value; } }
     public bool isGamePaused = false;
     public Texture2D currentScreenshot;
-    public IngameHUDPresenter ingameHUDPresenter;
+    public IngameHUDController ingameHUDPresenter;
 
     public void SetSkipping(bool val)
     {
         isSkipping.Value = val;
         if (ingameHUDPresenter != null)
         {
-#if !PLATFORM_ANDROID && !UNITY_ANDROID
-            ingameHUDPresenter.skip.SetIsOnWithoutNotify(val);
-            ingameHUDPresenter.skip.gameObject.GetComponent<ToggleExtension>().TextColorSwapOnSelect(val);
-#else
-            ingameHUDPresenter.skip.SetIsOnWithoutNotify(val);
-            ingameHUDPresenter.skip.gameObject.GetComponent<ToggleExtension>().ImageColorSwapOnSelect(val);
-#endif
+// #if !PLATFORM_ANDROID && !UNITY_ANDROID
+//             ingameHUDPresenter.skip.SetIsOnWithoutNotify(val);
+//             ingameHUDPresenter.skip.gameObject.GetComponent<ToggleExtension>().TextColorSwapOnSelect(val);
+// #else
+//             ingameHUDPresenter.skip.SetIsOnWithoutNotify(val);
+//             ingameHUDPresenter.skip.gameObject.GetComponent<ToggleExtension>().ImageColorSwapOnSelect(val);
+// #endif
         }
     }
     public void SetAuto(bool val)
@@ -82,14 +82,14 @@ public class GameManager : SerializedMonoBehaviour
         isAuto.Value = val;
         if (ingameHUDPresenter != null)
         {
-#if !PLATFORM_ANDROID && !UNITY_ANDROID
-            ingameHUDPresenter.auto.SetIsOnWithoutNotify(val);
-            ingameHUDPresenter.auto.gameObject.GetComponent<ToggleExtension>().TextColorSwapOnSelect(val);
-#else
-            ingameHUDPresenter.auto.SetIsOnWithoutNotify(val);
-            ingameHUDPresenter.auto.gameObject.GetComponent<ToggleExtension>().ImageColorSwapOnSelect(val);
+// #if !PLATFORM_ANDROID && !UNITY_ANDROID
+//             ingameHUDPresenter.auto.SetIsOnWithoutNotify(val);
+//             ingameHUDPresenter.auto.gameObject.GetComponent<ToggleExtension>().TextColorSwapOnSelect(val);
+// #else
+//             ingameHUDPresenter.auto.SetIsOnWithoutNotify(val);
+//             ingameHUDPresenter.auto.gameObject.GetComponent<ToggleExtension>().ImageColorSwapOnSelect(val);
 
-#endif
+// #endif
         }
     }
     async UniTaskVoid Awake()
