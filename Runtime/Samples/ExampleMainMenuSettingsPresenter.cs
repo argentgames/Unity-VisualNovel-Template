@@ -2,25 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using NaughtyAttributes;
+using Sirenix.OdinInspector;
+
+// TODO: replace using the GameObject name with a NamedGameObject
+// so that we can have arbitrary naming in our hierarchy for easy readability...
 namespace com.argentgames.visualnoveltemplate
 {
     public class ExampleMainMenuSettingsPresenter : MenuPresenter
     {
         [SerializeField]
-        List<NamedGameObject> pages = new List<NamedGameObject>();
+        // [AllowNesting]
+        List<GameObject> pages = new List<GameObject>();
         Dictionary<string,GameObject> pagesMap = new Dictionary<string, GameObject>();
 
         void Awake()
         {
             foreach (var page in pages)
             {
-                pagesMap[page.internalName] = page.gameObject;
+                pagesMap[page.name] = page.gameObject;
             }
 
             // make sure all pages are not visible except for our default page
             foreach (var page in pages)
             {
-                if (page.internalName != defaultPage)
+                if (page.name != defaultPage)
                 {
                     page.gameObject.SetActive(false);
                 }
@@ -31,7 +37,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             foreach (var page in pages)
             {
-                if (page.internalName != pageName)
+                if (page.name != pageName)
                 {
                     page.gameObject.SetActive(false);
                 }
