@@ -18,6 +18,8 @@ namespace com.argentgames.visualnoveltemplate
         DefaultConfig globals;
         [SerializeField]
         private Button NewGame, Options, LoadGame, Extras, About, Quit;
+        [SerializeField]
+        private string optionsMenuName = "", loadMenuName = "Load", extrasMenuName = "Extras", aboutMenuName = "About";
         private MainMenuLogic mainMenuLogic;
         [SerializeField]
         private CanvasGroup canvasGroup;
@@ -38,21 +40,36 @@ namespace com.argentgames.visualnoveltemplate
         {
             mainMenuLogic = GetComponent<MainMenuLogic>();
             NewGame.onClick.AddListener(() => mainMenuLogic.StartNewGame());
-            Options.onClick.AddListener(() => mainMenuLogic.ShowSettings(SettingsPage.RegularSettings));
-            LoadGame.onClick.AddListener(() => mainMenuLogic.ShowSettings(SettingsPage.Load));
-            Extras.onClick.AddListener(() => mainMenuLogic.ShowExtras(ExtrasPage.CG));
-            About.onClick.AddListener(() => mainMenuLogic.ShowExtras(ExtrasPage.ABOUT));
+            if (Options != null)
+            {
+                Options.onClick.AddListener(() => mainMenuLogic.OpenMenu(optionsMenuName));
+            }
+            if (LoadGame != null)
+            {
+                LoadGame.onClick.AddListener(() => mainMenuLogic.OpenMenu(loadMenuName));
+            }
+
+            if (Extras != null)
+            {
+                Extras.onClick.AddListener(() => mainMenuLogic.OpenMenu(extrasMenuName));
+            }
+            if (About != null)
+            {
+                About.onClick.AddListener(() => mainMenuLogic.OpenMenu(aboutMenuName));
+            }
+
+
             Quit.onClick.AddListener(() => mainMenuLogic.QuitGame());
-            Debug.Log("gdpr consent value: " + GameManager.Instance.PersistentGameData.gdprConsent.ToString());
 
 #if PLATFORM_ANDROID // || gamemanager.visualnoveltemplateconfig.adsenabled
         if (!GameManager.Instance.PersistentGameData.gdprConsent)
         {
             AdManager.Instance.ShowGDPRConsent();
         }
+        await UniTask.WaitWhile(() => GameManager.Instance.PersistentGameData.gdprConsent == false);
 #endif
 
-            await UniTask.WaitWhile(() => GameManager.Instance.PersistentGameData.gdprConsent == false);
+
 
 #if PLATFORM_ANDROID // || gamemanager.visualnoveltemplateconfig.adsenabled // convert to platform flag?
         AdManager.Instance.RequestInterstitial();

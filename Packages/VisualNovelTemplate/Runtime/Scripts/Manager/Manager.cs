@@ -19,7 +19,8 @@ namespace com.argentgames.visualnoveltemplate
                 SaveLoadManager.Instance != null &&
                 SceneTransitionManager.Instance != null &&
                 MenuManager.Instance != null &&
-                VideoPlayerManager.Instance != null
+                VideoPlayerManager.Instance != null &&
+                ImageManager.Instance != null
 
             );
             #if UNITY_ANDROID || UNITY_IOS

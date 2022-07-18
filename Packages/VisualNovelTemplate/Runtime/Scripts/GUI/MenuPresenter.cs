@@ -5,6 +5,7 @@ using DG.Tweening;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 
 /// <summary>
 /// Opens and closes a menu. Works together with the MenuManager.
@@ -15,8 +16,9 @@ using UnityEngine.UI;
 /// </summary>
 
 namespace com.argentgames.visualnoveltemplate {
-    public abstract class MenuPresenter : MonoBehaviour {
+    public abstract class MenuPresenter : SerializedMonoBehaviour {
         public string defaultPage;
+        [Tooltip("The parent that we show/hide when opening/closing the menu.")]
         public GameObject menuContainer;
         public abstract UniTask OpenPage(string pageName="");
         public virtual void CloseMenu()
