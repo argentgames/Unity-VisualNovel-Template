@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEditor;
 namespace com.argentgames.visualnoveltemplate
 {
     public class NamedGameObject : MonoBehaviour
@@ -16,4 +16,21 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
     }
+
+    // TODO: have custom editor so we can remove odin inspector dependency
+    // [CustomEditor(typeof(NamedGameObject))]
+    // public class NamedGameObjectEditor : Editor
+    // {
+    //     SerializedProperty namedGameObject;
+    //     void OnEnable()
+    //     {
+    //         namedGameObject = serializedObject.FindProperty("namedGameObject");
+    //     }
+    //     public override void OnInspectorGUI()
+    //     {
+    //         serializedObject.Update();
+    //         EditorGUILayout.PropertyField(namedGameObject);
+    //         serializedObject.ApplyModifiedProperties();
+    //     }
+    // }
 }

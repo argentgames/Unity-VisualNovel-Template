@@ -7,7 +7,7 @@ using TMPro;
 
 namespace com.argentgames.visualnoveltemplate
 {
-    public class Settings_SO : SerializedScriptableObject
+    public abstract class Settings_SO : SerializedScriptableObject
     {
         public FloatReactiveProperty MasterVolume = new FloatReactiveProperty(.5f);
         public FloatReactiveProperty AmbientVolume = new FloatReactiveProperty(.5f);
@@ -23,7 +23,7 @@ namespace com.argentgames.visualnoveltemplate
         public IntReactiveProperty fontSize = new IntReactiveProperty(1);
 
         [Button]
-        public void ResetDefaults()
+        public virtual void ResetDefaults()
         {
             MasterVolume.Value = .5f;
             AmbientVolume.Value = .5f;
@@ -37,13 +37,13 @@ namespace com.argentgames.visualnoveltemplate
             enableScreenShake = true;
 
         }
-        public SettingsSaveData Save()
+        public virtual SettingsSaveData Save()
         {
             Debug.Log("the text speed we're saving is: " + TextSpeed.Value.ToString());
             return new SettingsSaveData(MusicVolume.Value, SFXVolume.Value, TextSpeed.Value, AutoSpeed.Value,
             skipAllText, enableScreenShake, useOpenDSFont.Value, fontSize.Value);
         }
-        public void Load(SettingsSaveData data)
+        public virtual void Load(SettingsSaveData data)
         {
             Debug.Log("the text speed we're loading is: " + data.textSpeed.ToString());
             MusicVolume.Value = data.musicVolume;

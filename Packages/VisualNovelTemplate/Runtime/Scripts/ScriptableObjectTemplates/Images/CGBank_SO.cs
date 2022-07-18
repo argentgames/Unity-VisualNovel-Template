@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using Sirenix.OdinInspector;
 
+[CreateAssetMenu(fileName = "CG Bank", menuName = "Argent Games/Visual Novel Template/ScriptableObjects/CG Bank")]
 public class CGBank_SO : SerializedScriptableObject
 {
     [HorizontalGroup("CG Database"), LabelWidth(.3f)]

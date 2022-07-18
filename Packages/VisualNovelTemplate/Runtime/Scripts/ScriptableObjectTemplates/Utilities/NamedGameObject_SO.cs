@@ -11,7 +11,8 @@ using UnityEngine.ResourceManagement.ResourceProviders;
 /// </summary>
 namespace com.argentgames.visualnoveltemplate
 {
-    public abstract class NamedGameObject_SO : ScriptableObject
+    [CreateAssetMenu(fileName = "Named GO", menuName = "Argent Games/Visual Novel Template/ScriptableObjects/Named Game Object")]
+    public class NamedGameObject_SO : ScriptableObject
     {
         public AssetReference assetReference;
         public GameObject prefab;
