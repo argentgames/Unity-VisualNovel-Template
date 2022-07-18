@@ -74,13 +74,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="Shot"></typeparam>
         /// <returns></returns>
         Dictionary<string, Shot> cameraShots = new Dictionary<string, Shot>();
-        /// <summary>
-        /// Mapping for transition wipes, such as screen dissolve or ink blot.
-        /// </summary>
-        /// <typeparam name="string">name by which we refer to the wipe elsewhere</typeparam>
-        /// <typeparam name="Wipe_SO"></typeparam>
-        /// <returns></returns>
-        Dictionary<string, Wipe_SO> wipes = new Dictionary<string, Wipe_SO>();
+        
 
         /// <summary>
         /// Keep reference of which characters are currently on screen (including portrait character)
@@ -142,12 +136,7 @@ namespace com.argentgames.visualnoveltemplate
                 var shot = CameraShots[i];
                 cameraShots.Add(shot.bgName, shot);
             }
-            var Wipes = Resources.LoadAll<Wipe_SO>("wipes");
-            for (int i = 0; i < Wipes.Length; i++)
-            {
-                var w = Wipes[i];
-                wipes.Add(w.internalName, w);
-            }
+            
 
             sequence = DOTween.Sequence();
             CreateCancellationToken();
@@ -276,7 +265,7 @@ namespace com.argentgames.visualnoveltemplate
                 spriteRenderers[i].sortingOrder -= 1000;
             }
 
-            var transitionWipe = wipes[transition];
+            var transitionWipe = GameManager.Instance.GetWipe(transition);
             var ease = transitionWipe.ease;
             newBGMaterial.SetFloat("TransitionAmount", 0);
             newBGMaterial.SetTexture("NewTex", NewBGCamera.activeTexture);
