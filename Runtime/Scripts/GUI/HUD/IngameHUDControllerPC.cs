@@ -96,6 +96,17 @@ namespace com.argentgames.visualnoveltemplate
                 }
             });
 
+            GameManager.Instance.isSkipping.Subscribe(val =>
+            {
+                skip.SetIsOnWithoutNotify(val);
+                skip.GetComponent<ToggleExtension>().TextColorSwapOnSelect(val);
+            });
+            GameManager.Instance.isAuto.Subscribe(val =>
+            {
+                auto.SetIsOnWithoutNotify(val);
+                auto.GetComponent<ToggleExtension>().TextColorSwapOnSelect(val);
+            });
+
 
         }
 

@@ -102,6 +102,16 @@ namespace com.argentgames.visualnoveltemplate
                     }
                 }
             });
+            GameManager.Instance.isSkipping.Subscribe(val =>
+            {
+                skip.SetIsOnWithoutNotify(val);
+                skip.GetComponent<ToggleExtension>().ImageColorSwapOnSelect(val);
+            });
+            GameManager.Instance.isAuto.Subscribe(val =>
+            {
+                auto.SetIsOnWithoutNotify(val);
+                auto.GetComponent<ToggleExtension>().ImageColorSwapOnSelect(val);
+            });
 
 Debug.LogFormat("hideUI is null? {0}", hideUI);
         hideUI.OnClickAsObservable().Subscribe(val =>
