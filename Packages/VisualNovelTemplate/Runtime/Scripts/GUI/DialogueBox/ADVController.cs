@@ -69,7 +69,6 @@ namespace com.argentgames.visualnoveltemplate
 
         // Used to enable player input to control UI, such as hiding/showing textbox with a keybinding.
         PlayerControls _playerControls;
-        ImageManager imageManager;
         private bool portraitCurrentlyShowing = false;
         private bool waitingForPlayerToSelectChoice = false;
         bool KillTypewriterRequested = false;
@@ -106,7 +105,6 @@ namespace com.argentgames.visualnoveltemplate
 
             }).AddTo(this);
 
-            imageManager = GameObject.FindObjectOfType<ImageManager>();
             sequence = DOTween.Sequence();
             dialogueBoxSequence = DOTween.Sequence();
             HideUI(0);
@@ -252,7 +250,7 @@ namespace com.argentgames.visualnoveltemplate
             dialogueText.text = "";
             HideCTC();
             speakerText.text = "";
-            imageManager.HidePortrait();
+            portraitPresenter.HidePortrait();
             speakerNameHolder.SetActive(false);
             UIHolder.SetActive(true);
             if (dialogueBoxSequence.IsActive())
@@ -303,7 +301,7 @@ namespace com.argentgames.visualnoveltemplate
             HideCTC();
             // Debug.Log(text);
             var dialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
-
+            Debug.LogFormat("dialogue line: {0}",dialogue);
 
             await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText), cancellationToken: this.GetCancellationTokenOnDestroy());
 
@@ -320,9 +318,9 @@ namespace com.argentgames.visualnoveltemplate
             }
             bool needToShowPortrait = false;
             // Debug.LogFormat("dialogue.npc is SpriteNPC_SO?: {0}", dialogue.npc is SpriteNPC_SO);
-            if (dialogue.npc is NPC_SO)
+            if (dialogue.npc.HasSpriteImages)
             {
-                needToShowPortrait = await imageManager.ExpressionChange(dialogue.npc.internalName, dialogue.expression, dialogue.duration);
+                needToShowPortrait = await ImageManager.Instance.ExpressionChange(dialogue.npc.internalName, dialogue.expression, dialogue.duration);
                 Debug.Log(needToShowPortrait);
                 if (!needToShowPortrait)
                 {
@@ -338,8 +336,8 @@ namespace com.argentgames.visualnoveltemplate
                 }
 
             }
-
-            if (needToShowPortrait && !(bool)DialogueSystemManager.Instance.Story.variablesState["cgmode"])
+            if (needToShowPortrait)
+            // if (needToShowPortrait && !(bool)DialogueSystemManager.Instance.Story.variablesState["cgmode"])
             {
                 dialogueText.margin = new Vector4(dialogueTextLeftMarginForPortraitMode, 0, 0, 0);
             }
@@ -362,10 +360,11 @@ namespace com.argentgames.visualnoveltemplate
             var historyLog = new DialogueHistoryLine(speakerName, dialogue.text);
             DialogueSystemManager.Instance.AddDialogueToHistory(historyLog);
 
-            if ((bool)DialogueSystemManager.Instance.Story.variablesState["cgmode"])
-            {
-                needToShowPortrait = false;
-            }
+            // TODO: add toggleable needToShowPortrait instead of having an inference with cgmode
+            // if ((bool)DialogueSystemManager.Instance.Story.variablesState["cgmode"])
+            // {
+            //     needToShowPortrait = false;
+            // }
 
             // Debug.LogFormat("do i need to show portrait?: {0}", needToShowPortrait);
             if (needToShowPortrait)
@@ -407,7 +406,8 @@ namespace com.argentgames.visualnoveltemplate
 
                 // if (portraitPresenter.IsShowingPortrait)
                 // {
-                if (needToShowPortrait && !(bool)DialogueSystemManager.Instance.Story.variablesState["cgmode"])
+                    if (needToShowPortrait)
+                // if (needToShowPortrait && !(bool)DialogueSystemManager.Instance.Story.variablesState["cgmode"])
                 {
                     portraitPresenter.ShowChar(dialogue.npc.internalName);
                 }

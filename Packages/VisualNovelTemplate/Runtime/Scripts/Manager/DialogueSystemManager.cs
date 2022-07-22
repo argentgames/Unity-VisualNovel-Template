@@ -101,12 +101,13 @@ namespace com.argentgames.visualnoveltemplate
             {
                 window = Instantiate(dialogueWindowMode.prefab, this.transform);
                 dialogueWindows[dialogueWindowMode.internalName] = window;
-                window.SetActive(false);
+                // Set our default dialogue ui window 
+                // if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
+                // {
+                    dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                // }
+                window.GetComponentInChildren<DialogueUIManager>().HideUI();
             }
-
-            // Set our default dialogue ui window 
-            dialogueUIManager = dialogueWindows[GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName]
-            .GetComponent<DialogueUIManager>();
 
             // RunCancellationToken();
 
@@ -116,15 +117,16 @@ namespace com.argentgames.visualnoveltemplate
 
         }
 
-        // URGENT: Need to update this because DSM is now persistent across all scenes, not just ingame!!!
         async UniTaskVoid Start()
         {
-            var brain = GameObject.FindObjectOfType<IngameSceneBrain>();
+            
+        }
+
+        // URGENT: Need to update this because DSM is now persistent across all scenes, not just ingame!!!
+        public async UniTaskVoid RunStory()
+        {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            // Debug.LogError("waiting for brain to set up scene");
-            await UniTask.WaitWhile(() => !brain.IsDoneSettingScene);
             // await UniTask.WaitWhile(() => !AssetRefLoader.IsDoneLoadingCharacters);
-            // Debug.LogError("done waiting for brain: " + stopwatch.ElapsedMilliseconds.ToString());
             Debug.LogFormat("do we have a current save: {0}", SaveLoadManager.Instance.currentSave != null);
 
             await UniTask.WaitUntil(() => !SceneTransitionManager.Instance.IsLoading);
@@ -140,19 +142,19 @@ namespace com.argentgames.visualnoveltemplate
                     await dialogueUIManager.ShowUI();
                     await dialogueUIManager.DisplayLine(ct);
                     dialogueUIManager.HideCTC();
-                    SceneTransitionManager.Instance.FadeIn(2f);
+                    SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
 
                 }
                 else if (DialogueSystemManager.Instance.NeedToRunActionFunction())
                 {
                     await DialogueSystemManager.Instance.RunActionFunction();
-                    await SceneTransitionManager.Instance.FadeIn(2f);
+                    await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
 
 
                 }
                 else
                 {
-                    await SceneTransitionManager.Instance.FadeIn(2f);
+                    await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
                     DialogueSystemManager.Instance.RunRegularLine().Forget();
                 }
                 Debug.Log("fading in ds from a save");
@@ -164,9 +166,6 @@ namespace com.argentgames.visualnoveltemplate
                 await SceneTransitionManager.Instance.FadeIn(0f);
                 ContinueStory().Forget();
             }
-
-
-
         }
 
 
@@ -439,6 +438,7 @@ namespace com.argentgames.visualnoveltemplate
         public async UniTask RunRegularLine()
         {
             waitingToContinueStory = true;
+            CurrentProcessedDialogue = ProcessDialogue(story.currentText);
             await DisplayLine();
             await UniTask.Yield();
 

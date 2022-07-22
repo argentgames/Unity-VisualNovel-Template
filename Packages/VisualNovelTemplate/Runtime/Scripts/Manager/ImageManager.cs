@@ -59,7 +59,7 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         public Camera CurrentBGCamera, MidgroundCharactersCamera, ForegroundCharactersContainer, NewBGCamera;
         [SerializeField]
-        RawImage NewBG;
+        Image NewBG;
         Material newBGMaterial;
 
 
@@ -126,7 +126,7 @@ namespace com.argentgames.visualnoveltemplate
 
             newBGContainerPosition = NewBackgroundContainer.transform.position;
 
-            NewBG.GetComponent<RawImage>().material = Instantiate<Material>(NewBG.GetComponent<RawImage>().material);
+            NewBG.GetComponent<Image>().material = Instantiate<Material>(NewBG.GetComponent<Image>().material);
 
             newBGMaterial = NewBG.material;
 

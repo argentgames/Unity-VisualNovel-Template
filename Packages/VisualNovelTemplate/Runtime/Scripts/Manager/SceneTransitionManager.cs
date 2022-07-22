@@ -22,7 +22,7 @@ namespace com.argentgames.visualnoveltemplate
         GameObject transitionObject;
         Color black = new Color(0, 0, 0, 255);
         Color transparent = new Color(0, 0, 0, 0);
-        public bool IsLoading { get { return IsLoading; } }
+        public bool IsLoading { get { return isLoading; } }
         private bool isLoading = false;
         Tween tween;
         [SerializeField]

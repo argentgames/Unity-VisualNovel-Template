@@ -116,7 +116,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 if (UIHolder != null)
                 {
-                    return UIHolder.activeSelf && UIHolder.GetComponentInChildren<CanvasGroup>().alpha == 1;
+                    return UIHolder.activeSelf;
                 }
                 else
                 {
