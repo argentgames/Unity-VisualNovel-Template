@@ -2,22 +2,23 @@ using UnityEngine;
 using UnityEngine.Video;
 using UniRx;
 using UnityEngine.UI;
-using Sirenix.OdinInspector;
+// using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
 using FMODUnity;
-
+using NaughtyAttributes;
 namespace com.argentgames.visualnoveltemplate
 {
     public class VideoPlayerManager : MonoBehaviour
     {
         public static VideoPlayerManager Instance { get; set; }
         VideoPlayer videoPlayer;
+        [Tooltip("Canvas that contains the image that shows the video to the player.")]
         [SerializeField]
         Canvas canvas;
         PlayerControls _playerControls;
         [SerializeField]
         VideoBank_SO videoBank;
-        Video_SO currentVideo;
+        Video_SO currentVideo = null;
         public bool IsVideoPlaying { get { return videoPlayer.isPlaying; } }
         async UniTaskVoid Awake()
         {
@@ -25,6 +26,10 @@ namespace com.argentgames.visualnoveltemplate
 
             _playerControls.UI.Click.performed += ctx =>
            {
+               if (currentVideo == null)
+               {
+                   return;
+               }
                if (currentVideo.isSkippableWithoutWatching || currentVideo.HasWatchedOnce)
                {
                    if (videoPlayer.isPlaying)
@@ -38,7 +43,7 @@ namespace com.argentgames.visualnoveltemplate
 
             Instance = this;
 
-            videoPlayer = GetComponent<VideoPlayer>();
+            videoPlayer = GetComponentInChildren<VideoPlayer>();
 
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
@@ -72,6 +77,7 @@ namespace com.argentgames.visualnoveltemplate
             videoPlayer.frame = (long)videoPlayer.frameCount;
             videoPlayer.Pause();
             AudioManager.Instance.StopMusic(0);
+            currentVideo = null;
         }
 
 
