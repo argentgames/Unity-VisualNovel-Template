@@ -10,8 +10,6 @@ namespace com.argentgames.visualnoveltemplate
     public class ExampleCustomActionFunctions : CustomActionFunctions
     {
 
-        [SerializeField]
-        DialogueUIManager dialogueUIManager;
         public override async UniTask ActionFunction(string text, CancellationToken ct)
         {
             text = text.TrimStart('>').TrimStart(null).TrimEnd(null);
@@ -216,7 +214,7 @@ namespace com.argentgames.visualnoveltemplate
                     break;
                 case "spawnChar":
                     // syntax: spawnChar <charName> <any number of expressions> dur:<duration?> loc:<location?> <blocking?>
-                    // dialogueUIManager.ClearUI();
+                    // DialogueSystemManager.Instance.DialogueUIManager.ClearUI();
                     // is the last parameter for blocking?
                     numParams = p.Length;
 
@@ -306,7 +304,7 @@ namespace com.argentgames.visualnoveltemplate
 
                     break;
                 case "ec":
-                    dialogueUIManager.ClearUI();
+                    DialogueSystemManager.Instance.DialogueUIManager.ClearUI();
                     // dur = null;
                     // if (p.Length == 4)
                     // {
@@ -337,7 +335,7 @@ namespace com.argentgames.visualnoveltemplate
 
                     break;
                 case "pause":
-                    dialogueUIManager.ClearUI();
+                    DialogueSystemManager.Instance.DialogueUIManager.ClearUI();
                     if (!GameManager.Instance.IsSkipping)
                     {
                         await UniTask.Delay(TimeSpan.FromSeconds(StringExtensions.ParseFloat(p[1])), cancellationToken: ct);
@@ -358,7 +356,7 @@ namespace com.argentgames.visualnoveltemplate
                     {
                         duration = StringExtensions.ParseFloat(p[2]);
                     }
-                    await dialogueUIManager.HideUI(duration);
+                    await DialogueSystemManager.Instance.DialogueUIManager.HideUI(duration);
 
                     if (!GameManager.Instance.IsSkipping)
                     {
@@ -371,8 +369,9 @@ namespace com.argentgames.visualnoveltemplate
                     break;
                 case "ws":
                     // TODO make await for animation
-                    dialogueUIManager.ClearUI();
+                    DialogueSystemManager.Instance.DialogueUIManager.ClearUI();
                     timeToDelay = .4f;
+                    Debug.LogFormat("{0}",p);
                     if (p.Length == 2)
                     {
                         timeToDelay = StringExtensions.ParseFloat(p[1]);
@@ -381,7 +380,7 @@ namespace com.argentgames.visualnoveltemplate
                     {
                         duration = StringExtensions.ParseFloat(p[2]);
                     }
-                    await dialogueUIManager.ShowUI(duration);
+                    await DialogueSystemManager.Instance.DialogueUIManager.ShowUI(duration);
                     if (!GameManager.Instance.IsSkipping)
                     {
                         await UniTask.Delay(TimeSpan.FromSeconds(timeToDelay), cancellationToken: ct);
@@ -406,7 +405,7 @@ namespace com.argentgames.visualnoveltemplate
 
                     break;
                 case "clear":
-                    dialogueUIManager.ClearUI();
+                    DialogueSystemManager.Instance.DialogueUIManager.ClearUI();
                     if (pLength < 2)
                     {
                         duration = GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine;
@@ -425,7 +424,7 @@ namespace com.argentgames.visualnoveltemplate
                     }
                     break;
                 case "clear_p":
-                    dialogueUIManager.ClearUI();
+                    DialogueSystemManager.Instance.DialogueUIManager.ClearUI();
                     if (pLength < 2)
                     {
                         duration = GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine;
@@ -482,11 +481,11 @@ namespace com.argentgames.visualnoveltemplate
                     DialogueSystemManager.Instance.SetEndGame(true);
                     break;
                 case "disablePlayerInput":
-                    dialogueUIManager.DisableCTC();
+                    DialogueSystemManager.Instance.DialogueUIManager.DisableCTC();
                     DialogueSystemManager.Instance.SetPlayerCanContinue(false);
                     break;
                 case "enablePlayerInput":
-                    dialogueUIManager.EnableCTC();
+                    DialogueSystemManager.Instance.DialogueUIManager.EnableCTC();
                     DialogueSystemManager.Instance.SetPlayerCanContinue(true);
                     break;
                 case "showAd":

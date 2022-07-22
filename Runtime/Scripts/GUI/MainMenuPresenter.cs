@@ -26,15 +26,23 @@ namespace com.argentgames.visualnoveltemplate
 
         private async UniTaskVoid Awake()
         {
-            MenuManager.Instance.DisableSettingsUIControls();
-            // SaveLoadManager.Instance.LoadSaveFiles().Forget();
-            globals = GameManager.Instance.DefaultConfig;
-            canvasGroup.alpha = 1;
+            try
+            {
+                MenuManager.Instance.DisableSettingsUIControls();
+                // SaveLoadManager.Instance.LoadSaveFiles().Forget();
+                globals = GameManager.Instance.DefaultConfig;
+                canvasGroup.alpha = 1;
 
-            await UniTask.WaitUntil(() => SceneTransitionManager.Instance != null);
-            await UniTask.WaitUntil(() => !SceneTransitionManager.Instance.IsLoading);
-            MenuManager.Instance.EnableSettingsUIControls();
-            // await SceneTransitionManager.Instance.FadeIn(globals.sceneFadeInDuration,false);
+                await UniTask.WaitUntil(() => SceneTransitionManager.Instance != null);
+                await UniTask.WaitUntil(() => !SceneTransitionManager.Instance.IsLoading);
+                MenuManager.Instance.EnableSettingsUIControls();
+                // await SceneTransitionManager.Instance.FadeIn(globals.sceneFadeInDuration,false);
+
+            }
+            catch
+            {
+                Debug.LogFormat("You are running MM without preload managers!");
+            }
         }
         private async UniTaskVoid Start()
         {
