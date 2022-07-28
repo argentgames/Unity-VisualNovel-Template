@@ -72,6 +72,7 @@ namespace com.argentgames.visualnoveltemplate
         private bool portraitCurrentlyShowing = false;
         private bool waitingForPlayerToSelectChoice = false;
         bool KillTypewriterRequested = false;
+        bool playerHidUI = false;
         void Awake()
         {
             _playerControls = new PlayerControls();
@@ -80,18 +81,23 @@ namespace com.argentgames.visualnoveltemplate
                ToggleUI();
                GameManager.Instance.SetAuto(false);
                GameManager.Instance.SetSkipping(false);
+               playerHidUI = !playerHidUI;
            };
             _playerControls.UI.Click.performed += ctx =>
             {
-                Debug.Log("player click so toggle UI");
-                if (!UIHolder.activeSelf)
+                if (playerHidUI)
                 {
-                    if (GameObject.Find("Popup") == null && GameObject.Find("Ad") == null && DialogueSystemManager.Instance.PlayerCanContinue)
-                    {
-
-                        ToggleUI();
-                    }
+                    ToggleUI();
                 }
+                // Debug.Log("player click so toggle UI");
+                // if (!UIHolder.activeSelf)
+                // {
+                //     if (GameObject.Find("Popup") == null && GameObject.Find("Ad") == null && DialogueSystemManager.Instance.PlayerCanContinue)
+                //     {
+
+                //         ToggleUI();
+                //     }
+                // }
             };
         }
         // Start is called before the first frame update
@@ -128,6 +134,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 Debug.Log("is displaying line, killing typewriter!");
                 // DialogueSystemManager.Instance.RunCancellationToken();
+                // TODO: CAN"T SKIP BY SPAM CLICKING AT THE MOMENT :(((((
                 KillTypewriter();
             }
 
@@ -147,7 +154,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     DialogueSystemManager.Instance.InkContinueStory();
                     HideCTC();
-                    DisableCTC();
+                    // DisableCTC();
                     ClearText();
                 }
 
@@ -161,6 +168,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public override void EnableCTC()
         {
+            Debug.Log("Enable ctc");
             clickToContinue.gameObject.SetActive(true);
         }
         public override void HideCTC()
@@ -179,17 +187,18 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (UIHolder.activeSelf)
             {
-                if (GameManager.Instance.IsSkipping)
-                {
-                    duration = 0.002f;
-                }
+                // TECHDEBT: hax for skipping bugs?
+                // if (GameManager.Instance.IsSkipping)
+                // {
+                //     duration = 0.002f;
+                // }
                 if (!dialogueBoxSequence.IsActive())
                 {
                     dialogueBoxSequence = DOTween.Sequence();
                 }
-                foreach (var cg in uiElementsToToggle)
+                foreach (var uiElement in uiElementsToToggle)
                 {
-                    dialogueBoxSequence.Join(cg.DOFade(0, duration));
+                    dialogueBoxSequence.Join(uiElement.DOFade(0, duration));
                 }
 
 
@@ -231,9 +240,9 @@ namespace com.argentgames.visualnoveltemplate
         {
             UIHolder.SetActive(true);
             dialogueBoxSequence = DOTween.Sequence();
-            foreach (var cg in uiElementsToToggle)
+            foreach (var uiElement in uiElementsToToggle)
             {
-                dialogueBoxSequence.Join(cg.DOFade(1, duration));
+                dialogueBoxSequence.Join(uiElement.DOFade(1, duration));
             }
 
             dialogueBoxSequence.Play();
@@ -264,9 +273,9 @@ namespace com.argentgames.visualnoveltemplate
             {
                 duration = 0.002f;
             }
-            foreach (var cg in uiElementsToToggle)
+            foreach (var uiElement in uiElementsToToggle)
             {
-                dialogueBoxSequence.Join(cg.DOFade(1, duration));
+                dialogueBoxSequence.Join(uiElement.DOFade(1, duration));
             }
 
             dialogueBoxSequence.Play();
