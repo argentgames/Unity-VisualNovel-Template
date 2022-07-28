@@ -38,6 +38,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     allNPCDatabase[npc.internalName] = npc;
                 }
+                
 
             }
 

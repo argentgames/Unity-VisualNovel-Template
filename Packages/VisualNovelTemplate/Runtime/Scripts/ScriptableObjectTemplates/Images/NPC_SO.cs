@@ -23,33 +23,37 @@ namespace com.argentgames.visualnoveltemplate
         public Color NameColor = new Color(255, 255, 255, 255);
         [PropertyTooltip("The color of a character's spoken lines displayed in-game.")]
         public Color TextColor = new Color(255, 255, 255, 255);
-        public NPC_NAME npcName;
 
 
         [PropertySpace(SpaceBefore = 20)]
         [InfoBox("Set this to true to reveal fields for adding in image data to an NPC")]
         public bool HasSpriteImages = false;
 
+        [InfoBox("Sprite image. You can only have one sprite type for an npc!")]
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
+        [DisableIf("@this.sidePanelSprite.RuntimeKeyIsValid() || this.portraitSprite.RuntimeKeyIsValid()")]
         [PropertyTooltip("Large midground sprite shown behind the textbox")]
         public AssetReference mainSprite = null;
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
+        [DisableIf("@this.mainSprite.RuntimeKeyIsValid() || this.portraitSprite.RuntimeKeyIsValid()")]
         [PropertyTooltip("Side panel sprites are shown above the textbox but do not have a fixed location. You can move them around such as being to the right of the textbox.")]
         public AssetReference sidePanelSprite = null;
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
+        [DisableIf("@this.sidePanelSprite.RuntimeKeyIsValid() || this.mainSprite.RuntimeKeyIsValid()")]
         [PropertyTooltip("Portrait sprite is shown in a single fixed location and above the textbox.")]
         public AssetReference portraitSprite = null;
 
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
-        public Dictionary<string, string> expressionsMapForHead = new Dictionary<string, string>();
+        // TECHDEBT: not sure what this is for. Probably auto setting an exp when there's a pose change??
+        private Dictionary<string, List<SpriteExpressionData>> expressionsMapForHead = new Dictionary<string, List<SpriteExpressionData>>();
 
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
-        public Dictionary<string, Sprite> expressions = new Dictionary<string, Sprite>();
+        public List<SpriteExpression> expressions = new List<SpriteExpression>();
 
         [ShowIf("HasSpriteImages")]
         [BoxGroup("Sprite data")]
@@ -87,6 +91,7 @@ namespace com.argentgames.visualnoveltemplate
         private Dictionary<string, ColorTint> colorTintsMap = new Dictionary<string, ColorTint>();
         Sequence sequence;
         string tag = "sprite expression holder";
+        public char prefixDelimiter = '_';
         void OnEnable()
         {
             colorTintsMap.Clear();
@@ -94,6 +99,25 @@ namespace com.argentgames.visualnoveltemplate
             {
                 colorTintsMap[tint.internalName] = tint;
             }
+
+        }
+        public Sprite GetExpressionImage(string expression)
+        {
+            // get prefix from expression.
+            var splitExpression = expression.Split(prefixDelimiter);
+            var prefix = splitExpression[0];
+            var noPrefixExpression = splitExpression[1];
+            var part = expressionsMapForHead[prefix];
+            foreach (var exp in part)
+            {
+                if (exp.internalName == noPrefixExpression)
+                {
+                    return exp.sprite;
+                }
+
+            }
+            Debug.LogErrorFormat("Unable to locate expression {0}", expression);
+            return null;
         }
         public virtual void ApplyTint(string tintName)
         {
@@ -105,9 +129,9 @@ namespace com.argentgames.visualnoveltemplate
         public void GenerateExpressionsMapForHead()
         {
             expressionsMapForHead.Clear();
-            foreach (KeyValuePair<string, Sprite> keyValuePair in expressions)
+            foreach (var exp in expressions)
             {
-                expressionsMapForHead.Add(keyValuePair.Value.name, keyValuePair.Key);
+                // expressionsMapForHead.Add(exp.internalName, exp.sprite);
             }
         }
 
@@ -258,5 +282,17 @@ namespace com.argentgames.visualnoveltemplate
     {
         public Color color;
         public string internalName;
+    }
+
+    public struct SpriteExpression
+    {
+        public string prefix;
+        public List<SpriteExpressionData> expressionDatas;
+
+    }
+    public struct SpriteExpressionData
+    {
+        public string internalName;
+        public Sprite sprite;
     }
 }

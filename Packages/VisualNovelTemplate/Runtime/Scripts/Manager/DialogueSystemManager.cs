@@ -111,10 +111,6 @@ namespace com.argentgames.visualnoveltemplate
 
             // RunCancellationToken();
 
-            // MC_NPC_SO mc = (MC_NPC_SO) GameManager.Instance.NamedCharacterDatabase[NPC_NAME.MC];
-            // story.variablesState["mc_name"] = mc.DisplayName;
-            // Debug.LogFormat("mc name si now: {0}", (string)story.variablesState["mc_name"]);
-
         }
 
         async UniTaskVoid Start()
