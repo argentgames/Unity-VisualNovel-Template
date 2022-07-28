@@ -494,7 +494,18 @@ namespace com.argentgames.visualnoveltemplate
             ShowChar(charName, saveData.position, duration: 0);
         }
         [Button]
-        public async UniTask SpawnChar(string charName, string expression, Vector3? location = null, float? duration = null)
+        /// <summary>
+        /// Character does not exist on screen. Spawn it with provided expression.
+        /// TODO: support different spawn transitions (e.g. sliding in, not only fading in)
+        /// </summary>
+        /// <param name="charName">The character to spawn</param>
+        /// <param name="expression">The initial expression</param>
+        /// <param name="location">Location of character spawn point</param>
+        /// <param name="transition">Transition type, e.g. dissolve, slideFromRight</param>
+        /// <param name="duration">transition duration</param>
+        /// <returns></returns>
+        public async UniTask SpawnChar(string charName, string expression, Vector3? location = null,
+        string transition = "dissolve", float? duration = null)
         {
             if (duration == null)
             {
@@ -533,18 +544,16 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("char already on screen, reusing!");
                 charSprite = charactersOnScreen[charName.TrimStart(null).TrimEnd(null)];
             }
+            var spriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
+            spriteWrapperController.SetExpression(expression);
 
-            npc.SetInitialExpression(charSprite, expression);
-            // Debug.Log(charactersOnScreen.Count);
-            if (!((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"]))
-            {
                 if (location == null)
                 {
                     location = npc.defaultSpawnPosition;
                 }
                 // move char to location
                 charSprite.transform.position = (Vector3)location;
-            }
+            
 
 
             // OnscreenSpriteCamera.Render();
@@ -555,16 +564,17 @@ namespace com.argentgames.visualnoveltemplate
             // Debug.Break();
 
             // TECHDEBT: sidepanel is basically a portrait so we want instant show
-            if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
-            {
-                duration = 0;
-            }
-            await ShowChar(charName, location, duration: (float)duration);
+            // if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
+            // {
+            //     duration = 0;
+            // }
+            await  ShowChar(charName, location, transition:transition, duration: (float)duration);
             // OnscreenSpriteCamera.Render();
 
         }
         public async UniTask ShowChar(string charName, Vector3? location, string transition = "dissolve", float duration = 1f)
         {
+            // TECHDEBT: need to be able to show a character with an arbitrary transition!
             // Debug.Log("lol am i ever called");
             var go = charactersOnScreen[charName];
             var animationComplete = false;
@@ -579,12 +589,13 @@ namespace com.argentgames.visualnoveltemplate
             {
                 animationComplete = true;
             }
-            if (GameManager.Instance.IsSkipping)
-            { duration = 0.002f; }
-            else
-            {
+            // TECHDEBT
+            // if (GameManager.Instance.IsSkipping)
+            // { duration = 0.002f; }
+            // else
+            // {
                 duration = GameManager.Instance.DefaultConfig.spawnCharacterDuration;
-            }
+            // }
             if (!go.activeSelf)
             {
                 animationComplete = false;
@@ -631,14 +642,15 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => animationComplete);
             // move the gameobject to Location
             // animate showing with transition and duration
-            if (!GameManager.Instance.IsSkipping)
-            {
+            // TECHDEBT
+            // if (!GameManager.Instance.IsSkipping)
+            // {
                 await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText));
-            }
-            else
-            {
-                await UniTask.Delay(TimeSpan.FromSeconds(.002f), cancellationToken: this.ct);
-            }
+            // }
+            // else
+            // {
+            //     await UniTask.Delay(TimeSpan.FromSeconds(.002f), cancellationToken: this.ct);
+            // }
 
 
         }

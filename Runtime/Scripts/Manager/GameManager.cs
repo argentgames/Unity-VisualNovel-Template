@@ -96,6 +96,19 @@ namespace com.argentgames.visualnoveltemplate
                 wipes.Add(w.internalName, w);
             }
 
+            // make sure all our referenced names are correct for characters
+            // foreach (var npc in characterDatabase.allNPCDatabase.Values)
+            // {
+            //     if (npc.HasSpriteImages)
+            //     {
+            //         foreach (var exp in npc.expressions)
+            //         {
+            //             exp.InitializeExpressionDatas();
+            //         }
+            //     }
+
+            // }
+
 
             await UniTask.WaitUntil(() => SaveLoadManager.Instance != null);
             // load settings
