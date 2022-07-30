@@ -24,6 +24,7 @@ namespace com.argentgames.visualnoveltemplate
         public float delayBeforeShowText = .4f;
         public float delayBeforHideClickUIFX = .4f;
         public float expressionChangeDuration = .35f;
+        public DG.Tweening.Ease expressionTransitionEase = DG.Tweening.Ease.InCubic;
         public float spawnCharacterDuration = .3f;
         public float hideCharacterDuration = .3f;
         public float delayBeforeAutoNextLine = .5f;

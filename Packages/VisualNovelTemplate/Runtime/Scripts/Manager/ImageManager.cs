@@ -74,7 +74,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="Shot"></typeparam>
         /// <returns></returns>
         Dictionary<string, Shot> cameraShots = new Dictionary<string, Shot>();
-        
+
 
         /// <summary>
         /// Keep reference of which characters are currently on screen (including portrait character)
@@ -111,7 +111,7 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         GameObject particleSystemHolder;
 
-        Vector3 newBGContainerPosition = new Vector3(0,0,0);
+        Vector3 newBGContainerPosition = new Vector3(0, 0, 0);
 
         private void Awake()
         {
@@ -136,7 +136,7 @@ namespace com.argentgames.visualnoveltemplate
                 var shot = CameraShots[i];
                 cameraShots.Add(shot.bgName, shot);
             }
-            
+
 
             sequence = DOTween.Sequence();
             CreateCancellationToken();
@@ -218,7 +218,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void SetBGCameraShot(Vector3? position, Vector3? rotation, float? size)
         {
-            SetCameraShot(CurrentBGCamera,position,rotation,size);
+            SetCameraShot(CurrentBGCamera, position, rotation, size);
         }
 
         /// <summary>
@@ -282,9 +282,9 @@ namespace com.argentgames.visualnoveltemplate
             float noiseStartTime = .8f * duration;
             float noiseDuration = .2f * duration;
             bool toggleParticleSystem = true;
-// #if ANDROID_PLATFORM
-//         toggleParticleSystem = false;
-// #endif
+            // #if ANDROID_PLATFORM
+            //         toggleParticleSystem = false;
+            // #endif
 
             // TECHDEBT: maybe later you want to transition to black without turning off particle system/noise...
             // should switch to requiring explicitly using the overlay camera?
@@ -374,18 +374,18 @@ namespace com.argentgames.visualnoveltemplate
             // NewBGCamera.gameObject.SetActive(false);
 
 
-                            AssetRefLoader.Instance.ReleaseAsset(oldBG.gameObject);
+            AssetRefLoader.Instance.ReleaseAsset(oldBG.gameObject);
 
-                // Destroy(BackgroundHolder.transform.GetChild(i).gameObject);
-            
-        
+            // Destroy(BackgroundHolder.transform.GetChild(i).gameObject);
+
+
 
 
         }
 
         public void HideBG(string bgName, string transition = "dissolve", float duration = .4f)
         {
-            ShowBG("black",duration:duration);
+            ShowBG("black", duration: duration);
         }
         public async UniTaskVoid MoveCam(string moveType, Vector3 newPosition, float duration = 0f)
         {
@@ -461,24 +461,33 @@ namespace com.argentgames.visualnoveltemplate
         {
             var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
             GameObject charSprite;
-            AssetReference assetToLoad;
-            if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
+            Debug.Log("need to spawn new char");
+            var layerToSpawn = MidgroundCharacterContainer;
+            switch (npc.spawnLayer)
             {
-                if (npc.portraitSprite != null)
-                {
-                    assetToLoad = npc.portraitSprite;
-                }
-                else
-                {
-                    assetToLoad = npc.mainSprite;
-                }
+                case ImageLayer.Foreground:
+                    layerToSpawn = ForegroundCharacterContainer;
+                    break;
+                case ImageLayer.Midground:
+                    layerToSpawn = MidgroundCharacterContainer;
+                    break;
+            }
+
+            if (npc.UseAddressables)
+            {
+                AssetReference assetToLoad = new AssetReference();
+
+
+                assetToLoad = npc.charGameObjectAssetRef;
+
+
+                charSprite = await AssetRefLoader.Instance.LoadAsset(npc.charGameObjectAssetRef, layerToSpawn.transform);
+
             }
             else
             {
-                assetToLoad = npc.mainSprite;
+                charSprite = GameObject.Instantiate(npc.charGameObject, layerToSpawn.transform);
             }
-
-            charSprite = await AssetRefLoader.Instance.LoadAsset(assetToLoad, MidgroundCharacterContainer.transform);
             charSprite.SetActive(false);
             // Debug.Break();
             // TECHDEBT this should never have stuff in it???
@@ -487,9 +496,10 @@ namespace com.argentgames.visualnoveltemplate
                 charactersOnScreen.Add(charName.TrimStart(null).TrimEnd(null), charSprite);
             }
 
+            var charSpriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
+
             Debug.Log("save data expression: " + saveData.expressionImageName);
-            npc.SetExpression(charSprite, saveData.expressionImageName);
-            npc.SetNewOldExpression(charSprite, saveData.expressionImageName);
+            charSpriteWrapperController.ExpressionChange(saveData.expressionImageName, 0);
             Debug.LogFormat("position to spawn at {0}", saveData.position);
             ShowChar(charName, saveData.position, duration: 0);
         }
@@ -517,24 +527,32 @@ namespace com.argentgames.visualnoveltemplate
             if (!charactersOnScreen.ContainsKey(charName.TrimStart(null).TrimEnd(null)))
             {
                 Debug.Log("need to spawn new char");
-                AssetReference assetToLoad = new AssetReference();
-
-                if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
+                var layerToSpawn = MidgroundCharacterContainer;
+                switch (npc.spawnLayer)
                 {
-                    if (npc.portraitSprite != null)
-                    {
-                        assetToLoad = npc.portraitSprite;
-                    }
-                    else
-                    {
-                        assetToLoad = npc.mainSprite;
-                    }
+                    case ImageLayer.Foreground:
+                        layerToSpawn = ForegroundCharacterContainer;
+                        break;
+                    case ImageLayer.Midground:
+                        layerToSpawn = MidgroundCharacterContainer;
+                        break;
+                }
+
+                if (npc.UseAddressables)
+                {
+                    AssetReference assetToLoad = new AssetReference();
+
+
+                    assetToLoad = npc.charGameObjectAssetRef;
+
+
+                    charSprite = await AssetRefLoader.Instance.LoadAsset(npc.charGameObjectAssetRef, layerToSpawn.transform);
+
                 }
                 else
                 {
-                    assetToLoad = npc.mainSprite;
+                    charSprite = GameObject.Instantiate(npc.charGameObject, layerToSpawn.transform);
                 }
-                charSprite = await AssetRefLoader.Instance.LoadAsset(assetToLoad, MidgroundCharacterContainer.transform);
                 charSprite.SetActive(false);
                 // Debug.Break();
                 charactersOnScreen[charName.TrimStart(null).TrimEnd(null)] = charSprite;
@@ -545,15 +563,15 @@ namespace com.argentgames.visualnoveltemplate
                 charSprite = charactersOnScreen[charName.TrimStart(null).TrimEnd(null)];
             }
             var spriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
-            spriteWrapperController.SetExpression(expression);
+            spriteWrapperController.ExpressionChange(expression, 0).Forget();
 
-                if (location == null)
-                {
-                    location = npc.defaultSpawnPosition;
-                }
-                // move char to location
-                charSprite.transform.position = (Vector3)location;
-            
+            if (location == null)
+            {
+                location = npc.defaultSpawnPosition;
+            }
+            // move char to location
+            charSprite.transform.position = (Vector3)location;
+
 
 
             // OnscreenSpriteCamera.Render();
@@ -568,7 +586,7 @@ namespace com.argentgames.visualnoveltemplate
             // {
             //     duration = 0;
             // }
-            await  ShowChar(charName, location, transition:transition, duration: (float)duration);
+            await ShowChar(charName, location, transition: transition, duration: (float)duration);
             // OnscreenSpriteCamera.Render();
 
         }
@@ -594,7 +612,7 @@ namespace com.argentgames.visualnoveltemplate
             // { duration = 0.002f; }
             // else
             // {
-                duration = GameManager.Instance.DefaultConfig.spawnCharacterDuration;
+            duration = GameManager.Instance.DefaultConfig.spawnCharacterDuration;
             // }
             if (!go.activeSelf)
             {
@@ -645,7 +663,7 @@ namespace com.argentgames.visualnoveltemplate
             // TECHDEBT
             // if (!GameManager.Instance.IsSkipping)
             // {
-                await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText));
+            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText));
             // }
             // else
             // {
@@ -761,31 +779,8 @@ namespace com.argentgames.visualnoveltemplate
 
             if (expression.TrimStart(null).TrimEnd(null) != "")
             {
-                npc.SetExpression(char_, expression);
+                await char_.GetComponentInChildren<SpriteWrapperController>().ExpressionChange(expression);
             }
-            Debug.Log("done setting expression, all newTex should have new exp");
-            // Debug.Break();
-            // TODO: not really a todo, but we arn't supporting other transition types for exp change
-
-            if (duration == null || duration == -1)
-            {
-                duration = GameManager.Instance.DefaultConfig.expressionChangeDuration;
-            }
-            if (GameManager.Instance.IsSkipping)
-            {
-                duration = 0.002f;
-            }
-            await npc.UpdateExpression(char_, (float)duration);
-            Debug.Log("done updating expression, transition should be 1");
-            // Debug.Break();
-            // after we have transitioned between current => new expression, we need to set the textures so that
-            // current == new textures
-            npc.SetNewOldExpression(char_, expression);
-            Debug.Log("done copy newTex expressions down to mainTex");
-            // Debug.Break();
-            npc.ResetTransitionAmount(char_);
-            Debug.Log("reset transition amount to 0");
-            // Debug.Break();
 
             if (!GameManager.Instance.IsSkipping)
             {
@@ -793,7 +788,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(.002f), cancellationToken: this.ct);
+                // await UniTask.Delay(TimeSpan.FromSeconds(.002f), cancellationToken: this.ct);
             }
 
             // Debug.LogFormat("do i need to show portrait?: {0}", needToShowPortrait);

@@ -97,17 +97,7 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             // make sure all our referenced names are correct for characters
-            // foreach (var npc in characterDatabase.allNPCDatabase.Values)
-            // {
-            //     if (npc.HasSpriteImages)
-            //     {
-            //         foreach (var exp in npc.expressions)
-            //         {
-            //             exp.InitializeExpressionDatas();
-            //         }
-            //     }
-
-            // }
+            characterDatabase.GenerateAllExpressionsMaps();
 
 
             await UniTask.WaitUntil(() => SaveLoadManager.Instance != null);
