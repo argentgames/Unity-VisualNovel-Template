@@ -109,6 +109,7 @@ namespace com.argentgames.visualnoveltemplate
                 window.GetComponentInChildren<DialogueUIManager>().HideUI();
             }
 
+
             // RunCancellationToken();
 
         }
@@ -232,7 +233,12 @@ namespace com.argentgames.visualnoveltemplate
         {
             return new DialogueHistoryLine(log);
         }
-
+        [Button]
+        public void RunStoryNode(string node)
+        {
+            story.ChoosePathString(node);
+            ContinueStory().Forget();
+        }
         public bool IsProcessingLine = true;
         public bool IsRunningActionFunction = false;
         public bool IsContinueStoryRunning = false;
@@ -241,6 +247,8 @@ namespace com.argentgames.visualnoveltemplate
 
             IsContinueStoryRunning = true;
             InkContinueStory();
+
+            stopwatch = new System.Diagnostics.Stopwatch();
 
             while (true && !EndGame)
             {

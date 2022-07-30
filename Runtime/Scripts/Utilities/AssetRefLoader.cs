@@ -62,7 +62,7 @@ public class AssetRefLoader : MonoBehaviour
 #endif
     }
 
-    public async UniTask<GameObject> LoadAsset(AssetReference asset, Transform transform)
+    public async UniTask<GameObject> LoadAsset(AssetReference assetKey, Transform transform)
     {
         // if (assetMap.ContainsKey(asset) && assetMap[asset] != null)
         // {
@@ -76,25 +76,25 @@ public class AssetRefLoader : MonoBehaviour
         //     Debug.Log("creating a new go");
         GameObject handler;
         GameObject instantiatedGO = null;
-        if (asset.OperationHandle.IsValid())
+        if (assetKey.OperationHandle.IsValid())
         {
-            await UniTask.WaitWhile(() => asset.OperationHandle.Status == AsyncOperationStatus.None);
-            switch (asset.OperationHandle.Status)
+            await UniTask.WaitWhile(() => assetKey.OperationHandle.Status == AsyncOperationStatus.None);
+            switch (assetKey.OperationHandle.Status)
             {
                 case AsyncOperationStatus.Succeeded:
                     Debug.Log("status is SUCCEEDEDDDDDD ALL WE GOTTA DO IS REUSE A CACHED HANDLER");
-                    handler = assetMap[asset.OperationHandle];
+                    handler = assetMap[assetKey.OperationHandle];
                     instantiatedGO = GameObject.Instantiate(handler, transform);
                     instantiatedGO.SetActive(false);
                     break;
                 case AsyncOperationStatus.Failed:
                     Debug.Log("sttaus is FAILED idk why but this snt safe");
-                    Addressables.Release(asset.OperationHandle);
-                    assetMap.Remove(asset.OperationHandle);
+                    Addressables.Release(assetKey.OperationHandle);
+                    assetMap.Remove(assetKey.OperationHandle);
 
                     // handler = await asset.LoadAssetAsync<GameObject>();
-                    handler = (GameObject)asset.OperationHandle.Result;
-                    assetMap[asset.OperationHandle] = handler;
+                    handler = (GameObject)assetKey.OperationHandle.Result;
+                    assetMap[assetKey.OperationHandle] = handler;
 
                     instantiatedGO = GameObject.Instantiate(handler, transform);
                     // assetMapReversed[instantiatedGO] = asset.OperationHandle;
@@ -103,11 +103,11 @@ public class AssetRefLoader : MonoBehaviour
                 case AsyncOperationStatus.None:
                     Debug.Log("statys is NONE, probably never seen this asset before");
                     // handler = await asset.LoadAssetAsync<GameObject>();
-                    handler = (GameObject)asset.OperationHandle.Result;
-                    assetMap[asset.OperationHandle] = handler;
+                    handler = (GameObject)assetKey.OperationHandle.Result;
+                    assetMap[assetKey.OperationHandle] = handler;
 
                     instantiatedGO = GameObject.Instantiate(handler, transform);
-                    assetMapReversed[instantiatedGO] = asset.OperationHandle;
+                    assetMapReversed[instantiatedGO] = assetKey.OperationHandle;
                     instantiatedGO.SetActive(false);
                     break;
                 default:
@@ -117,14 +117,20 @@ public class AssetRefLoader : MonoBehaviour
         }
         else
         {
-            Debug.Log("statys INVALID, probably never seen this asset before");
-            // handler = await asset.LoadAssetAsync<GameObject>();
-            handler = (GameObject)asset.OperationHandle.Result;
-            assetMap[asset.OperationHandle] = handler;
+            AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(assetKey);
+            await handle;
+            handler = handle.Result;
+            
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                assetMap[assetKey.OperationHandle] = handler;
+                assetMap[assetKey.OperationHandle] = handler;
 
-            instantiatedGO = GameObject.Instantiate(handler, transform);
-            assetMapReversed[instantiatedGO] = asset.OperationHandle;
-            instantiatedGO.SetActive(false);
+                instantiatedGO = GameObject.Instantiate(handler, transform);
+                assetMapReversed[instantiatedGO] = assetKey.OperationHandle;
+                instantiatedGO.SetActive(false);
+            }
+
         }
 
 
@@ -133,7 +139,6 @@ public class AssetRefLoader : MonoBehaviour
 
 
         return instantiatedGO;
-        // }
 
     }
     [Button]

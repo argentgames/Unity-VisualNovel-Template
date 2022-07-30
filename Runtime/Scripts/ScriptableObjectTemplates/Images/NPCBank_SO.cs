@@ -53,6 +53,14 @@ namespace com.argentgames.visualnoveltemplate
             }
             return allNPCDatabase[npcName];
         }
+
+        public void GenerateAllExpressionsMaps()
+        {
+            foreach (var npc in allNPCDatabase.Values)
+            {
+                npc.GenerateExpressionsMapForHead();
+            }
+        }
     }
 
 }
