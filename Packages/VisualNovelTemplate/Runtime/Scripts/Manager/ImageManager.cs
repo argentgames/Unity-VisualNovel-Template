@@ -57,7 +57,7 @@ namespace com.argentgames.visualnoveltemplate
         [BoxGroup("Cameras")]
         [InfoBox("Cameras that view SpriteRenderers and then project them to render textures.")]
         [SerializeField]
-        public Camera CurrentBGCamera, MidgroundCharactersCamera, ForegroundCharactersContainer, NewBGCamera;
+        public Camera CurrentBGCamera, MidgroundCharactersCamera, ForegroundCharactersCamera, NewBGCamera;
         [SerializeField]
         Image NewBG;
         Material newBGMaterial;
@@ -537,6 +537,7 @@ namespace com.argentgames.visualnoveltemplate
                         layerToSpawn = MidgroundCharacterContainer;
                         break;
                 }
+                Debug.LogFormat("layer to spawn: {0}",layerToSpawn);
 
                 if (npc.UseAddressables)
                 {

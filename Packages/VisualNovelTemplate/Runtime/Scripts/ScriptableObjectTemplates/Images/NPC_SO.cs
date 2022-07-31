@@ -175,16 +175,19 @@ namespace com.argentgames.visualnoveltemplate
         {
             get
             {
-                if (portraitSprite != null)
+                if (portraitSprite.RuntimeKeyIsValid() || portraitSpritePrefab != null)
                 {
+                    Debug.Log("portraitSprite !_ null");
                     return ImageLayer.Foreground;
                 }
-                else if (sidePanelSprite != null)
+                else if (sidePanelSprite.RuntimeKeyIsValid() || sidePanelSpritePrefab != null)
                 {
+                    Debug.Log("sidepanelsprite !_ null");
                     return ImageLayer.Foreground;
                 }
                 else
                 {
+                    Debug.Log("mainSprite !_ null");
                     return ImageLayer.Midground;
                 }
             }
