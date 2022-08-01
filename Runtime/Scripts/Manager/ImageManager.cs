@@ -58,14 +58,16 @@ namespace com.argentgames.visualnoveltemplate
         [InfoBox("Cameras that view SpriteRenderers and then project them to render textures.")]
         [SerializeField]
         public Camera CurrentBGCamera, MidgroundCharactersCamera, ForegroundCharactersCamera, NewBGCamera;
+
         [SerializeField]
-        Image NewBG;
         Material newBGMaterial;
 
 
         [InfoBox("Controller for a side portrait that lives on the ForegroundCharacter layer. Only one portrait is allowed on screen at a time!")]
         [SerializeField]
         PortraitPresenter portraitPresenter;
+
+
 
         /// <summary>
         /// Mapping of shots for where to place camera and which background prefab to spawn.
@@ -74,6 +76,8 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="Shot"></typeparam>
         /// <returns></returns>
         Dictionary<string, Shot> cameraShots = new Dictionary<string, Shot>();
+        [SerializeField]
+        List<Shot> shots = new List<Shot>();
 
 
         /// <summary>
@@ -111,9 +115,9 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         GameObject particleSystemHolder;
 
-        Vector3 newBGContainerPosition = new Vector3(0, 0, 0);
+        Vector3 newBGContainerPosition = new Vector3(0, 1000, 0);
 
-        private void Awake()
+        private async void Awake()
         {
             if (Instance != null && Instance != this)
             {
@@ -126,15 +130,11 @@ namespace com.argentgames.visualnoveltemplate
 
             newBGContainerPosition = NewBackgroundContainer.transform.position;
 
-            NewBG.GetComponent<Image>().material = Instantiate<Material>(NewBG.GetComponent<Image>().material);
 
-            newBGMaterial = NewBG.material;
-
-            var CameraShots = Resources.LoadAll<Shot>("camera shots");
-            for (int i = 0; i < CameraShots.Length; i++)
+            foreach (var shot in shots)
             {
-                var shot = CameraShots[i];
-                cameraShots.Add(shot.bgName, shot);
+                Debug.Log(shot);
+                cameraShots[shot.bgName] = shot;
             }
 
 
@@ -198,7 +198,8 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     p.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
                 }
-                camera.transform.position = p;
+                Debug.LogFormat("which camera {0}, what position {1}",camera.name, p);
+                camera.transform.localPosition = p;
             }
             if (rotation != null)
             {
@@ -216,9 +217,19 @@ namespace com.argentgames.visualnoveltemplate
                 camera.orthographicSize = _s;
             }
         }
-        public void SetBGCameraShot(Vector3? position, Vector3? rotation, float? size)
+        public void SetCurrentBGCameraShot(Vector3? position, Vector3? rotation, float? size)
         {
             SetCameraShot(CurrentBGCamera, position, rotation, size);
+        }
+        public void SetNewBGCameraShot(Vector3? position, Vector3? rotation, float? size)
+        {
+            Vector3 pos = newBGContainerPosition;
+            if (position != null)
+            {
+                pos = newBGContainerPosition + (Vector3) position;
+            }
+            Debug.LogFormat("set new bg camera shot to positon {0}",pos);
+            SetCameraShot(NewBGCamera,pos,rotation,size);
         }
 
         /// <summary>
@@ -228,6 +239,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="transition"></param>
         /// <param name="duration"></param>
         /// <returns></returns>
+        [Button]
         public async UniTask ShowBG(string bgName, string transition = "w9", float duration = 1.4f)
         {
             if (bgName == "")
@@ -241,6 +253,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 oldBG = BackgroundContainer.transform.GetChild(BackgroundContainer.transform.childCount - 1).gameObject;
             }
+            else if (OverlayContainer.transform.childCount > 0)
+            {
+                oldBG = OverlayContainer.transform.GetChild(OverlayContainer.transform.childCount-1).gameObject;
+            }
 
             // (optionally enable newBGCam)
             NewBGCamera.gameObject.SetActive(true);
@@ -248,30 +264,57 @@ namespace com.argentgames.visualnoveltemplate
             // spawn BG
             Debug.Log("trying to spawn bg: " + bgName);
             currentCameraShot = bgName;
-            var shot = cameraShots[bgName];
-            var bgAsset = shot.bgPrefab;
-            // first spawn the prefab
-            var newBGGO = await AssetRefLoader.Instance.LoadAsset(bgAsset, NewBackgroundContainer.transform);
-            newBGGO.transform.SetSiblingIndex(BackgroundContainer.transform.childCount - 1);
 
-            // set all spriteRenderer sorting order to -= 1000 so that it doesn't show up in currCam
-            var spriteRenderers = newBGGO.GetComponentsInChildren<SpriteRenderer>();
-            for (int i = 0; i < spriteRenderers.Length; i++)
+            // foreach (var shotName in cameraShots.Keys)
+            // {
+            //     Debug.LogFormat("shot name available: {0}", shotName);
+            // }
+
+            var shot = cameraShots[bgName];
+            GameObject newBGGO;
+            if (shot.UseAddressables)
             {
-                if (spriteRenderers[i].sortingOrder < -500)
-                {
-                    break;
-                }
-                spriteRenderers[i].sortingOrder -= 1000;
+                var bgAsset = shot.bgAssetReference;
+                // first spawn the prefab
+                newBGGO = await AssetRefLoader.Instance.LoadAsset(bgAsset, NewBackgroundContainer.transform);
+            }
+            else
+            {
+                newBGGO = GameObject.Instantiate(shot.bgPrefab, NewBackgroundContainer.transform);
             }
 
-            var transitionWipe = GameManager.Instance.GetWipe(transition);
-            var ease = transitionWipe.ease;
+            // newBGGO.transform.SetSiblingIndex(BackgroundContainer.transform.childCount - 1);
+
+            // set all spriteRenderer sorting order to -= 1000 so that it doesn't show up in currCam
+            // var spriteRenderers = newBGGO.GetComponentsInChildren<SpriteRenderer>();
+            // for (int i = 0; i < spriteRenderers.Length; i++)
+            // {
+            //     if (spriteRenderers[i].sortingOrder < -500)
+            //     {
+            //         break;
+            //     }
+            //     spriteRenderers[i].sortingOrder -= 1000;
+            // }
+
+            Wipe_SO transitionWipe;
+            Ease ease;
+            if (transition != "dissolve")
+            {
+                 transitionWipe = GameManager.Instance.GetWipe(transition);
+             ease = transitionWipe.ease;
+
+             newBGMaterial.SetTexture("Wipe", transitionWipe.wipePrefab);
+            }
+            else
+            {
+                ease = GameManager.Instance.DefaultConfig.expressionTransitionEase;
+            }
+            
             newBGMaterial.SetFloat("TransitionAmount", 0);
             newBGMaterial.SetTexture("NewTex", NewBGCamera.activeTexture);
-            newBGMaterial.SetTexture("Wipe", transitionWipe.wipePrefab);
+            
 
-            SetCameraShot(NewBGCamera, shot.position, shot.rotation, shot.size);
+            SetNewBGCameraShot(shot.position, shot.rotation, shot.size);
 
             sequence = DOTween.Sequence();
             sequence.Pause();
@@ -311,7 +354,6 @@ namespace com.argentgames.visualnoveltemplate
             }
             sequence.Join(newBGMaterial.DOFloat(1, "TransitionAmount", duration).SetEase(ease).From(0));
             sequence.Insert(noiseStartTime, newBGMaterial.DOFloat(noiseOpacity, "NoiseOpacity", noiseDuration));
-
             sequence.InsertCallback(noiseStartTime, () => particleSystemHolder.SetActive(toggleParticleSystem));
 
 
@@ -321,19 +363,19 @@ namespace com.argentgames.visualnoveltemplate
             {
                 // Debug.Break();
                 animationComplete = true;
-                if (oldBG != null)
-                {
-                    var oldSpriteRenderers = oldBG.GetComponentsInChildren<SpriteRenderer>();
-                    for (int i = 0; i < oldSpriteRenderers.Length; i++)
-                    {
-                        oldSpriteRenderers[i].sortingOrder -= 1000;
-                    }
-                }
+                // if (oldBG != null)
+                // {
+                //     var oldSpriteRenderers = oldBG.GetComponentsInChildren<SpriteRenderer>();
+                //     for (int i = 0; i < oldSpriteRenderers.Length; i++)
+                //     {
+                //         oldSpriteRenderers[i].sortingOrder -= 1000;
+                //     }
+                // }
 
-                for (int i = spriteRenderers.Length - 1; i > -1; i--)
-                {
-                    spriteRenderers[i].sortingOrder += 1000;
-                }
+                // for (int i = spriteRenderers.Length - 1; i > -1; i--)
+                // {
+                //     spriteRenderers[i].sortingOrder += 1000;
+                // }
 
                 // EXTRA TURN OFF PARTICLE SYSTEM??
                 particleSystemHolder.SetActive(toggleParticleSystem);
@@ -350,18 +392,24 @@ namespace com.argentgames.visualnoveltemplate
 
             await UniTask.WaitUntil(() => animationComplete);
 
+            await UniTask.Yield();
+
             // set currBGCamera shot to same shot as newBGCamera
-            SetCameraShot(CurrentBGCamera, shot.position, shot.rotation, shot.size);
+            SetCurrentBGCameraShot( shot.position, shot.rotation, shot.size);
             // move newBG down to currBGContainer
             newBGGO.transform.position -= newBGContainerPosition;
             newBGGO.transform.SetParent(BackgroundContainer.transform);
 
+            // Debug.Break();
 
             // destroy oldBG, so currBGCam can see newBG now.
             // only destroyOld BG if there is a preexisting bg, and also
             // if it isn't the one we just spawned, just in case
+            if (oldBG != null)
+            {
+                oldBG.SetActive(false);
+            }
 
-            oldBG.gameObject.SetActive(false);
 
             // reset transitionAmount 
             newBGMaterial.SetFloat("TransitionAmount", 0);
@@ -373,10 +421,20 @@ namespace com.argentgames.visualnoveltemplate
             // (optionally disable newBGCam since not using to free up resources) 
             // NewBGCamera.gameObject.SetActive(false);
 
+            // if (oldBG != null)
+            // {
+            //     if (shot.UseAddressables)
+            //     {
+            //         AssetRefLoader.Instance.ReleaseAsset(oldBG.gameObject);
+            //     }
+            //     else
+            //     {
+            //         Destroy(oldBG);
+            //     }
+            // }
 
-            AssetRefLoader.Instance.ReleaseAsset(oldBG.gameObject);
 
-            // Destroy(BackgroundHolder.transform.GetChild(i).gameObject);
+
 
 
 
@@ -537,7 +595,7 @@ namespace com.argentgames.visualnoveltemplate
                         layerToSpawn = MidgroundCharacterContainer;
                         break;
                 }
-                Debug.LogFormat("layer to spawn: {0}",layerToSpawn);
+                Debug.LogFormat("layer to spawn: {0}", layerToSpawn);
 
                 if (npc.UseAddressables)
                 {
@@ -563,6 +621,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("char already on screen, reusing!");
                 charSprite = charactersOnScreen[charName.TrimStart(null).TrimEnd(null)];
             }
+            // Debug.Break();
             var spriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
             spriteWrapperController.ExpressionChange(expression, 0).Forget();
 
@@ -571,9 +630,10 @@ namespace com.argentgames.visualnoveltemplate
                 location = npc.defaultSpawnPosition;
             }
             // move char to location
-            charSprite.transform.position = (Vector3)location;
+            charSprite.transform.localPosition = (Vector3)location;
 
-
+            // Debug.Break();
+            // Debug.LogFormat("location: {0}",location);
 
             // OnscreenSpriteCamera.Render();
 
