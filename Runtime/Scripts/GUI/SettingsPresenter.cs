@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
-using DG.Tweening;
+
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using Cysharp.Threading.Tasks;

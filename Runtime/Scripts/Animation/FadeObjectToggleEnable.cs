@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using UnityEngine.UI;
 using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
-
+using AnimeTask;
 namespace com.argentgames.visualnoveltemplate
 {
 
@@ -36,29 +35,29 @@ namespace com.argentgames.visualnoveltemplate
             if (canvasGroup != null)
             {
 
-                canvasGroup.DOFade(0, disableAnimationDuration)
-                .OnComplete(OnCompleteDisableAnimation);
+await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(canvasGroup);
+OnCompleteDisableAnimation();
 
             }
 
             else if (image != null)
             {
-                image.DOFade(0, disableAnimationDuration)
-            .OnComplete(OnCompleteDisableAnimation);
+                await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(image);
+OnCompleteDisableAnimation();
             }
-            else if (sprite != null)
-            {
-                if (sprite.material.HasProperty("AlphaAmount"))
-                {
-                    sprite.material.DOFloat(0, "AlphaAmount", disableAnimationDuration).OnComplete(OnCompleteDisableAnimation);
-                }
-                else
-                {
-                    sprite.DOFade(0, disableAnimationDuration)
-                            .OnComplete(OnCompleteDisableAnimation);
-                }
+            // else if (sprite != null)
+            // {
+            //     if (sprite.material.HasProperty("AlphaAmount"))
+            //     {
+            //         sprite.material.DOFloat(0, "AlphaAmount", disableAnimationDuration).OnComplete(OnCompleteDisableAnimation);
+            //     }
+            //     else
+            //     {
+            //         sprite.DOFade(0, disableAnimationDuration)
+            //                 .OnComplete(OnCompleteDisableAnimation);
+            //     }
 
-            }
+            // }
             else
             {
                 Debug.LogWarning("No image or canvasGroup or spriterenderr component found, and gameObject fading not supported yet.");
@@ -73,28 +72,28 @@ namespace com.argentgames.visualnoveltemplate
             if (canvasGroup != null)
             {
 
-                canvasGroup.DOFade(1, enableAnimationDuration)
-                .OnComplete(OnCompleteEnableAnimation);
+                await Easing.Create<Linear>(start: 0f, end: 1f, disableAnimationDuration).ToColorA(canvasGroup);
+OnCompleteEnableAnimation();
 
             }
 
             else if (image != null)
             {
-                image.DOFade(1, enableAnimationDuration)
-            .OnComplete(OnCompleteEnableAnimation);
+                await Easing.Create<Linear>(start: 0f, end: 1f, disableAnimationDuration).ToColorA(image);
+OnCompleteEnableAnimation();
             }
-            else if (sprite != null)
-            {
-                if (sprite.material.HasProperty("AlphaAmount"))
-                {
-                    sprite.material.DOFloat(1, "AlphaAmount", enableAnimationDuration).OnComplete(OnCompleteEnableAnimation);
-                }
-                else
-                {
-                    sprite.DOFade(1, enableAnimationDuration)
-                            .OnComplete(OnCompleteEnableAnimation);
-                }
-            }
+            // else if (sprite != null)
+            // {
+            //     if (sprite.material.HasProperty("AlphaAmount"))
+            //     {
+            //         sprite.material.DOFloat(1, "AlphaAmount", enableAnimationDuration).OnComplete(OnCompleteEnableAnimation);
+            //     }
+            //     else
+            //     {
+            //         sprite.DOFade(1, enableAnimationDuration)
+            //                 .OnComplete(OnCompleteEnableAnimation);
+            //     }
+            // }
             else
             {
                 Debug.LogWarning("No image or canvasGroup or spriterenderr component found, and gameObject fading not supported yet.");

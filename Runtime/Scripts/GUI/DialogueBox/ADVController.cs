@@ -12,11 +12,10 @@ using Ink.Runtime;
 using UniRx;
 using Cysharp.Threading.Tasks;
 // using UnityEngine.UI.Extensions;
-using DG.Tweening;
 using System.Threading;
 using System.Text.RegularExpressions;
 using Sirenix.OdinInspector;
-
+using AnimeTask;
 namespace com.argentgames.visualnoveltemplate
 {
     public class ADVController : DialogueUIManager
@@ -59,10 +58,10 @@ namespace com.argentgames.visualnoveltemplate
         [InfoBox("When we run HideUI/ShowUI, we will toggle all these elements on/off. For now, we only support fading the canvas group. In future, we need to support an arbitrary animation!")]
         List<CanvasGroup> uiElementsToToggle = new List<CanvasGroup>();
 
-        // TECHDEBT: hacky way of applying inline <wait> to lines to pause dialogue unwrapping
-        List<Tween> dialogueUnwrapTweens = new List<Tween>();
+        // // TECHDEBT: hacky way of applying inline <wait> to lines to pause dialogue unwrapping
+        // List<Tween> dialogueUnwrapTweens = new List<Tween>();
         // TECHDEBT: these sequences control text unwrapping and ui show/hiding, but it's questionably functional...
-        Sequence sequence, dialogueBoxSequence;
+        // Sequence sequence, dialogueBoxSequence;
 
         [InfoBox("The parent that holds all choice options. Use this to show/hide all the choices simultaneously. For now, only supports fade. In future, need to support an arbitrary animation of choices!")]
         CanvasGroup choiceParentCanvasGroup;
@@ -73,6 +72,7 @@ namespace com.argentgames.visualnoveltemplate
         private bool waitingForPlayerToSelectChoice = false;
         bool KillTypewriterRequested = false;
         bool playerHidUI = false;
+        List<UniTask> tasks = new List<UniTask>();
         void Awake()
         {
             _playerControls = new PlayerControls();
@@ -111,8 +111,7 @@ namespace com.argentgames.visualnoveltemplate
 
             }).AddTo(this);
 
-            sequence = DOTween.Sequence();
-            dialogueBoxSequence = DOTween.Sequence();
+            tasks.Clear();
             HideUI(0);
             choiceParentCanvasGroup = choiceParent.GetComponentInChildren<CanvasGroup>();
         }
@@ -192,19 +191,20 @@ namespace com.argentgames.visualnoveltemplate
                 // {
                 //     duration = 0.002f;
                 // }
-                if (!dialogueBoxSequence.IsActive())
-                {
-                    dialogueBoxSequence = DOTween.Sequence();
-                }
+                // if (!dialogueBoxSequence.IsActive())
+                // {
+                    
+                // }
+                tasks.Clear();
                 foreach (var uiElement in uiElementsToToggle)
                 {
-                    dialogueBoxSequence.Join(uiElement.DOFade(0, duration));
+                    tasks.Add(
+                        Easing.Create<Linear>(start: 1f, end: 0f, duration: duration).ToColorA(uiElement)
+                    );
                 }
 
-
-                dialogueBoxSequence.AppendCallback(() => UIHolder.SetActive(false));
-                dialogueBoxSequence.Play();
-
+                await UniTask.WhenAll(tasks);
+                UIHolder.SetActive(false);
 
                 portraitPresenter.HidePortrait();
             }
@@ -236,16 +236,19 @@ namespace com.argentgames.visualnoveltemplate
         /// Show the UI without clearing the text from the dialogue box
         /// </summary>
         /// <param name="duration"></param>
-        public void ShowUIWithoutClearing(float duration = .3f)
+        public async UniTask ShowUIWithoutClearing(float duration = .3f)
         {
             UIHolder.SetActive(true);
-            dialogueBoxSequence = DOTween.Sequence();
+
+            tasks.Clear();
             foreach (var uiElement in uiElementsToToggle)
             {
-                dialogueBoxSequence.Join(uiElement.DOFade(1, duration));
+                tasks.Add(
+                        Easing.Create<Linear>(start: 0f, end: 1f, duration: duration).ToColorA(uiElement)
+                    );
             }
 
-            dialogueBoxSequence.Play();
+            await UniTask.WhenAll(tasks);
 
         }
 
@@ -262,12 +265,12 @@ namespace com.argentgames.visualnoveltemplate
             portraitPresenter.HidePortrait();
             speakerNameHolder.SetActive(false);
             UIHolder.SetActive(true);
-            if (dialogueBoxSequence.IsActive())
-            {
-                dialogueBoxSequence.Complete();
-            }
+            // if (dialogueBoxSequence.IsActive())
+            // {
+            //     dialogueBoxSequence.Complete();
+            // }
 
-            dialogueBoxSequence = DOTween.Sequence();
+            tasks.Clear();
 
             if (GameManager.Instance.IsSkipping)
             {
@@ -275,10 +278,12 @@ namespace com.argentgames.visualnoveltemplate
             }
             foreach (var uiElement in uiElementsToToggle)
             {
-                dialogueBoxSequence.Join(uiElement.DOFade(1, duration));
+                tasks.Add(
+                        Easing.Create<Linear>(start: 0f, end: 1f, duration: duration).ToColorA(uiElement)
+                    );
             }
 
-            dialogueBoxSequence.Play();
+            await UniTask.WhenAll(tasks);
 
 
         }
@@ -479,85 +484,88 @@ namespace com.argentgames.visualnoveltemplate
                 {
 
                 }
-                sequence = DOTween.Sequence();
-                sequence.Pause();
-                Tween t;
-                if (textSplitWaits.Count == 0)
-                {
-                    t = DOTween.To(() => dialogueText.maxVisibleCharacters,
-                                   x => dialogueText.maxVisibleCharacters = x,
-                                   dialogueText.text.Length, dialogueText.text.Length /
-                                   GameManager.Instance.Settings.TextSpeed.Value)
-                           .SetEase(Ease.Linear).OnUpdate(() =>
-               {
-               });
-                    dialogueUnwrapTweens.Add(t);
-                    sequence.Append(t);
-                }
-                else
-                {
-                    Debug.Log("there are some inline Waits");
-                    // TODO: the split reveal for WAIT is incorrect character counting.
-                    // so after the first WAIT, it won't show up as expected :^
-                    // example: v: Don't bother <<wait=2>> bringing <<wait=2>>those <<wait=2>>cushions <<wait=5>>over, Maja.
-                    int runningCharacterCount = textSplits[0].Length;
-                    for (int i = 0; i < textSplitWaits.Count; i++)
-                    {
 
-                        if (i != 0)
-                        {
-                            t = DOTween.To(() => dialogueText.maxVisibleCharacters,
-                           x => dialogueText.maxVisibleCharacters = x,
-                           runningCharacterCount,
-                           textSplits[i].Length / GameManager.Instance.Settings.TextSpeed.Value)
-                           .SetEase(Ease.Linear).SetDelay(textSplitWaits[i]);
-                            dialogueUnwrapTweens.Add(t);
-                        }
-                        else
-                        {
-                            t = DOTween.To(() => dialogueText.maxVisibleCharacters,
-                           x => dialogueText.maxVisibleCharacters = x,
-                           runningCharacterCount,
-                           textSplits[i].Length / GameManager.Instance.Settings.TextSpeed.Value)
-                           .SetEase(Ease.Linear);
-                            dialogueUnwrapTweens.Add(t);
-                        }
+                // TECHDEBT: deal with typewriter later; not needed for gh demo.
+            //     sequence = DOTween.Sequence();
+            //     sequence.Pause();
+            //     Tween t;
+            //     // no inline waits
+            //     if (textSplitWaits.Count == 0)
+            //     {
+            //         t = DOTween.To(() => dialogueText.maxVisibleCharacters,
+            //                        x => dialogueText.maxVisibleCharacters = x,
+            //                        dialogueText.text.Length, dialogueText.text.Length /
+            //                        GameManager.Instance.Settings.TextSpeed.Value)
+            //                .SetEase(Ease.Linear).OnUpdate(() =>
+            //    {
+            //    });
+            //         dialogueUnwrapTweens.Add(t);
+            //         sequence.Append(t);
+            //     }
+            //     else
+            //     {
+            //         Debug.Log("there are some inline Waits");
+            //         // TODO: the split reveal for WAIT is incorrect character counting.
+            //         // so after the first WAIT, it won't show up as expected :^
+            //         // example: v: Don't bother <<wait=2>> bringing <<wait=2>>those <<wait=2>>cushions <<wait=5>>over, Maja.
+            //         int runningCharacterCount = textSplits[0].Length;
+            //         for (int i = 0; i < textSplitWaits.Count; i++)
+            //         {
 
-                        sequence.Append(t);
+            //             if (i != 0)
+            //             {
+            //                 t = DOTween.To(() => dialogueText.maxVisibleCharacters,
+            //                x => dialogueText.maxVisibleCharacters = x,
+            //                runningCharacterCount,
+            //                textSplits[i].Length / GameManager.Instance.Settings.TextSpeed.Value)
+            //                .SetEase(Ease.Linear).SetDelay(textSplitWaits[i]);
+            //                 dialogueUnwrapTweens.Add(t);
+            //             }
+            //             else
+            //             {
+            //                 t = DOTween.To(() => dialogueText.maxVisibleCharacters,
+            //                x => dialogueText.maxVisibleCharacters = x,
+            //                runningCharacterCount,
+            //                textSplits[i].Length / GameManager.Instance.Settings.TextSpeed.Value)
+            //                .SetEase(Ease.Linear);
+            //                 dialogueUnwrapTweens.Add(t);
+            //             }
 
-                        // sequence.AppendInterval(textSplitWaits[i]);
-                        runningCharacterCount += textSplits[i].Length;
+            //             sequence.Append(t);
 
-                    }
+            //             // sequence.AppendInterval(textSplitWaits[i]);
+            //             runningCharacterCount += textSplits[i].Length;
 
-                    sequence.Append(DOTween.To(() => dialogueText.maxVisibleCharacters,
-                       x => dialogueText.maxVisibleCharacters = x,
-                       dialogueText.text.Length,
-                       textSplits[textSplits.Count - 1].Length / GameManager.Instance.Settings.TextSpeed.Value)
-                       .SetEase(Ease.Linear));
+            //         }
 
-                }
-                Debug.LogFormat("num text split: {0}, num wait {1}", textSplits.Count, textSplitWaits.Count);
+            //         sequence.Append(DOTween.To(() => dialogueText.maxVisibleCharacters,
+            //            x => dialogueText.maxVisibleCharacters = x,
+            //            dialogueText.text.Length,
+            //            textSplits[textSplits.Count - 1].Length / GameManager.Instance.Settings.TextSpeed.Value)
+            //            .SetEase(Ease.Linear));
 
-            }
+            //     }
+            //     Debug.LogFormat("num text split: {0}, num wait {1}", textSplits.Count, textSplitWaits.Count);
 
-            // Debug.Break();
-            Debug.Log("now running sequence");
-            while (!KillTypewriterRequested)
-            {
-                if (sequence.IsActive())
-                {
-                    sequence.Play();
-                }
-                else
-                {
-                    break;
-                }
+            // }
 
-                await UniTask.WaitUntil(() => !sequence.IsActive());
-                EndLine();
-                return;
-                // break;
+            // // Debug.Break();
+            // Debug.Log("now running sequence");
+            // while (!KillTypewriterRequested)
+            // {
+            //     if (sequence.IsActive())
+            //     {
+            //         sequence.Play();
+            //     }
+            //     else
+            //     {
+            //         break;
+            //     }
+
+            //     await UniTask.WaitUntil(() => !sequence.IsActive());
+            //     EndLine();
+            //     return;
+            //     // break;
             }
 
 
@@ -583,27 +591,27 @@ namespace com.argentgames.visualnoveltemplate
         }
         public override void PauseTypewriter()
         {
-            if (sequence.IsActive())
-            {
-                if (sequence.IsPlaying())
-                {
-                    sequence.Pause();
-                }
-            }
+            // if (sequence.IsActive())
+            // {
+            //     if (sequence.IsPlaying())
+            //     {
+            //         sequence.Pause();
+            //     }
+            // }
 
 
         }
         public override void ContinueTypewriter()
         {
-            Debug.Log("tryign to continue typewriter)");
-            if (sequence.IsActive())
-            {
-                if (!sequence.IsPlaying())
-                {
-                    sequence.Play();
-                    Debug.Log("resuming typewriter");
-                }
-            }
+            // Debug.Log("tryign to continue typewriter)");
+            // if (sequence.IsActive())
+            // {
+            //     if (!sequence.IsPlaying())
+            //     {
+            //         sequence.Play();
+            //         Debug.Log("resuming typewriter");
+            //     }
+            // }
 
         }
 
@@ -645,11 +653,11 @@ namespace com.argentgames.visualnoveltemplate
             dialogueText.maxVisibleCharacters = dialogueText.text.Length;
             // sequence.Kill(true);
             // DOTween.KillAll();
-            while (sequence.IsActive())
-            {
-                Debug.Log("killing sequence");
-                sequence.Kill(false);
-            }
+            // while (sequence.IsActive())
+            // {
+            //     Debug.Log("killing sequence");
+            //     sequence.Kill(false);
+            // }
 
             // EndLine();
             // DialogueSystemManager.Instance.RunCancellationToken();
@@ -688,7 +696,7 @@ namespace com.argentgames.visualnoveltemplate
                 });
             }
             // TECHDEBT: hardcoded choice animation
-            choiceParentCanvasGroup.DOFade(1, .5f).SetEase(Ease.Linear);
+            // choiceParentCanvasGroup.DOFade(1, .5f).SetEase(Ease.Linear);
             await UniTask.WaitUntil(() => choiceParent.GetComponentInChildren<CanvasGroup>().alpha == 1);
             choiceParentCanvasGroup.interactable = true;
             HideCTC();
@@ -711,7 +719,7 @@ namespace com.argentgames.visualnoveltemplate
                 children.Add(choiceParent.transform.GetChild(i).gameObject);
             }
             // TECHDEBT: hardcoded choice animation
-            choiceParent.GetComponentInChildren<CanvasGroup>().DOFade(0, .5f).SetEase(Ease.Linear);
+            // choiceParent.GetComponentInChildren<CanvasGroup>().DOFade(0, .5f).SetEase(Ease.Linear);
 
             // TECHDEBT hardcoded chocie parent animation
             await UniTask.WaitUntil(() => choiceParent.GetComponentInChildren<CanvasGroup>().alpha == 0);

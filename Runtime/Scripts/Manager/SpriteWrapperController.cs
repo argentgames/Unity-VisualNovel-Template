@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+using AnimeTask;
 namespace com.argentgames.visualnoveltemplate
 {
     public struct BodyPart
@@ -25,7 +25,6 @@ namespace com.argentgames.visualnoveltemplate
         Dictionary<string, SpriteRenderer> bodyPartsMap = new Dictionary<string, SpriteRenderer>();
 
         bool animationComplete = false;
-        Sequence sequence;
         /// <summary>
         /// Gets the current displayed expression of character for saving purposes
         /// </summary>
@@ -111,7 +110,7 @@ namespace com.argentgames.visualnoveltemplate
                 transitionDuration = 0;
             }
 
-            sequence = DOTween.Sequence();
+            List<UniTask> animationTasks = new List<UniTask>();
             animationComplete = false;
             foreach (var sr in bodyPartsMap.Values)
             {
@@ -119,9 +118,15 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
                     {
-                        sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
-                        .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
-                        .From(0));
+                        // TECHDEBT: hardcoding the ease =.=
+                        animationTasks.Add(
+Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
+                    .ToMaterialPropertyFloat(sr, "_TransitionAmount")
+                        );
+                        
+                        // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
+                        // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
+                        // .From(0));
                     }
                     else
                     {
@@ -130,12 +135,8 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
 
-            sequence.Play().OnComplete(() =>
-            {
-                animationComplete = true;
-            });
 
-            await UniTask.WaitUntil(() => animationComplete);
+            await UniTask.WhenAll(animationTasks);
 
 
 

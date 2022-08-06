@@ -62,6 +62,7 @@ namespace com.argentgames.visualnoveltemplate
         public bool EndGame { get { return endGame;}}
         /// <summary>
         /// The Dialogue that we have already parsed for any characters, sprites, and extracted out the actual dialogue text line.
+        /// TODO: turn this into a list of dialogue so we can process inline waits? or have some external function processors for that...
         /// </summary>
         public Dialogue CurrentProcessedDialogue;
         /// <summary>

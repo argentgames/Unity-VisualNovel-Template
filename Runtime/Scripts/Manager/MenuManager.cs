@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 // using UnityEngine.UI.Extensions;
 using System.Threading;
-using DG.Tweening;
+
 using Unity.Profiling;
 using UnityEngine.SceneManagement;
 using NaughtyAttributes;

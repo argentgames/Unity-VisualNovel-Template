@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.UI;
 using Sirenix.Serialization;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+
 using UnityEditor;
 
 using UnityEngine.AddressableAssets;
@@ -131,7 +131,7 @@ namespace com.argentgames.visualnoveltemplate
         [PropertyTooltip("Color tints applied to sprite image, often used for nighttime or outdoor scenes to make the sprite blend in more with the environment.")]
         public List<ColorTint> colorTints = new List<ColorTint>();
         private Dictionary<string, ColorTint> colorTintsMap = new Dictionary<string, ColorTint>();
-        Sequence sequence;
+
         string tag = "sprite expression holder";
         public char prefixDelimiter = '_';
 
