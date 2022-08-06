@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.UI;
 using UniRx;
 using UnityEngine.SceneManagement;
-using DG.Tweening;
+
 using Cysharp.Threading.Tasks;
 
 namespace com.argentgames.visualnoveltemplate

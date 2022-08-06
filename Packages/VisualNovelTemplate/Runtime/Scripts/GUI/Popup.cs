@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using UniRx;
-using DG.Tweening;
+
 public class Popup : MonoBehaviour
 {
     public 

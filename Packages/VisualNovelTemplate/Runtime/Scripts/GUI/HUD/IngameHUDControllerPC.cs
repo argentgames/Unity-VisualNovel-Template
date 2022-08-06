@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UniRx;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+
 
 namespace com.argentgames.visualnoveltemplate
 {
@@ -30,7 +30,7 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
 
             menuVisibility.SetIsOnWithoutNotify(false);
-            menuWrapperHolder.DOFade(0, 0f).OnComplete(() => menuWrapper.SetActive(false));
+            // menuWrapperHolder.DOFade(0, 0f).OnComplete(() => menuWrapper.SetActive(false));
 
 
             SetRXSubscriptions();
@@ -116,12 +116,13 @@ namespace com.argentgames.visualnoveltemplate
             if (val)
             {
                 menuWrapper.SetActive(true);
-                menuWrapperHolder.DOFade(1, .35f);
+                // menuWrapperHolder.DOFade(1, .35f);
 
             }
             else
             {
-                menuWrapperHolder.DOFade(0, .35f).OnComplete(() => menuWrapper.SetActive(false));
+                menuWrapper.SetActive(false);
+                // menuWrapperHolder.DOFade(0, .35f).OnComplete(() => menuWrapper.SetActive(false));
 
             }
 

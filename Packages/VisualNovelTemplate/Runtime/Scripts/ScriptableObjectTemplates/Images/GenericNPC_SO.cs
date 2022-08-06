@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.UI;
 using Sirenix.Serialization;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+
 
 namespace com.argentgames.visualnoveltemplate
 {

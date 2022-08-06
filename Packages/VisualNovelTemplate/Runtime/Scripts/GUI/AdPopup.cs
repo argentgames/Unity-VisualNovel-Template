@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using UniRx;
-using DG.Tweening;
 public class AdPopup : Popup
 {
     [SerializeField]

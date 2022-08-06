@@ -12,7 +12,7 @@ using Ink.Runtime;
 using UniRx;
 using Cysharp.Threading.Tasks;
 // using UnityEngine.UI.Extensions;
-using DG.Tweening;
+
 using System.Threading;
 using System.Text.RegularExpressions;
 using Sirenix.OdinInspector;

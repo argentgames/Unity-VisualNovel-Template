@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
-using DG.Tweening;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using Cysharp.Threading.Tasks;
@@ -144,9 +143,9 @@ namespace com.argentgames.visualnoveltemplate
 
             if (!gameObject.activeSelf)
             {
-                canvasGroup.alpha = 0;
+                // canvasGroup.alpha = 0;
                 gameObject.SetActive(true);
-                canvasGroup.DOFade(1, .4f);
+                // canvasGroup.DOFade(1, .4f);
             }
 
             pages[page].SetActive(true);
@@ -186,8 +185,8 @@ namespace com.argentgames.visualnoveltemplate
 
         async UniTaskVoid ClosePages()
         {
-            canvasGroup.DOFade(0, .4f);
-            await UniTask.WaitUntil(() => canvasGroup.alpha == 0);
+            // canvasGroup.DOFade(0, .4f);
+            // await UniTask.WaitUntil(() => canvasGroup.alpha == 0);
             this.gameObject.SetActive(false);
         }
     }
