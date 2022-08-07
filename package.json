@@ -6,6 +6,7 @@
     "unity": "2020.3",
     "license": "MIT",
     "author": "Argent Games",
+    "type": "library",
     "dependencies": {
         "com.inklestudios.ink-unity-integration": "file:../Ink Unity Integration",
         "com.neuecc.unirx": "file:../UniRx",
