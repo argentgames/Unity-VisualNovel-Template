@@ -35,15 +35,15 @@ namespace com.argentgames.visualnoveltemplate
             if (canvasGroup != null)
             {
 
-await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(canvasGroup);
-OnCompleteDisableAnimation();
+                await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(canvasGroup);
+                OnCompleteDisableAnimation();
 
             }
 
             else if (image != null)
             {
                 await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(image);
-OnCompleteDisableAnimation();
+                OnCompleteDisableAnimation();
             }
             // else if (sprite != null)
             // {
@@ -73,14 +73,14 @@ OnCompleteDisableAnimation();
             {
 
                 await Easing.Create<Linear>(start: 0f, end: 1f, disableAnimationDuration).ToColorA(canvasGroup);
-OnCompleteEnableAnimation();
+                OnCompleteEnableAnimation();
 
             }
 
             else if (image != null)
             {
                 await Easing.Create<Linear>(start: 0f, end: 1f, disableAnimationDuration).ToColorA(image);
-OnCompleteEnableAnimation();
+                OnCompleteEnableAnimation();
             }
             // else if (sprite != null)
             // {
