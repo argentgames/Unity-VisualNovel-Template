@@ -12,7 +12,8 @@
         "Unity.InputSystem",
         "Unity.ResourceManager",
         "DOTween.Modules",
-        "NaughtyAttributes.Core"
+        "NaughtyAttributes.Core",
+        "AnimeTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -9,7 +9,7 @@
         "com.neuecc.unirx": "file:../UniRx",
         "com.cysharp.unitask": "file:../UniTask",
         "com.dbrizov.naughtyattributes": "file:../NaughtyAttributes",
-        "dev.kyubuns.animetask": "file:../AnimeTask"
+        "dev.kyubuns.animetask": "1.13.1"
       }
     },
     "com.cysharp.unitask": {
