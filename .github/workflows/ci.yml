@@ -61,7 +61,7 @@ jobs:
         branch: initial_import
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Create upm branch
+    - name: Create upm_dev branch
       run: |
         git branch -d upm_dev &> /dev/null || echo upm_dev branch not found
         git subtree split -P "$PKG_ROOT" -b upm_dev
