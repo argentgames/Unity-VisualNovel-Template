@@ -516,6 +516,33 @@ namespace com.argentgames.visualnoveltemplate
         {
             endGame = value;
         }
+        public void ShowDialogueWindow(string internalName)
+        {
+            try
+            {
+                var window = dialogueWindows[internalName];
+                dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                if (dialogueUIManager != null)
+                {
+                    dialogueUIManager.ShowUI();
+                }
+                else
+                {
+                    Debug.LogWarningFormat("unable to locate dialogueui manager for window {0}", internalName);
+                }
+                
+            }
+            catch
+            {
+                Debug.LogErrorFormat("dialogue window [{0}] is not registered.", internalName);
+            }
+        }
+        public void HideDialogueWindow()
+        {
+            dialogueUIManager.HideUI();
+        }
+
+
 
         /// <summary>
         /// Parse an ink line into displayable text and any commands.
