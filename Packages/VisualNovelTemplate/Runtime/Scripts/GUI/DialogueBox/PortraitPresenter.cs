@@ -8,7 +8,7 @@ public abstract class PortraitPresenter : MonoBehaviour
     [SerializeField] 
     [SceneObjectsOnly]
     [PropertyTooltip("The parent container that holds the portraits. Used to show/hide the entire portrait object.")]
-    GameObject portraitHolder;
+    public GameObject portraitHolder;
 
     /// <summary>
     /// Show the portrait character.
