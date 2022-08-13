@@ -41,7 +41,7 @@ namespace com.argentgames.visualnoveltemplate
         public GameObject choiceParent;
 
         [SerializeField]
-        [SceneObjectsOnly]
+        // [SceneObjectsOnly]
         [PropertyTooltip("Parent wrapper for the entire dialogue UI box.")]
         public GameObject UIHolder;
 
@@ -103,6 +103,7 @@ namespace com.argentgames.visualnoveltemplate
         public virtual async UniTask ShowUI(float duration = .3f)
         {
            UIHolder.SetActive(true);
+           Debug.Log("done showing dialogue ui");
 
         }
 
