@@ -82,7 +82,9 @@ public class ToggleExtension : MonoBehaviour
 
     public void ImageColorSwapOnSelect(bool val)
     {
-        if (val)
+        if (toggle != null)
+        {
+            if (val)
         {
             toggle.image.color = graphicSelectedColor;
         }
@@ -90,10 +92,14 @@ public class ToggleExtension : MonoBehaviour
         {
             toggle.image.color = graphicDefaultColor;
         }
+        }
+        
     }
     public void SpriteSwapOnSelect(bool val)
     {
-        if (val)
+        if (toggleTargetGraphic != null)
+        {
+            if (val)
         {
             toggleTargetGraphic.sprite = selectedSprite;
         }
@@ -101,10 +107,14 @@ public class ToggleExtension : MonoBehaviour
         {
             toggleTargetGraphic.sprite = defaultSprite;
         }
+        }
+        
     }
     public void TextSwapOnSelect(bool val)
     {
-        if (val)
+        if (textField != null)
+        {
+            if (val)
         {
             textField.text = selectedText;
         }
@@ -112,10 +122,14 @@ public class ToggleExtension : MonoBehaviour
         {
             textField.text = defaultText;
         }
+        }
+        
     }
     public void TextColorSwapOnSelect(bool val)
     {
-        if (val)
+        if (textField != null)
+        {
+            if (val)
         {
             textField.color = selectedColor;
         }
@@ -123,5 +137,7 @@ public class ToggleExtension : MonoBehaviour
         {
             textField.color = defaultColor;
         }
+        }
+        
     }
 }

@@ -75,6 +75,14 @@ public static class StringExtensions
         }
         return true;
     }
+    public static string CleanString(string s)
+    {
+        return s.TrimStart(null).TrimEnd(null);
+    }
+    public static string ArrayToString(string[] s, int start, int end)
+    {
+        return String.Join(" ", new ArraySegment<string>(s, start, end - start ));
+    }
 
     
 

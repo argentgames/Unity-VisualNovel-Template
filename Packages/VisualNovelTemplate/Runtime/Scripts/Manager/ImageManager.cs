@@ -145,8 +145,9 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             animationTasks.Clear();
-            backgroundProjectedImageRenderer = BackgroundProjectedImage.GetComponent<Renderer>();
+            backgroundProjectedImageRenderer = BackgroundProjectedImage.GetComponentInChildren<SpriteRenderer>();
             CreateCancellationToken();
+            CreateSkipToken();
         }
         public void CreateSkipToken()
         {
@@ -365,6 +366,7 @@ namespace com.argentgames.visualnoveltemplate
             // set up the animation sequencer
             // create a sequence to simultaneously play the transition wipe and turn on/off noise
 
+            Debug.Log("time to add animations to animationTask");
             if (transition == "dissolve")
             {
                 animationTasks.Add(
@@ -372,19 +374,25 @@ namespace com.argentgames.visualnoveltemplate
                     Easing.Create<InCubic>(start: 1f, end: 0f, duration: duration)
                     .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "Alpha", skipToken: skipTokenSource.Token)
                 );
-                // sequence.Join(newBGMaterial.DOFloat(0, "Alpha", duration).SetEase(ease).From(1));
+            }
+            else
+            {
+                // URGENT: rawimage doesnt have a renderer component, so we get stuck here ...
+                Debug.Log("now adding a wipe animation");
+                // animationTasks.Add(
+                //     Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
+                //     .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipTokenSource.Token)
+                //                     );
+                Debug.Log("done adding wipe transition to animation");
             }
 
-            animationTasks.Add(
-                    Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                    .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipTokenSource.Token)
-            );
+
             // sequence.Join(newBGMaterial.DOFloat(1, "TransitionAmount", duration).SetEase(ease).From(0));
             // TECHDEBT: add noise animation delay later
             // sequence.Insert(noiseStartTime, newBGMaterial.DOFloat(noiseOpacity, "NoiseOpacity", noiseDuration));
             // sequence.InsertCallback(noiseStartTime, () => particleSystemHolder.SetActive(toggleParticleSystem));
 
-
+            Debug.Log("setting newbggo to active now");
             newBGGO.SetActive(true);
 
             // sequence.Play().OnComplete(() =>
@@ -413,12 +421,16 @@ namespace com.argentgames.visualnoveltemplate
 
             // if we are skipping, automatically run the entire sequence
             // idk if this actually works or only runs through the first tween??
-            if (GameManager.Instance.IsSkipping)
-            {
-                ThrowSkipToken();
-            }
+            // if (GameManager.Instance.IsSkipping)
+            // {
+            //     ThrowSkipToken();
+            // }
 
-            await UniTask.WhenAll(animationTasks);
+            Debug.LogFormat("waiting to run all our animation tasks now, with length {0}", animationTasks.Count);
+            // await UniTask.WhenAll(animationTasks);
+            // await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(BackgroundProjectedImage.GetComponentInChildren<Image>());
+
+            Debug.Log("done running show bg animation tasks");
 
             // set currBGCamera shot to same shot as newBGCamera
             SetCurrentBGCameraShot(shot.position, shot.rotation, shot.size);
@@ -461,7 +473,7 @@ namespace com.argentgames.visualnoveltemplate
 
 
 
-
+            Debug.Log("done running showbg");
 
 
 
@@ -778,7 +790,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 animationTasks.Add(
                     Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(sr, "Alpha",skipToken:skipToken)
+                    .ToMaterialPropertyFloat(sr, "Alpha", skipToken: skipToken)
                 );
             }
             if (GameManager.Instance.IsSkipping)
@@ -811,19 +823,19 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WhenAll(animationTasks);
             go.SetActive(false);
             foreach (var character in charactersOnScreen)
+            {
+                if (!character.Value.activeSelf)
                 {
-                    if (!character.Value.activeSelf)
-                    {
-                        charactersOnScreen.Remove(character.Key);
-                        AssetRefLoader.Instance.ReleaseAsset(character.Value);
-                    }
+                    charactersOnScreen.Remove(character.Key);
+                    AssetRefLoader.Instance.ReleaseAsset(character.Value);
                 }
+            }
 
         }
         // TODO: figure out how we want to do the awaiting for hide char...........
         public void HideChar(string charName, string transition = "fade", float? duration = null)
         {
-            FireHideChar(charName,transition,duration).Forget();
+            FireHideChar(charName, transition, duration).Forget();
         }
         [Button]
         public async UniTask HideAllChar(float? duration = null)

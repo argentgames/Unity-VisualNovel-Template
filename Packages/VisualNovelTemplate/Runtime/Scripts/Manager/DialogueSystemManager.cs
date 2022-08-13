@@ -59,7 +59,7 @@ namespace com.argentgames.visualnoveltemplate
         /// If we need to end the game, we want to ensure Ink no longer runs and such...?
         /// </summary>
         private bool endGame = false;
-        public bool EndGame { get { return endGame;}}
+        public bool EndGame { get { return endGame; } }
         /// <summary>
         /// The Dialogue that we have already parsed for any characters, sprites, and extracted out the actual dialogue text line.
         /// TODO: turn this into a list of dialogue so we can process inline waits? or have some external function processors for that...
@@ -105,7 +105,7 @@ namespace com.argentgames.visualnoveltemplate
                 // Set our default dialogue ui window 
                 // if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
                 // {
-                    dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 // }
                 window.GetComponentInChildren<DialogueUIManager>().HideUI();
             }
@@ -117,7 +117,7 @@ namespace com.argentgames.visualnoveltemplate
 
         async UniTaskVoid Start()
         {
-            
+
         }
 
         // URGENT: Need to update this because DSM is now persistent across all scenes, not just ingame!!!
@@ -190,7 +190,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="choice"></param>
         public void AddSelectedChoiceToHistory(string choice)
         {
-            choice = string.Format("<color={0}>{1}</color>",GameManager.Instance.DefaultConfig.historyChoiceColor, choice);
+            choice = string.Format("<color={0}>{1}</color>", GameManager.Instance.DefaultConfig.historyChoiceColor, choice);
             var log = new DialogueHistoryLine();
             log.speaker = "";
             log.line = choice;
@@ -281,6 +281,8 @@ namespace com.argentgames.visualnoveltemplate
                     }
                 }
 
+                Debug.LogFormat("Do we need to display choices?: {0}", NeedToDisplayChoices());
+
                 // }
                 // Debug.Break();
                 if (NeedToRunActionFunction())
@@ -310,7 +312,6 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 else
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(.07f), cancellationToken: ct);
                     Debug.Log("actually runnnig a regular line now");
                     stopwatch.Restart();
                     dialogueUIManager.EnableCTC();
@@ -350,10 +351,30 @@ namespace com.argentgames.visualnoveltemplate
                 if (story.canContinue)
                 {
                     story.Continue();
+                    Debug.Log("run story.Continue()");
                 }
                 else
                 {
-                    Debug.LogError("why can't i continue story?");
+                    Debug.LogError("why can't i continue story? try to display choices?");
+
+                    if (NeedToDisplayChoices())
+                    {
+                        Debug.Log("displaying some weird choice stuff");
+                        dialogueUIManager.EnableCTC();
+                        Debug.Log("actually displaying choices now");
+                        stopwatch.Restart();
+                        // TECHDEBT: something wrong with choice collection above.
+                        // why does the line before choices section get combined into 
+                        // current choices collection?
+                        // await DisplayLine();
+                        await DisplayChoices();
+                        Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
+
+                        // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
+                        // errors when spam clicking
+                        // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
+                    }
+
                 }
 
             }
@@ -428,15 +449,21 @@ namespace com.argentgames.visualnoveltemplate
             // TODO: Turn this into an await for animation to show UI
             if (!dialogueUIManager.IsShowingUI)
             {
+                Debug.Log("are we stuck waiting to show ui?");
                 await dialogueUIManager.ShowUI();
+                Debug.Log("done showing ui");
             }
 
+            Debug.Log("please display line now");
             await dialogueUIManager.DisplayLine(ct);
+            Debug.Log("done displaing line");
             if (!CurrentTextSeenBefore())
             {
                 GameManager.Instance.PersistentGameData.seenText.Add(CreateHash(story.currentText + "_" + story.state.currentPathString));
             }
+            Debug.Log("now wait until dialogue is not displaying line still");
             await UniTask.WaitUntil(() => !dialogueUIManager.IsDisplayingLine, cancellationToken: this.ct);
+            Debug.Log("finelly we are done with display line function");
 
         }
         public bool waitingToContinueStory = false;
@@ -530,7 +557,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     Debug.LogWarningFormat("unable to locate dialogueui manager for window {0}", internalName);
                 }
-                
+
             }
             catch
             {
