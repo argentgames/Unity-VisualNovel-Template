@@ -103,10 +103,10 @@ namespace com.argentgames.visualnoveltemplate
                 window = Instantiate(dialogueWindowMode.prefab, this.transform);
                 dialogueWindows[dialogueWindowMode.internalName] = window;
                 // Set our default dialogue ui window 
-                // if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
-                // {
+                if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
+                {
                 dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
-                // }
+                }
                 window.GetComponentInChildren<DialogueUIManager>().HideUI();
             }
 
