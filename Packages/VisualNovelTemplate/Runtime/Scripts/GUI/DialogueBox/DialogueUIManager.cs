@@ -65,6 +65,7 @@ namespace com.argentgames.visualnoveltemplate
             if (DialogueSystemManager.Instance.IsRunningActionFunction)
             {
                 Debug.Log("running action function, do nothing except turn off skipping");
+                ImageManager.Instance.ThrowSkipToken();
                 return;
             }
             else if (WaitingForPlayerToSelectChoice)

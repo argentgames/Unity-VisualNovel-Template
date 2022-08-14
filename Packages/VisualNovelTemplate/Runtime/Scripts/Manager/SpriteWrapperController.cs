@@ -24,6 +24,20 @@ namespace com.argentgames.visualnoveltemplate
         [ReadOnly]
         Dictionary<string, SpriteRenderer> bodyPartsMap = new Dictionary<string, SpriteRenderer>();
 
+        SkipTokenSource skipTokenSource = new SkipTokenSource();
+        SkipToken skipToken;
+
+        public void CreateSkipToken()
+        {
+            this.skipTokenSource = new SkipTokenSource();
+            skipToken = skipTokenSource.Token;
+        }
+        public void ThrowSkipToken()
+        {
+            skipTokenSource.Skip();
+            CreateSkipToken();
+        }
+
         bool animationComplete = false;
         /// <summary>
         /// Gets the current displayed expression of character for saving purposes
@@ -52,6 +66,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             // set our initial/default expression
             SetNewExpression();
+            CreateSkipToken();
         }
 
         /// <summary>
@@ -121,7 +136,7 @@ namespace com.argentgames.visualnoveltemplate
                         // TECHDEBT: hardcoding the ease =.=
                         animationTasks.Add(
 Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
-                    .ToMaterialPropertyFloat(sr, "_TransitionAmount")
+                    .ToMaterialPropertyFloat(sr, "_TransitionAmount",skipToken: skipToken)
                         );
                         
                         // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
