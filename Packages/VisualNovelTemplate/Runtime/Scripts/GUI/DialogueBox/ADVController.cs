@@ -27,7 +27,7 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         [SceneObjectsOnly]
         [PropertyTooltip("The TMP_Text object that displays the name of the speaker.")]
-        TMP_Text speakerText;
+        TMP_Text speakerText, dialogueText;
 
         [SerializeField]
         [SceneObjectsOnly]
