@@ -288,23 +288,23 @@ namespace com.argentgames.visualnoveltemplate
                 if (NeedToRunActionFunction())
                 {
                     stopwatch.Restart();
-                    Debug.Log("actually running an action function now");
+                    // Debug.Log("actually running an action function now");
                     IsRunningActionFunction = true;
                     await RunActionFunction();
                     IsRunningActionFunction = false;
-                    Debug.Log("time to run action function: " + stopwatch.ElapsedMilliseconds.ToString());
+                    // Debug.Log("time to run action function: " + stopwatch.ElapsedMilliseconds.ToString());
                 }
                 else if (NeedToDisplayChoices())
                 {
                     dialogueUIManager.EnableCTC();
-                    Debug.Log("actually displaying choices now");
+                    // Debug.Log("actually displaying choices now");
                     stopwatch.Restart();
                     // TECHDEBT: something wrong with choice collection above.
                     // why does the line before choices section get combined into 
                     // current choices collection?
-                    await DisplayLine();
+                    // await DisplayLine();
                     await DisplayChoices();
-                    Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
+                    // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
 
                     // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
                     // errors when spam clicking
@@ -312,11 +312,11 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 else
                 {
-                    Debug.Log("actually runnnig a regular line now");
+                    // Debug.Log("actually runnnig a regular line now");
                     stopwatch.Restart();
                     dialogueUIManager.EnableCTC();
                     await RunRegularLine();
-                    Debug.Log("time to run regular line: " + stopwatch.ElapsedMilliseconds.ToString());
+                    // Debug.Log("time to run regular line: " + stopwatch.ElapsedMilliseconds.ToString());
 
 
 
