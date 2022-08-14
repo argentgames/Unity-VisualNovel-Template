@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using Cysharp.Threading.Tasks;
 
 public abstract class PortraitPresenter : MonoBehaviour
 {
@@ -14,7 +15,8 @@ public abstract class PortraitPresenter : MonoBehaviour
     /// Show the portrait character.
     /// </summary>
     /// <param name="npcName"></param>
-    public abstract void ShowChar(string npcName);
+    public virtual async UniTaskVoid ShowChar(string npcName) { UniTask.Yield();}
+    public virtual async UniTaskVoid ShowChar(string npcName, string expression, float duration) { UniTask.Yield();}
     /// <summary>
     /// Hide the current visible portrait character but not necessarily any background.
     /// </summary>

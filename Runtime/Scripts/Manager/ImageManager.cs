@@ -43,8 +43,6 @@ namespace com.argentgames.visualnoveltemplate
         GameObject NewBackgroundContainer1, NewBackgroundContainer2;
         [BoxGroup("Image containers")]
         [InfoBox("Parents that hold spawned characters and overlays.")]
-
-        [BoxGroup("Image containers")]
         [SerializeField]
         GameObject MidgroundCharacterContainer;
         [BoxGroup("Image containers")]
@@ -156,6 +154,16 @@ namespace com.argentgames.visualnoveltemplate
         public void ThrowSkipToken()
         {
             skipTokenSource.Skip();
+            CreateSkipToken();
+
+            foreach (var character in charactersOnScreen.Values)
+            {
+                var swc = character.GetComponentInChildren<SpriteWrapperController>();
+                if (swc != null)
+                {
+                    swc.ThrowSkipToken();
+                }
+            }
         }
         public void CreateCancellationToken()
         {
