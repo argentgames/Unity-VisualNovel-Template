@@ -34,6 +34,7 @@ namespace com.argentgames.visualnoveltemplate
         public string historyChoiceColor = "#cfda5e";
         [InfoBox("TODO: NOT SUPPORTED RIGHT NOW. Some games like to show the current speaking character on screen as a Midground sprite + in the bottom corner as a portrait sprite. We don't use this design paradigm. However, we might consider supporting it with this flag later...")]
         public bool showOnscreenCharacterAsPortrait = false;
+        public bool autosave = true;
 
         [PropertySpace(SpaceBefore =15f)]
         [InfoBox("Do we use addressable loading mechanism? If so, for which objects?")]
