@@ -53,6 +53,9 @@ namespace com.argentgames.visualnoveltemplate
         private bool waitingForPlayerToSelectChoice = false;
         public bool WaitingForPlayerToSelectChoice { get;set;}
 
+        private bool playerHidUI = false;
+        public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value;}}
+
         #region Click to continue
         public virtual async UniTaskVoid CTCLogic()
         {
