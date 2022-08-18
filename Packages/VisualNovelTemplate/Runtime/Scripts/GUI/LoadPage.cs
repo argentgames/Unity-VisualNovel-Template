@@ -45,7 +45,7 @@ public class LoadPage : MonoBehaviour
     void CreateSaveSlot(int i)
     {
         var go = Instantiate(saveSlotPrefab, saveSlotContentHolder.transform);
-        var saveSlot = go.GetComponent<SaveSlot>();
+        var saveSlot = go.GetComponent<SaveLoadSlot>();
         // slot text > screenshot > date time
         string filePath = SaveLoadManager.Instance.saveFileNamePrefix + i.ToString() + SaveLoadManager.Instance.extension;
 
@@ -80,7 +80,7 @@ public class LoadPage : MonoBehaviour
     {
         // put auto save slot at top
         var go = Instantiate(saveSlotPrefab, saveSlotContentHolder.transform);
-        var saveSlot = go.GetComponent<SaveSlot>();
+        var saveSlot = go.GetComponent<SaveLoadSlot>();
                 string filePath = SaveLoadManager.Instance.autoSaveNamePrefix + SaveLoadManager.Instance.extension;
 if (SaveLoadManager.Instance.saveFiles.ContainsKey(filePath))
         {

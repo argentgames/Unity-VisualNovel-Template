@@ -67,6 +67,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public async override UniTask Enable()
         {
+            this.gameObject.SetActive(true);
             // Debug.Log(canvasGroup == null);
             AnimationComplete = false;
             if (canvasGroup != null)

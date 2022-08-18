@@ -51,6 +51,18 @@ namespace com.argentgames.visualnoveltemplate
         public abstract void OnCompleteEnableAnimation();
         public abstract void OnCompleteDisableAnimation();
 
+        public virtual void ToggleState()
+        {
+            if (this.gameObject.activeSelf)
+            {
+                Disable();
+            }
+            else
+            {
+                Enable();
+            }
+        }
+
     }
 
 }

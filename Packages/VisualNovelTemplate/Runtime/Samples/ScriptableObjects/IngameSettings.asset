@@ -17,5 +17,5 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  prefab: {fileID: 0}
-  internalName: ingame_settings
+  prefab: {fileID: 3641925316130286785, guid: 370b9561699e598479e58335df206732, type: 3}
+  internalName: ingameSettings
