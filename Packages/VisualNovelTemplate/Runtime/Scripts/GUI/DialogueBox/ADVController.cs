@@ -71,7 +71,6 @@ namespace com.argentgames.visualnoveltemplate
         private bool portraitCurrentlyShowing = false;
         private bool waitingForPlayerToSelectChoice = false;
         bool KillTypewriterRequested = false;
-        bool playerHidUI = false;
         List<UniTask> tasks = new List<UniTask>();
         void Awake()
         {
@@ -81,11 +80,11 @@ namespace com.argentgames.visualnoveltemplate
                ToggleUI();
                GameManager.Instance.SetAuto(false);
                GameManager.Instance.SetSkipping(false);
-               playerHidUI = !playerHidUI;
+               PlayerHidUI = !PlayerHidUI;
            };
             _playerControls.UI.Click.performed += ctx =>
             {
-                if (playerHidUI)
+                if (PlayerHidUI)
                 {
                     ToggleUI();
                 }

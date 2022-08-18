@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
@@ -24,6 +25,28 @@ namespace com.argentgames.visualnoveltemplate
         [ReadOnly]
         Dictionary<string, SpriteRenderer> bodyPartsMap = new Dictionary<string, SpriteRenderer>();
 
+        [SerializeField]
+        [ReadOnly]
+        [BoxGroup("Sprite data")]
+        // TECHDEBT: not sure what this is for. Probably auto setting an exp when there's a pose change??
+        private Dictionary<string, List<SpriteExpressionData>> expressionsMapForHead = new Dictionary<string, List<SpriteExpressionData>>();
+
+        [BoxGroup("Sprite data")]
+        public List<SpriteExpression> expressions = new List<SpriteExpression>();
+
+        [BoxGroup("Sprite data")]
+        public Vector3 defaultSpawnPosition;
+
+        [BoxGroup("Sprite data")]
+        public Dictionary<ScreenPosition, Vector2> positions = new Dictionary<ScreenPosition, Vector2>();
+
+        [BoxGroup("Sprite data")]
+        [PropertyTooltip("Color tints applied to sprite image, often used for nighttime or outdoor scenes to make the sprite blend in more with the environment.")]
+        public List<ColorTint> colorTints = new List<ColorTint>();
+        private Dictionary<string, ColorTint> colorTintsMap = new Dictionary<string, ColorTint>();
+
+        public char prefixDelimiter = '_';
+
         SkipTokenSource skipTokenSource = new SkipTokenSource();
         SkipToken skipToken;
 
@@ -43,7 +66,7 @@ namespace com.argentgames.visualnoveltemplate
         /// Gets the current displayed expression of character for saving purposes
         /// </summary>
         /// <value></value>
-        public string currentExpression
+        public string CurrentExpression
         {
             get
             {
@@ -64,9 +87,55 @@ namespace com.argentgames.visualnoveltemplate
             {
                 bodyPartsMap[part.prefix] = part.gameObject.GetComponentInChildren<SpriteRenderer>();
             }
+            colorTintsMap.Clear();
+            foreach (var tint in colorTints)
+            {
+                colorTintsMap[tint.internalName] = tint;
+            }
             // set our initial/default expression
             SetNewExpression();
             CreateSkipToken();
+        }
+
+         public Sprite GetExpressionImage(string expression)
+        {
+            // get prefix from expression.
+            var splitExpression = expression.Split(prefixDelimiter);
+            var prefix = splitExpression[0];
+            var segment = new ArraySegment<string>(splitExpression, 1, splitExpression.Length -1);
+            var noPrefixExpression = string.Join("_",segment);
+            Debug.LogFormat("Looking for expression image: prefix-{0} noPrefix-{1}",prefix,noPrefixExpression);
+            var part = expressionsMapForHead[prefix];
+            foreach (var exp in part)
+            {
+                if (exp.internalName == noPrefixExpression)
+                {
+                    return exp.sprite;
+                }
+
+            }
+            Debug.LogErrorFormat("Unable to locate expression {0}", expression);
+            return null;
+        }
+        public Color GetTintColor(string tintName)
+        {
+            try
+            {
+                return colorTintsMap[tintName].color;
+            }
+            catch
+            {
+                Debug.LogErrorFormat("Tint color [{0}] does not exist", tintName);
+                return Color.white;
+            }
+        }
+        public void GenerateExpressionsMapForHead()
+        {
+            expressionsMapForHead.Clear();
+            foreach (var exp in expressions)
+            {
+                expressionsMapForHead[exp.prefix] = exp.expressionDatas;
+            }
         }
 
         /// <summary>
@@ -87,7 +156,7 @@ namespace com.argentgames.visualnoveltemplate
             foreach (var part in parts)
             {
 
-                var _prefix = part.Split(npc.prefixDelimiter)[0];
+                var _prefix = part.Split(prefixDelimiter)[0];
                 if (part == "" || _prefix == "")
                 {
                     continue;
@@ -96,7 +165,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
 
                     var bodyPartSpriteRenderer = bodyPartsMap[_prefix];
-                    var newExpSprite = npc.GetExpressionImage(part);
+                    var newExpSprite = GetExpressionImage(part);
                     bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
                 }
                 catch
@@ -167,7 +236,7 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
             var parts = expression.Split(' ');
             foreach (var part in parts)
             {
-                var _prefix = part.Split(npc.prefixDelimiter)[0];
+                var _prefix = part.Split(prefixDelimiter)[0];
                 if (part == "" || _prefix == "")
                 {
                     continue;
@@ -175,7 +244,7 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
                 try
                 {
                     var bodyPartSpriteRenderer = bodyPartsMap[_prefix];
-                    var newExpSprite = npc.GetExpressionImage(part);
+                    var newExpSprite = GetExpressionImage(part);
 
                     bodyPartSpriteRenderer.sprite = newExpSprite;
                     bodyPartSpriteRenderer.material.SetFloat("_TransitionAmount", 0);
@@ -195,7 +264,7 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
         }
         public void ApplyTint(string tintName)
         {
-            var tintColor = npc.GetTintColor(tintName);
+            var tintColor = GetTintColor(tintName);
             foreach (var sr in bodyPartsMap.Values)
             {
                 sr.material.SetColor("_Tint", tintColor);
@@ -213,7 +282,7 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
         public SpriteSaveData Save()
         {
             var s = new SpriteSaveData();
-            s.expressionImageName = npc.CurrentExpression;
+            s.expressionImageName = CurrentExpression;
 
             // this is dumb but hardcoding 
             // TECHDEBT:
@@ -233,7 +302,7 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
                 s.position = transform.position;
             }
 
-            Debug.Log("expression: " + npc.CurrentExpression);
+            Debug.Log("expression: " + CurrentExpression);
             return s;
         }
         public void Load()

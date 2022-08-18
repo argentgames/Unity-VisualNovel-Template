@@ -96,9 +96,6 @@ namespace com.argentgames.visualnoveltemplate
                 wipes.Add(w.internalName, w);
             }
 
-            // make sure all our referenced names are correct for characters
-            characterDatabase.GenerateAllExpressionsMaps();
-
 
             await UniTask.WaitUntil(() => SaveLoadManager.Instance != null);
             // load settings

@@ -260,6 +260,7 @@ namespace com.argentgames.visualnoveltemplate
 
         /// <summary>
         /// Show a new background with a given transition such as a dissolve or wipe.
+        /// TECHDEBT: in future we should be able to supply an arbitrary transition!!! not just wipe/dissolve!!!
         /// </summary>
         /// <param name="bgName"></param>
         /// <param name="transition"></param>
@@ -655,7 +656,7 @@ namespace com.argentgames.visualnoveltemplate
 
             if (location == null)
             {
-                location = npc.defaultSpawnPosition;
+                location = spriteWrapperController.defaultSpawnPosition;
             }
             // move char to location
             charSprite.transform.localPosition = (Vector3)location;
