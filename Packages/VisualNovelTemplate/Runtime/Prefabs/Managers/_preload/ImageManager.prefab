@@ -4873,7 +4873,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -4991,7 +4991,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -5142,7 +5142,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -5322,7 +5322,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -5527,7 +5527,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NewBackgroundContainer1: {fileID: 2686983000068681332}
   NewBackgroundContainer2: {fileID: 2688447807559443717}
-  BackgroundContainer: {fileID: 1061645656455121190}
   MidgroundCharacterContainer: {fileID: 1061645657532046109}
   ForegroundCharacterContainer: {fileID: 1061645657177264678}
   OverlayContainer: {fileID: 1061645656409441320}
@@ -5634,7 +5633,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
