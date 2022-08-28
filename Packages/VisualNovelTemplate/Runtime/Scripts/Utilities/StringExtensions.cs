@@ -81,6 +81,10 @@ public static class StringExtensions
     }
     public static string ArrayToString(string[] s, int start, int end)
     {
+        if (end - start == 0)
+        {
+            return s[start];
+        }
         return String.Join(" ", new ArraySegment<string>(s, start, end - start ));
     }
     public static Tuple<int,int> ParseResolution(string resolution,char delimiter='x')
