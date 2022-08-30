@@ -1,7 +1,6 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using DG.Tweening;
 namespace com.argentgames.visualnoveltemplate
 {
     public class Wipe_SO : SerializedScriptableObject
@@ -9,7 +8,7 @@ namespace com.argentgames.visualnoveltemplate
 
         public string internalName;
         public Texture2D wipePrefab;
-        public Ease ease = Ease.InCubic;
+        // public Ease ease = Ease.InCubic;
 
     }
 }

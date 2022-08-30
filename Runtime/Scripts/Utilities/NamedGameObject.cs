@@ -17,20 +17,4 @@ namespace com.argentgames.visualnoveltemplate
         }
     }
 
-    // TODO: have custom editor so we can remove odin inspector dependency
-    // [CustomEditor(typeof(NamedGameObject))]
-    // public class NamedGameObjectEditor : Editor
-    // {
-    //     SerializedProperty namedGameObject;
-    //     void OnEnable()
-    //     {
-    //         namedGameObject = serializedObject.FindProperty("namedGameObject");
-    //     }
-    //     public override void OnInspectorGUI()
-    //     {
-    //         serializedObject.Update();
-    //         EditorGUILayout.PropertyField(namedGameObject);
-    //         serializedObject.ApplyModifiedProperties();
-    //     }
-    // }
 }

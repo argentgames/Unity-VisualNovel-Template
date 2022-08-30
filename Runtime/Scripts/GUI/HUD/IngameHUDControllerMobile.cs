@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UniRx;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+
 
 namespace com.argentgames.visualnoveltemplate
 {

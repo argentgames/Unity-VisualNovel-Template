@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using AnimeTask;
 
 /// <summary>
 /// Transition between Unity Scenes (e.g. main menu ==> ingame).
@@ -24,7 +24,6 @@ namespace com.argentgames.visualnoveltemplate
         Color transparent = new Color(0, 0, 0, 0);
         public bool IsLoading { get { return isLoading; } }
         private bool isLoading = false;
-        Tween tween;
         [SerializeField]
         AnimateObjectsToggleEnable animateObjectsToggleEnable;
         async void Awake()
@@ -128,8 +127,7 @@ namespace com.argentgames.visualnoveltemplate
                 try
                 {
                     var image = transitionObject.GetComponentInChildren<Image>();
-                    DOTween.ToAlpha(() => image.color, x => image.color = x, 0, (float)duration).From(1);
-                    await UniTask.WaitUntil(() => image.color.a == 0);
+                    await Easing.Create<Linear>(start: 1f, end: 0f, (float)duration).ToColorA(image);
 
                 }
                 // TODO: add specific null compoennt exception
@@ -166,8 +164,7 @@ namespace com.argentgames.visualnoveltemplate
                     transitionObject.GetComponent<Image>().color = transparent;
                     transitionObject.SetActive(true);
                     var image = transitionObject.GetComponentInChildren<Image>();
-                    DOTween.ToAlpha(() => image.color, x => image.color = x, 1, (float)duration).From(0);
-                    await UniTask.WaitUntil(() => transitionObject.GetComponent<Image>().color.a == 1);
+                    await Easing.Create<Linear>(start: 0f, end: 1f, (float)duration).ToColorA(image);
                 }
                 catch
                 {

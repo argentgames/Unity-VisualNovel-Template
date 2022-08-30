@@ -3,13 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using NaughtyAttributes;
+using TMPro;
 namespace com.argentgames.visualnoveltemplate
 {
-    public class ExampleMainMenuSettingsPageController : MonoBehaviour
+    public class ExampleSettingsPage : MonoBehaviour
     {
         [SerializeField]
         [Tooltip("What should the fullscreen mode be? Don't select Windowed!!!")]
         FullScreenMode fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+        /// <summary>
+        /// Resolution format WxH. Order used to generate dropdown resolution options
+        /// </summary>
+        /// <typeparam name="string"></typeparam>
+        /// <returns></returns>
+        [SerializeField]
+        List<string> resolutionsOrder = new List<string>();
+        [SerializeField]
+        TMP_Dropdown resolutionsDropdown;
+        private void Awake()
+        {
+            resolutionsDropdown.ClearOptions();
+            resolutionsDropdown.AddOptions(resolutionsOrder);
+
+        }
         public void UpdateMusicVolume(System.Single val)
         {
             GameManager.Instance.Settings.MusicVolume.Value = val;
@@ -32,12 +48,12 @@ namespace com.argentgames.visualnoveltemplate
             {
                 return;
             }
-            int width,height;
+            int width, height;
             var res = Screen.currentResolution;
             width = res.width;
             height = res.height;
             // we're only using exlcusive full screen, but you could expose every fs mode
-            Screen.SetResolution(width,height,fullScreenMode);
+            Screen.SetResolution(width, height, fullScreenMode);
         }
         public void SetWindowedMode(System.Boolean val)
         {
@@ -45,11 +61,30 @@ namespace com.argentgames.visualnoveltemplate
             {
                 return;
             }
-            int width,height;
+            int width, height;
             var res = Screen.currentResolution;
             width = res.width;
             height = res.height;
-            Screen.SetResolution(width,height,FullScreenMode.Windowed);
+            Screen.SetResolution(width, height, FullScreenMode.Windowed);
+        }
+        public void SetResolutionDropdown(System.Int32 index)
+        {
+            if (index > resolutionsOrder.Count)
+            {
+                Debug.LogErrorFormat("trying to set a dropdown resolution that doesn't exist in the list of available resolutions!");
+            }
+            else
+            {
+                var res = StringExtensions.ParseResolution(resolutionsOrder[index]);
+                if (res != null)
+                {
+                    Screen.SetResolution(res.Item1, res.Item2, Screen.fullScreenMode);
+                }
+                else
+                {
+                    Debug.LogErrorFormat("unable to set resolution dropdown to index {0} due to parseResolution failure", index);
+                }
+            }
         }
         public void SkipAllText(System.Boolean val)
         {
@@ -73,7 +108,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 return;
             }
-            Screen.SetResolution(1920,1080,Screen.fullScreenMode);
+            Screen.SetResolution(1920, 1080, Screen.fullScreenMode);
         }
         public void Set720p(System.Boolean val)
         {
@@ -81,7 +116,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 return;
             }
-            Screen.SetResolution(1280,720,Screen.fullScreenMode);
+            Screen.SetResolution(1280, 720, Screen.fullScreenMode);
         }
 
 

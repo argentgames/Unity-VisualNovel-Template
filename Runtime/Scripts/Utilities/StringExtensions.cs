@@ -75,6 +75,24 @@ public static class StringExtensions
         }
         return true;
     }
+    public static string CleanString(string s)
+    {
+        return s.TrimStart(null).TrimEnd(null);
+    }
+    public static string ArrayToString(string[] s, int start, int end)
+    {
+        return String.Join(" ", new ArraySegment<string>(s, start, end - start ));
+    }
+    public static Tuple<int,int> ParseResolution(string resolution,char delimiter='x')
+    {
+        var splits = resolution.Split(delimiter);
+        if (splits.Length != 2)
+        {
+            Debug.LogErrorFormat("Unable to parse resolution {0} with delimiter {1}",resolution,delimiter);
+            return null;
+        }
+        return new Tuple<int, int>(int.Parse(splits[0]),int.Parse(splits[1]));
+    }
 
     
 

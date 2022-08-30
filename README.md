@@ -11,17 +11,18 @@ and has C# Unity integration.
 We're providing a UI system and some convenience functions/features that we use in our visual novels. Most of these features come out of the box with Ren'Py.
 
 # Requirements
-To install this package, first install all requirements (OpenUPM, UNity package manager, and Additional). Then install this package.
+To install this package, first install all requirements (OpenUPM, Unity package manager, and Additional). Then install this package.
 
 ### OpenUPM
 Installed through OpenUPM (using relative paths in the dependency in `package.json`)
 
-```openupm add com.neuecc.unirx com.cysharp.unitask com.demigiant.dotween com.inklestudios.ink-unity-integration```
+```openupm add com.neuecc.unirx com.cysharp.unitask com.demigiant.dotween com.inklestudios.ink-unity-integration com.dbrizov.naughtyattributes```
 
 * com.neuecc.unirx (UniRx)
 * com.cysharp.unitask (UniTask)
 * com.demigiant.dotween (DOTween)
 * com.inklestudios.ink-unity-integration (Ink)
+* com.dbrizov.naughtyattributes (NaughtyAttributes; open source replacement for OdinInspector eventually!)
 
 ### Unity package manager
 
@@ -60,4 +61,6 @@ Out of the box, you get...
 # How to use this package
 
 # ROADMAP
-- [] Text to speech (UAP plugin?)
+- [ ] Text to speech (UAP plugin?)
+- [ ] Overlay scene transition (with ink command), e.g. using a black wipe that covers the textbox too so that we don't have to always hide the textbox before running a black transition
+- [ ] Fix the alpha (dissolve) wipe transition !!!

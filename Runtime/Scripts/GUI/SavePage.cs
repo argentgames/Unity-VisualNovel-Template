@@ -48,7 +48,7 @@ public class SavePage : MonoBehaviour
     void CreateSaveSlot(int i)
     {
         var go = Instantiate(saveSlotPrefab, saveSlotContentHolder.transform);
-        var saveSlot = go.GetComponent<SaveSlot>();
+        var saveSlot = go.GetComponent<SaveLoadSlot>();
         // slot text > screenshot > date time
         string filePath = SaveLoadManager.Instance.saveFileNamePrefix + i.ToString() + SaveLoadManager.Instance.extension;
         Debug.Log(filePath);
@@ -106,7 +106,7 @@ public class SavePage : MonoBehaviour
     {
         // put auto save slot at the top
         var go = Instantiate(saveSlotPrefab, saveSlotContentHolder.transform);
-        var saveSlot = go.GetComponent<SaveSlot>();
+        var saveSlot = go.GetComponent<SaveLoadSlot>();
         go.GetComponent<Button>().interactable = false;
         string filePath = SaveLoadManager.Instance.autoSaveNamePrefix + SaveLoadManager.Instance.extension;
 
@@ -138,7 +138,7 @@ public class SavePage : MonoBehaviour
     {
         string filePath = SaveLoadManager.Instance.saveFileNamePrefix + currentSelectedSaveSlot.ToString() + SaveLoadManager.Instance.extension;
         Debug.Log("running save for slot: " + filePath);
-        var ss = saveSlot.GetComponent<SaveSlot>();
+        var ss = saveSlot.GetComponent<SaveLoadSlot>();
         string date = System.DateTime.Now.ToString("dddd, MMM dd yyyy, hh:mm", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"));
 
         

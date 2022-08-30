@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using DG.Tweening;
+
 using Cysharp.Threading.Tasks;
 using System.Threading.Tasks;
 using UniRx;
@@ -22,7 +22,6 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         float scrollingDuration, fadeinDuration, startY, endY;
         PlayerControls _playerControls;
-        Sequence sequence;
         CancellationTokenSource cts;
         CancellationToken ct;
         // Start is called before the first frame update
@@ -47,15 +46,15 @@ namespace com.argentgames.visualnoveltemplate
         {
             AudioManager.Instance.PlayMusic("credits", 0);
             creditsText.alpha = 0;
-            sequence = DOTween.Sequence();
-            sequence.Pause();
-            sequence.Join(creditsText.DOFade(1, fadeinDuration));
-            sequence.Join(goToMove.transform.DOLocalMoveY(endY, scrollingDuration).From(startY).SetEase(Ease.Linear));
-            sequence.AppendInterval(3f);
-            sequence.AppendCallback(() => EndCredits());
+            // sequence = DOTween.Sequence();
+            // sequence.Pause();
+            // sequence.Join(creditsText.DOFade(1, fadeinDuration));
+            // sequence.Join(goToMove.transform.DOLocalMoveY(endY, scrollingDuration).From(startY).SetEase(Ease.Linear));
+            // sequence.AppendInterval(3f);
+            // sequence.AppendCallback(() => EndCredits());
             SceneTransitionManager.Instance.FadeIn(1f);
             await UniTask.Delay(System.TimeSpan.FromSeconds(.5f));
-            sequence.Play();
+            // sequence.Play();
 
             _playerControls.UI.Click.performed += ctx =>
            {

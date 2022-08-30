@@ -53,6 +53,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             return allNPCDatabase[npcName];
         }
+
     }
 
 }
