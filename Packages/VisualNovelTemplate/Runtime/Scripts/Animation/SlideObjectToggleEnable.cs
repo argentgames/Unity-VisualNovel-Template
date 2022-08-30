@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using UnityEngine.UI;
 using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
-
+using AnimeTask;
 namespace com.argentgames.visualnoveltemplate
 {
 public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
@@ -23,9 +22,8 @@ public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
     [Button]
     public async override UniTask Disable()
     {
-        AnimationComplete = false;
-        this.transform.DOLocalMove(disableEndPosition, disableAnimationDuration).SetEase(Ease.InQuad).OnComplete(OnCompleteDisableAnimation);
-        await UniTask.WaitUntil(() => AnimationComplete);
+        await Easing.Create<InQuad>(to: disableEndPosition, duration: disableAnimationDuration).ToLocalPosition(transform);
+        OnCompleteDisableAnimation();
 
     }
 
@@ -33,9 +31,8 @@ public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
     public async override UniTask Enable()
     {
 
-        AnimationComplete = false;
-        this.transform.DOLocalMove(enableEndPosition, enableAnimationDuration).SetEase(Ease.InQuad).OnComplete(OnCompleteEnableAnimation);
-        await UniTask.WaitUntil(() => AnimationComplete);
+        await Easing.Create<InQuad>(to: enableEndPosition, duration: enableAnimationDuration).ToLocalPosition(transform);
+        OnCompleteEnableAnimation();
     }
 
     public override void OnCompleteEnableAnimation()

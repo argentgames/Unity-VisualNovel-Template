@@ -1,5 +1,59 @@
 {
   "dependencies": {
+    "com.argentgames.visual-novel-template": {
+      "version": "file:VisualNovelTemplate",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.inklestudios.ink-unity-integration": "file:../Ink Unity Integration",
+        "com.neuecc.unirx": "file:../UniRx",
+        "com.cysharp.unitask": "file:../UniTask",
+        "com.dbrizov.naughtyattributes": "file:../NaughtyAttributes",
+        "dev.kyubuns.animetask": "1.13.1"
+      }
+    },
+    "com.cysharp.unitask": {
+      "version": "2.3.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "com.dbrizov.naughtyattributes": {
+      "version": "2.1.4",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "com.inklestudios.ink-unity-integration": {
+      "version": "1.0.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "com.neuecc.unirx": {
+      "version": "7.1.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "com.unity.addressables": {
+      "version": "1.18.19",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.scriptablebuildpipeline": "1.19.2",
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.collab-proxy": {
       "version": "1.15.17",
       "depth": 0,
@@ -41,6 +95,15 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.inputsystem": {
+      "version": "1.3.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.mathematics": {
       "version": "1.1.0",
       "depth": 1,
@@ -68,6 +131,13 @@
         "com.unity.render-pipelines.core": "10.9.0",
         "com.unity.shadergraph": "10.9.0"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.scriptablebuildpipeline": {
+      "version": "1.19.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.searcher": {
@@ -136,6 +206,15 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "dev.kyubuns.animetask": {
+      "version": "https://github.com/kyubuns/AnimeTask.git?path=Assets/AnimeTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
+      },
+      "hash": "48862d868578f75bdff7a458517577e2023823fc"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

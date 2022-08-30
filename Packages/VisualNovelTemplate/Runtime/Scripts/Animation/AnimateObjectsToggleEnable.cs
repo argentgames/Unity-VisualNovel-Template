@@ -28,9 +28,10 @@ namespace com.argentgames.visualnoveltemplate
         {
             Enable();
         }
-        private void OnDisable()
+        private async UniTaskVoid OnDisable()
         {
-            Disable();
+            await Disable();
+            gameObject.SetActive(false);
         }
 
         public void SetAllImagesTransparent()
@@ -49,6 +50,18 @@ namespace com.argentgames.visualnoveltemplate
         public abstract UniTask Disable();
         public abstract void OnCompleteEnableAnimation();
         public abstract void OnCompleteDisableAnimation();
+
+        public virtual void ToggleState()
+        {
+            if (this.gameObject.activeSelf)
+            {
+                Disable();
+            }
+            else
+            {
+                Enable();
+            }
+        }
 
     }
 

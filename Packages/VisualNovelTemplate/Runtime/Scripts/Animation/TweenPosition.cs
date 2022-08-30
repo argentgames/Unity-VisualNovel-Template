@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 using System.Threading;
 using System.Threading.Tasks;
-using DG.Tweening;
+using AnimeTask;
+using Cysharp.Threading.Tasks;
 namespace com.argentgames.visualnoveltemplate
 {
     public class TweenPosition : MonoBehaviour
@@ -19,15 +20,18 @@ namespace com.argentgames.visualnoveltemplate
         float disabledX, disabledY, disabledZ;
         [SerializeField]
         bool doTweenX = false, doTweenY = false, doTweenZ = false;
-        [SerializeField]
-        Ease ease = Ease.InQuad;
+        // TODO:
+        // When switching dotween ==> animeTask tweening library, need a way to select
+        // easing type via inspector
+        // [SerializeField]
+        // AnimeTask.Easing ease = InQuart;
         [SerializeField]
         float enabledAnimationDuration = .5f, disabledAnimationDuration = .5f;
         public bool AnimationComplete = false;
         private CancellationTokenSource _source = new CancellationTokenSource();
         CancellationTokenSource cts = new CancellationTokenSource();
         CancellationToken ct;
-        Sequence sequence;
+        List<UniTask> tasks = new List<UniTask>();
         void Start()
         {
 
@@ -37,9 +41,9 @@ namespace com.argentgames.visualnoveltemplate
                 objToAnimate = this.gameObject;
             }
         }
-        public void Enable(float? dur = null)
+        public async UniTask Enable(float? dur = null)
         {
-            sequence = DOTween.Sequence();
+            tasks.Clear();
             Debug.Log("run enable");
             if (dur == null)
             {
@@ -47,22 +51,23 @@ namespace com.argentgames.visualnoveltemplate
             }
             if (doTweenX)
             {
-                sequence.Join(objToAnimate.transform.DOLocalMoveX(enabledX, (float)dur).SetEase(ease));
+                tasks.Add(Easing.Create<InQuart>(to: enabledX, duration: (float)dur).ToLocalPositionX(objToAnimate));
             }
             if (doTweenY)
             {
-                sequence.Join(objToAnimate.transform.DOLocalMoveY(enabledY, (float)dur).SetEase(ease));
+                tasks.Add(Easing.Create<InQuart>(to: enabledY, duration: (float)dur).ToLocalPositionY(objToAnimate));
+
             }
             if (doTweenZ)
             {
-                sequence.Join(objToAnimate.transform.DOLocalMoveZ(enabledZ, (float)dur).SetEase(ease));
+                tasks.Add(Easing.Create<InQuart>(to: enabledZ, duration: (float)dur).ToLocalPositionZ(objToAnimate));
             }
-            sequence.Play();
+            await UniTask.WhenAll(tasks);
 
         }
-        public void Disable(float? dur = null)
+        public async UniTask Disable(float? dur = null)
         {
-            sequence = DOTween.Sequence();
+            tasks.Clear();
             Debug.Log("run disable");
             if (dur == null)
             {
@@ -70,17 +75,17 @@ namespace com.argentgames.visualnoveltemplate
             }
             if (doTweenX)
             {
-                sequence.Join(objToAnimate.transform.DOLocalMoveX(disabledX, (float)dur).SetEase(ease));
+                tasks.Add(Easing.Create<InQuart>(to: disabledX, duration: (float)dur).ToLocalPositionX(objToAnimate));
             }
             if (doTweenY)
             {
-                sequence.Join(objToAnimate.transform.DOLocalMoveY(disabledY, (float)dur).SetEase(ease));
+                tasks.Add(Easing.Create<InQuart>(to: disabledY, duration: (float)dur).ToLocalPositionY(objToAnimate));
             }
             if (doTweenZ)
             {
-                sequence.Join(objToAnimate.transform.DOLocalMoveZ(disabledZ, (float)dur).SetEase(ease));
+                tasks.Add(Easing.Create<InQuart>(to: disabledZ, duration: (float)dur).ToLocalPositionZ(objToAnimate));
             }
-            sequence.Play();
+            await UniTask.WhenAll(tasks);
         }
     }
 

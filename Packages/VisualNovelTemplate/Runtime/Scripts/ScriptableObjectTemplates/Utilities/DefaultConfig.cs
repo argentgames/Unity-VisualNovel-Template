@@ -24,6 +24,7 @@ namespace com.argentgames.visualnoveltemplate
         public float delayBeforeShowText = .4f;
         public float delayBeforHideClickUIFX = .4f;
         public float expressionChangeDuration = .35f;
+        // public DG.Tweening.Ease expressionTransitionEase = DG.Tweening.Ease.InCubic;
         public float spawnCharacterDuration = .3f;
         public float hideCharacterDuration = .3f;
         public float delayBeforeAutoNextLine = .5f;
@@ -33,6 +34,7 @@ namespace com.argentgames.visualnoveltemplate
         public string historyChoiceColor = "#cfda5e";
         [InfoBox("TODO: NOT SUPPORTED RIGHT NOW. Some games like to show the current speaking character on screen as a Midground sprite + in the bottom corner as a portrait sprite. We don't use this design paradigm. However, we might consider supporting it with this flag later...")]
         public bool showOnscreenCharacterAsPortrait = false;
+        public bool autosave = true;
 
         [PropertySpace(SpaceBefore =15f)]
         [InfoBox("Do we use addressable loading mechanism? If so, for which objects?")]

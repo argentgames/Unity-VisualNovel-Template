@@ -7,7 +7,7 @@ using UniRx;
 using UnityEngine.SceneManagement;
 // using UnityEngine.UI.Extensions;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+
 
 namespace com.argentgames.visualnoveltemplate
 {

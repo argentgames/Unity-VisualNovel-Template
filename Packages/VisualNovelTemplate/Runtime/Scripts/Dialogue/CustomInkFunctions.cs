@@ -79,7 +79,7 @@ public class CustomInkFunctions : MonoBehaviour
             {
                 s = StringExtensions.ParseFloat(size);
             }
-            imageManager.SetBGCameraShot(p, r, s);
+            imageManager.SetCurrentBGCameraShot(p, r, s);
         });
         _inkStory.BindExternalFunction("hideBG", (string bgName, string transition, float duration) =>
         {

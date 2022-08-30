@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace com.argentgames.visualnoveltemplate
 {
     public class ADVPortraitPresenter : PortraitPresenter
     {
-        public override void ShowChar(string npcName)
+        public override UniTaskVoid ShowChar(string npcName)
         {
             var npcso = GameManager.Instance.GetNPC(npcName);
 

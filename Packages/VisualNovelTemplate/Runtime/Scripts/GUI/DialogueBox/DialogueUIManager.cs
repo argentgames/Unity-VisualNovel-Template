@@ -12,7 +12,7 @@ using Ink.Runtime;
 using UniRx;
 using Cysharp.Threading.Tasks;
 // using UnityEngine.UI.Extensions;
-using DG.Tweening;
+
 using System.Threading;
 using System.Text.RegularExpressions;
 using Sirenix.OdinInspector;
@@ -30,10 +30,6 @@ namespace com.argentgames.visualnoveltemplate
         [PropertyTooltip("Prefab of choice to spawn when the player needs to make a choice.")]
         [AssetsOnly]
         public GameObject choicePrefab;
-        [SerializeField]
-        [SceneObjectsOnly]
-        [PropertyTooltip("The TMP_Text that will display an ink line.")]
-        public TMP_Text dialogueText;
 
         [SerializeField]
         [SceneObjectsOnly]
@@ -41,7 +37,7 @@ namespace com.argentgames.visualnoveltemplate
         public GameObject choiceParent;
 
         [SerializeField]
-        [SceneObjectsOnly]
+        // [SceneObjectsOnly]
         [PropertyTooltip("Parent wrapper for the entire dialogue UI box.")]
         public GameObject UIHolder;
 
@@ -54,8 +50,44 @@ namespace com.argentgames.visualnoveltemplate
         private bool isDisplayingLine = false;
         public bool IsDisplayingLine { get { return isDisplayingLine; } set {isDisplayingLine = value;}}
 
+        private bool waitingForPlayerToSelectChoice = false;
+        public bool WaitingForPlayerToSelectChoice { get;set;}
+
+        private bool playerHidUI = false;
+        public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value;}}
 
         #region Click to continue
+        public virtual async UniTaskVoid CTCLogic()
+        {
+            var wasSkipping = GameManager.Instance.IsSkipping;
+            GameManager.Instance.SetSkipping(false);
+
+
+            GameManager.Instance.SetAuto(false);
+
+            if (DialogueSystemManager.Instance.IsRunningActionFunction)
+            {
+                Debug.Log("running action function, do nothing except turn off skipping");
+                ImageManager.Instance.ThrowSkipToken();
+                return;
+            }
+            else if (WaitingForPlayerToSelectChoice)
+            {
+                Debug.Log("do nothing, waiting for player to select choice");
+                return;
+            }
+            else
+            {
+                if (!wasSkipping)
+                {
+                    DialogueSystemManager.Instance.InkContinueStory().Forget();
+                    HideCTC();
+                    // DisableCTC();
+                    ClearText();
+                }
+
+            }
+        }
         /// <summary>
         /// Do not allow the player to interact with the CTC, even if it is currently visible.
         /// </summary>
@@ -91,7 +123,16 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public virtual async UniTask HideUI(float duration = .3f)
         {
-           
+           var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
+            if (animator != null)
+            {
+                animator.Disable().Forget();
+            }
+            else
+            {
+                Debug.LogFormat("No animation available for hiding UI. Hiding instantly.");
+                UIHolder.SetActive(false);
+            }
 
         }
         
@@ -103,6 +144,7 @@ namespace com.argentgames.visualnoveltemplate
         public virtual async UniTask ShowUI(float duration = .3f)
         {
            UIHolder.SetActive(true);
+           Debug.Log("done showing dialogue ui");
 
         }
 
@@ -141,8 +183,6 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         public virtual void ClearText()
         {
-            dialogueText.text = "";
-            dialogueText.maxVisibleCharacters = 0;
         }
 
         /// <summary>
