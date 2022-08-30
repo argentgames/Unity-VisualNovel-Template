@@ -17,6 +17,8 @@ namespace com.argentgames.visualnoveltemplate
         [HideInInspector]
         public Color transparent = new Color(255, 255, 255, 0);
 
+        public float disableAnimationDuration = .5f, enableAnimationDuration = .5f;
+
         private CancellationTokenSource _source = new CancellationTokenSource();
         CancellationTokenSource cts = new CancellationTokenSource();
         CancellationToken ct;
@@ -26,11 +28,11 @@ namespace com.argentgames.visualnoveltemplate
         }
         private void OnEnable()
         {
-            Enable();
+            Enable(enableAnimationDuration);
         }
         private async UniTaskVoid OnDisable()
         {
-            await Disable();
+            await Disable(disableAnimationDuration);
             gameObject.SetActive(false);
         }
 
@@ -46,8 +48,9 @@ namespace com.argentgames.visualnoveltemplate
                 image.color = transparent;
             }
         }
-        public abstract UniTask Enable();
-        public abstract UniTask Disable();
+  
+        public abstract UniTask Enable(float duration);
+        public abstract UniTask Disable(float duration);
         public abstract void OnCompleteEnableAnimation();
         public abstract void OnCompleteDisableAnimation();
 
@@ -55,11 +58,11 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (this.gameObject.activeSelf)
             {
-                Disable();
+                Disable(disableAnimationDuration);
             }
             else
             {
-                Enable();
+                Enable(enableAnimationDuration);
             }
         }
 

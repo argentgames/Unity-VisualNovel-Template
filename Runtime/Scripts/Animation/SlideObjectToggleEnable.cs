@@ -12,26 +12,32 @@ namespace com.argentgames.visualnoveltemplate
 public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
 {
     [SerializeField]
-    float disableAnimationDuration = .5f, enableAnimationDuration = .5f;
-    [SerializeField]
     Vector3 enableEndPosition, disableEndPosition;
     // Start is called before the first frame update
 
 
 
     [Button]
-    public async override UniTask Disable()
+    public async override UniTask Disable(float duration=-1)
     {
-        await Easing.Create<InQuad>(to: disableEndPosition, duration: disableAnimationDuration).ToLocalPosition(transform);
+        if (duration == -1)
+        {
+            duration = disableAnimationDuration;
+        }
+        await Easing.Create<InQuad>(to: disableEndPosition, duration: duration).ToLocalPosition(transform);
         OnCompleteDisableAnimation();
 
     }
 
     [Button]
-    public async override UniTask Enable()
+    public async override UniTask Enable(float duration =-1)
     {
+        if (duration == -1)
+        {
+            duration = enableAnimationDuration;
+        }
 
-        await Easing.Create<InQuad>(to: enableEndPosition, duration: enableAnimationDuration).ToLocalPosition(transform);
+        await Easing.Create<InQuad>(to: enableEndPosition, duration: duration).ToLocalPosition(transform);
         OnCompleteEnableAnimation();
     }
 
