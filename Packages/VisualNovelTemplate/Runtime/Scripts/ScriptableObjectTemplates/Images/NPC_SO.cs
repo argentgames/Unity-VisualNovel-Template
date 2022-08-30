@@ -172,6 +172,11 @@ namespace com.argentgames.visualnoveltemplate
     {
         public string prefix;
         public List<SpriteExpressionData> expressionDatas;
+        
+        /// <summary>
+        /// if the sprite changes, then also change every dependent part using the same name
+        /// </summary>
+        public List<string> dependentParts;
 
     }
     public struct SpriteExpressionData

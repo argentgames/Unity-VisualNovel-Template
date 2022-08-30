@@ -639,8 +639,7 @@ namespace com.argentgames.visualnoveltemplate
                     s += splitText[i] + " ";
                 }
                 s = s.TrimStart(null).TrimEnd(null);
-                dialogue.text = string.Format("{0}{1}{2}", GameManager.Instance.GenericTexts.Texts[GenericText.START_QUOTE_CHAR],
-                s, GameManager.Instance.GenericTexts.Texts[GenericText.END_QUOTE_CHAR]);
+                dialogue.text = s;
             }
             else
             {

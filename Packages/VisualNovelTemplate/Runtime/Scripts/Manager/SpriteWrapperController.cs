@@ -16,9 +16,6 @@ namespace com.argentgames.visualnoveltemplate
     public class SpriteWrapperController : SerializedMonoBehaviour
     {
         [SerializeField]
-        [Tooltip("NPC data container to know what images to change out body part images with for expression changes.")]
-        NPC_SO npc;
-        [SerializeField]
         [Tooltip("Body part object that gets modified for a specific expression body part change.")]
         List<BodyPart> bodyParts = new List<BodyPart>();
         [SerializeField]
@@ -29,7 +26,7 @@ namespace com.argentgames.visualnoveltemplate
         [ReadOnly]
         [BoxGroup("Sprite data")]
         // TECHDEBT: not sure what this is for. Probably auto setting an exp when there's a pose change??
-        private Dictionary<string, List<SpriteExpressionData>> expressionsMapForHead = new Dictionary<string, List<SpriteExpressionData>>();
+        private Dictionary<string, SpriteExpression> expressionsMapForHead = new Dictionary<string, SpriteExpression>();
 
         [BoxGroup("Sprite data")]
         public List<SpriteExpression> expressions = new List<SpriteExpression>();
@@ -93,25 +90,33 @@ namespace com.argentgames.visualnoveltemplate
                 colorTintsMap[tint.internalName] = tint;
             }
             // set our initial/default expression
+            GenerateExpressionsMapForHead();
             SetNewExpression();
             CreateSkipToken();
         }
 
-         public Sprite GetExpressionImage(string expression)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="expression">prefix_expression</param>
+        /// <returns></returns>
+        public Sprite GetExpressionImage(string expression)
         {
             // get prefix from expression.
             var splitExpression = expression.Split(prefixDelimiter);
             var prefix = splitExpression[0];
-            var segment = new ArraySegment<string>(splitExpression, 1, splitExpression.Length -1);
-            var noPrefixExpression = string.Join("_",segment);
-            Debug.LogFormat("Looking for expression image: prefix-{0} noPrefix-{1}",prefix,noPrefixExpression);
+            var segment = new ArraySegment<string>(splitExpression, 1, splitExpression.Length - 1);
+            var noPrefixExpression = string.Join("_", segment);
+            Debug.LogFormat("Looking for expression image: prefix-{0} noPrefix-{1}", prefix, noPrefixExpression);
             var part = expressionsMapForHead[prefix];
-            foreach (var exp in part)
+            foreach (var exp in part.expressionDatas)
             {
                 if (exp.internalName == noPrefixExpression)
                 {
                     return exp.sprite;
                 }
+
+
 
             }
             Debug.LogErrorFormat("Unable to locate expression {0}", expression);
@@ -131,10 +136,11 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void GenerateExpressionsMapForHead()
         {
+            expressionsMapForHead = new Dictionary<string, SpriteExpression>();
             expressionsMapForHead.Clear();
             foreach (var exp in expressions)
             {
-                expressionsMapForHead[exp.prefix] = exp.expressionDatas;
+                expressionsMapForHead[exp.prefix] = exp;
             }
         }
 
@@ -153,6 +159,9 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
             var parts = expression.Split(' ');
+            Sprite newExpSprite;
+            SpriteRenderer bodyPartSpriteRenderer;
+            string _depPart = "";
             foreach (var part in parts)
             {
 
@@ -163,9 +172,30 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 try
                 {
+                    var spriteExpression = expressionsMapForHead[_prefix];
+                    if (spriteExpression.dependentParts != null)
+                    {
+                        foreach (var depPart in spriteExpression.dependentParts)
+                        {
+                            try
+                            {
+                                var splitExpression = part.Split(prefixDelimiter);
+                                _depPart = string.Format("{0}{1}{2}", depPart, prefixDelimiter, StringExtensions.ArrayToString(splitExpression, 1, splitExpression.Length));
+                                Debug.LogFormat("depPart we are looking for: {0}", _depPart);
+                                bodyPartSpriteRenderer = bodyPartsMap[depPart];
+                                newExpSprite = GetExpressionImage(_depPart);
+                                bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
+                            }
+                            catch
+                            {
+                                Debug.LogErrorFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
+                            }
 
-                    var bodyPartSpriteRenderer = bodyPartsMap[_prefix];
-                    var newExpSprite = GetExpressionImage(part);
+                        }
+                    }
+                    // do we need to set dependent parts too?
+                    bodyPartSpriteRenderer = bodyPartsMap[_prefix];
+                    newExpSprite = GetExpressionImage(part);
                     bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
                 }
                 catch
@@ -202,12 +232,13 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
                     {
+                        Debug.Log("running animation for SR: " + sr.gameObject.name);
                         // TECHDEBT: hardcoding the ease =.=
                         animationTasks.Add(
 Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
-                    .ToMaterialPropertyFloat(sr, "_TransitionAmount",skipToken: skipToken)
+                    .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
                         );
-                        
+
                         // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
                         // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
                         // .From(0));
@@ -233,7 +264,11 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
             {
                 return;
             }
+
             var parts = expression.Split(' ');
+            Sprite newExpSprite;
+            SpriteRenderer bodyPartSpriteRenderer;
+            string _depPart = "";
             foreach (var part in parts)
             {
                 var _prefix = part.Split(prefixDelimiter)[0];
@@ -243,8 +278,31 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
                 }
                 try
                 {
-                    var bodyPartSpriteRenderer = bodyPartsMap[_prefix];
-                    var newExpSprite = GetExpressionImage(part);
+                    var spriteExpression = expressionsMapForHead[_prefix];
+                    if (spriteExpression.dependentParts != null)
+                    {
+                        foreach (var depPart in spriteExpression.dependentParts)
+                        {
+                            try
+                            {
+                                var splitExpression = part.Split(prefixDelimiter);
+                                _depPart = string.Format("{0}{1}{2}", depPart, prefixDelimiter, StringExtensions.ArrayToString(splitExpression, 1, splitExpression.Length));
+                                Debug.LogFormat("depPart we are looking for: {0}", _depPart);
+                                bodyPartSpriteRenderer = bodyPartsMap[depPart];
+                                newExpSprite = GetExpressionImage(_depPart);
+                                bodyPartSpriteRenderer.sprite = newExpSprite;
+                                bodyPartSpriteRenderer.material.SetFloat("_TransitionAmount", 0);
+                            }
+                            catch
+                            {
+                                Debug.LogErrorFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
+                            }
+
+                        }
+                    }
+
+                    bodyPartSpriteRenderer = bodyPartsMap[_prefix];
+                    newExpSprite = GetExpressionImage(part);
 
                     bodyPartSpriteRenderer.sprite = newExpSprite;
                     bodyPartSpriteRenderer.material.SetFloat("_TransitionAmount", 0);
