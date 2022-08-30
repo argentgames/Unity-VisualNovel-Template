@@ -126,7 +126,7 @@ namespace com.argentgames.visualnoveltemplate
            var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
-                animator.Disable().Forget();
+                animator.Disable(duration).Forget();
             }
             else
             {
@@ -143,7 +143,16 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public virtual async UniTask ShowUI(float duration = .3f)
         {
-           UIHolder.SetActive(true);
+           var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
+            if (animator != null)
+            {
+                animator.Enable(duration).Forget();
+            }
+            else
+            {
+                Debug.LogFormat("No animation available for hiding UI. Hiding instantly.");
+                UIHolder.SetActive(true);
+            }
            Debug.Log("done showing dialogue ui");
 
         }

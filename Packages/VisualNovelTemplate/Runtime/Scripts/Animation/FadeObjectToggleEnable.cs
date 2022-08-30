@@ -13,36 +13,44 @@ namespace com.argentgames.visualnoveltemplate
 
     public class FadeObjectToggleEnable : AnimateObjectsToggleEnable
     {
-        [SerializeField]
-        float disableAnimationDuration = .5f, enableAnimationDuration = .5f;
 
         [SerializeField]
         CanvasGroup canvasGroup;
         [SerializeField]
         Image image;
         SpriteRenderer sprite;
+        float endAlpha = 1;
 
         void Awake()
         {
             sprite = GetComponentInChildren<SpriteRenderer>();
             image = GetComponentInChildren<Image>();
+            if (image.color.a != 1 && image.color.a != 0)
+            {
+                endAlpha = image.color.a;
+            }
             canvasGroup = GetComponentInChildren<CanvasGroup>();
         }
-        public async override UniTask Disable()
+        
+        public async override UniTask Disable(float duration=-1)
         {
             Debug.Log("who is calling me...");
             AnimationComplete = false;
+            if (duration == -1)
+            {
+                duration = disableAnimationDuration;
+            }
             if (canvasGroup != null)
             {
 
-                await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(canvasGroup);
+                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup);
                 OnCompleteDisableAnimation();
 
             }
 
             else if (image != null)
             {
-                await Easing.Create<Linear>(start: 1f, end: 0f, disableAnimationDuration).ToColorA(image);
+                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image);
                 OnCompleteDisableAnimation();
             }
             // else if (sprite != null)
@@ -65,22 +73,26 @@ namespace com.argentgames.visualnoveltemplate
 
             // await UniTask.WaitUntil(() => AnimationComplete);
         }
-        public async override UniTask Enable()
+        public async override UniTask Enable(float duration=-1)
         {
             this.gameObject.SetActive(true);
             // Debug.Log(canvasGroup == null);
             AnimationComplete = false;
+            if (duration == -1)
+            {
+                duration = enableAnimationDuration;
+            }
             if (canvasGroup != null)
             {
 
-                await Easing.Create<Linear>(start: 0f, end: 1f, disableAnimationDuration).ToColorA(canvasGroup);
+                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup);
                 OnCompleteEnableAnimation();
 
             }
 
             else if (image != null)
             {
-                await Easing.Create<Linear>(start: 0f, end: 1f, disableAnimationDuration).ToColorA(image);
+                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image);
                 OnCompleteEnableAnimation();
             }
             // else if (sprite != null)

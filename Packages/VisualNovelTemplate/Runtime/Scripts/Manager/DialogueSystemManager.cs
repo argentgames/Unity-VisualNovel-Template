@@ -107,7 +107,9 @@ namespace com.argentgames.visualnoveltemplate
                 {
                 dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 }
-                window.GetComponentInChildren<DialogueUIManager>().HideUI();
+                window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
+                window.GetComponentInChildren<DialogueUIManager>().ClearUI();
+                
             }
 
 
@@ -542,6 +544,18 @@ namespace com.argentgames.visualnoveltemplate
         public void SetEndGame(bool value)
         {
             endGame = value;
+        }
+        public void SetDialogueWindow(string internalName)
+        {
+            try
+            {
+                var window = dialogueWindows[internalName];
+                dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+            }
+            catch
+            {
+                Debug.LogErrorFormat("dialogue window [{0}] is not registered.", internalName);
+            }
         }
         public void ShowDialogueWindow(string internalName)
         {
