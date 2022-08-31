@@ -12,7 +12,7 @@ namespace com.argentgames.visualnoveltemplate
     {
         [SerializeField]
         [Tooltip("If left empty, automatically populates with all immediate children.")]
-        List<GameObject> toggleGroupObjects = new List<GameObject>();
+        HashSet<GameObject> toggleGroupObjects = new HashSet<GameObject>();
         
         void Awake()
         {
@@ -23,6 +23,13 @@ namespace com.argentgames.visualnoveltemplate
                     toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
                 }
             }
+        }
+        public void UpdateToggleObjectsList()
+        {
+for (int idx=0; idx < gameObject.transform.childCount; idx++)
+                {
+                    toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
+                }
         }
         public void EnableGameObject(GameObject gameObject)
         {
