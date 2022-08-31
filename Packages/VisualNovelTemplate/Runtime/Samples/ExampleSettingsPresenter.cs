@@ -65,7 +65,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     if (animator != null)
                     {
-                        animator.Disable();
+                        animator.Disable(0);
                     }
                     else
                     {
