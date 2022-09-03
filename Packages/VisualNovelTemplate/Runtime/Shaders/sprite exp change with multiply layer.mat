@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: sprite exp change with multiply layer
-  m_Shader: {fileID: -6465566751694194690, guid: 3ced98293e0c8c74cb3e905cc5399d2c, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 7563b59a07ec45242a3b5eb8c0158f50, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -33,10 +33,14 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f05ff1e1dc4b80645a4f3a8981516373, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NewTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -62,12 +66,17 @@ Material:
     - Boolean_a0039fc99fd745ac946a36910566761a: 1
     - DoTint: 0
     - Vector1_0da373cb5b1b4d52a548db9e0c877b2a: 1
+    - _Alpha: 0
+    - _DoColorization: 0
+    - _DoTint: 0
     - _EnableExternalAlpha: 0
     - _TransitionAmount: 0
     m_Colors:
     - Color_f4ed679210e043f7a3787be2d0af4065: {r: 0.5660378, g: 0.5366679, b: 0.5366679, a: 0}
     - TintColor: {r: 0.46257564, g: 0.4752761, b: 0.5943396, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Colorization: {r: 1, g: 0, b: 0, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Tint: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

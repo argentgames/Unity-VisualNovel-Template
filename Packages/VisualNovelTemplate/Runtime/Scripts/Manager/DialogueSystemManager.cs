@@ -112,7 +112,8 @@ namespace com.argentgames.visualnoveltemplate
                 
             }
 
-
+            Debug.Log((string)story.variablesState["mc_shirt"]);
+            // Debug.Break();
             // RunCancellationToken();
 
         }
