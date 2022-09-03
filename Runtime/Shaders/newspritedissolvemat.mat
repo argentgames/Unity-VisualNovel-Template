@@ -62,12 +62,15 @@ Material:
     - Boolean_a0039fc99fd745ac946a36910566761a: 1
     - DoTint: 0
     - Vector1_0da373cb5b1b4d52a548db9e0c877b2a: 1
+    - _DoColorization: 0
     - _EnableExternalAlpha: 0
+    - _NeedsMultiply: 0
     - _TransitionAmount: 0
     m_Colors:
     - Color_f4ed679210e043f7a3787be2d0af4065: {r: 0.5660378, g: 0.5366679, b: 0.5366679, a: 0}
     - TintColor: {r: 0.46257564, g: 0.4752761, b: 0.5943396, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Colorization: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

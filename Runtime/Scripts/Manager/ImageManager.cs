@@ -266,7 +266,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="transition"></param>
         /// <param name="duration"></param>
         /// <returns></returns>
-        [Button]
+        // [Button]
         public async UniTask ShowBG(string bgName, string transition = "w9", float duration = 1.4f)
         {
             if (bgName == "")
@@ -590,7 +590,7 @@ namespace com.argentgames.visualnoveltemplate
             Debug.LogFormat("position to spawn at {0}", saveData.position);
             ShowChar(charName, saveData.position, duration: 0);
         }
-        [Button]
+        // [Button]
         /// <summary>
         /// Character does not exist on screen. Spawn it with provided expression.
         /// TODO: support different spawn transitions (e.g. sliding in, not only fading in)
@@ -752,7 +752,7 @@ namespace com.argentgames.visualnoveltemplate
 
 
         }
-        [Button]
+        // [Button]
         public async UniTask FireHideChar(string charName, string transition = "fade", float? duration = null)
         {
             if (!charactersOnScreen.ContainsKey(charName))
@@ -818,7 +818,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             FireHideChar(charName, transition, duration).Forget();
         }
-        [Button]
+        // [Button]
         public async UniTask HideAllChar(float? duration = null)
         {
             animationTasks.Clear();
