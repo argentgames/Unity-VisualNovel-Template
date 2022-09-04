@@ -17,9 +17,9 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         TMP_Text heading;
         [SerializeField]
-        Selectable settings, history, saveLoad;
+        Selectable settings, history, saveLoad, save, load;
         [SerializeField]
-        Selectable cgGallery, musicGallery, credits, about;
+        Selectable cgGallery, musicGallery, credits, about, mainMenu;
         [SerializeField]
         MenuPresenter menuPresenter;
 
@@ -159,6 +159,90 @@ namespace com.argentgames.visualnoveltemplate
                 else
                 {
                     Debug.LogWarningFormat("Selectable type not implemented. No subscription made for {0}", saveLoad);
+                }
+            }
+            if (load != null)
+            {
+                if (load is Toggle)
+                {
+                    ((Toggle)load).onValueChanged.AsObservable().Subscribe(val =>
+                    {
+                        if (val)
+                        {
+                            var metadata = load.GetComponentInChildren<GameObjectMetadata>();
+                            var pageName = "Load";
+                            var displayName = "Load";
+                            if (metadata != null)
+                            {
+                                pageName = metadata.InternalName;
+                                displayName = metadata.DisplayName;
+                            }
+                            menuPresenter.OpenPage(pageName);
+                            DisplayHeadingText(displayName);
+                        }
+                    });
+                }
+                else if (load.GetType() == typeof(Button))
+                {
+                    ((Button)load).OnClickAsObservable().Subscribe(val =>
+                    {
+                        var metadata = load.GetComponentInChildren<GameObjectMetadata>();
+                            var pageName = "Load";
+                            var displayName = "Load";
+                            if (metadata != null)
+                            {
+                                pageName = metadata.InternalName;
+                                displayName = metadata.DisplayName;
+                            }
+                            menuPresenter.OpenPage(pageName);
+                            DisplayHeadingText(displayName);
+                    });
+                }
+                else
+                {
+                    Debug.LogWarningFormat("Selectable type not implemented. No subscription made for {0}", load);
+                }
+            }
+            if (save != null)
+            {
+                if (save is Toggle)
+                {
+                    ((Toggle)save).onValueChanged.AsObservable().Subscribe(val =>
+                    {
+                        if (val)
+                        {
+                            var metadata = save.GetComponentInChildren<GameObjectMetadata>();
+                            var pageName = "Save";
+                            var displayName = "Save";
+                            if (metadata != null)
+                            {
+                                pageName = metadata.InternalName;
+                                displayName = metadata.DisplayName;
+                            }
+                            menuPresenter.OpenPage(pageName);
+                            DisplayHeadingText(displayName);
+                        }
+                    });
+                }
+                else if (save.GetType() == typeof(Button))
+                {
+                    ((Button)save).OnClickAsObservable().Subscribe(val =>
+                    {
+                        var metadata = save.GetComponentInChildren<GameObjectMetadata>();
+                            var pageName = "Save";
+                            var displayName = "Save";
+                            if (metadata != null)
+                            {
+                                pageName = metadata.InternalName;
+                                displayName = metadata.DisplayName;
+                            }
+                            menuPresenter.OpenPage(pageName);
+                            DisplayHeadingText(displayName);
+                    });
+                }
+                else
+                {
+                    Debug.LogWarningFormat("Selectable type not implemented. No subscription made for {0}", save);
                 }
             }
 
@@ -331,6 +415,26 @@ namespace com.argentgames.visualnoveltemplate
                 else
                 {
                     Debug.LogWarningFormat("Selectable type not implemented. No subscription made for {0}", about);
+                }
+            }
+
+            if (mainMenu != null)
+            {
+                if (mainMenu is Toggle)
+                {
+                    Debug.LogWarning("Did you mean to make MainMenu a Toggle? Not setting any subscriptions!");
+                    return;
+                }
+                else if (mainMenu.GetType() == typeof(Button))
+                {
+                    ((Button)mainMenu).OnClickAsObservable().Subscribe(val =>
+                    {
+                        // TODO: add confirm panel to confirm wanting to return to mM
+                    });
+                }
+                else
+                {
+                    Debug.LogWarningFormat("Selectable type not implemented. No subscription made for {0}", mainMenu);
                 }
             }
 
