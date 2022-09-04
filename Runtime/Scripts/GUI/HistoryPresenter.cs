@@ -31,9 +31,9 @@ public class HistoryPresenter : MonoBehaviour
                 CreateHistoryObject(line.speaker, line.line);
             }
 
-            UIExtensions.UpdateLayout(canvas.transform);
+            // UIExtensions.UpdateLayout(canvas.transform);
 
-            Canvas.ForceUpdateCanvases();
+            // Canvas.ForceUpdateCanvases();
 
             contentHolder.GetComponent<VerticalLayoutGroup>().CalculateLayoutInputVertical();
             contentHolder.GetComponent<ContentSizeFitter>().SetLayoutVertical();

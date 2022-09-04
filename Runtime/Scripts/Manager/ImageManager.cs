@@ -812,6 +812,7 @@ namespace com.argentgames.visualnoveltemplate
             Destroy(go);
 
 
+
         }
         // TODO: figure out how we want to do the awaiting for hide char...........
         public void HideChar(string charName, string transition = "fade", float? duration = null)
