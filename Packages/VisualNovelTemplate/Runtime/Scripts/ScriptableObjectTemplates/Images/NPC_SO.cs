@@ -27,7 +27,33 @@ namespace com.argentgames.visualnoveltemplate
         [PropertyTooltip("the name of the npc used in scripts for ease of writing, e.g. lowercased 'markus' instead of 'MARKUS'.")]
         public string internalName;
         [PropertyTooltip("The character name shown on screen to the player. May be changed during runtime gameplay.")]
-        public string DisplayName;
+        public string DisplayName
+        {
+            get {
+                if (inkVariableName != "" && inkVariableName != null)
+                {
+                    try
+                    {
+                        return (string)DialogueSystemManager.Instance.Story.variablesState[inkVariableName];
+                    }
+                    catch
+                    {
+                        Debug.LogErrorFormat("Unable to locate {0} as the name of {1}",inkVariableName,this.internalName);
+                        return defaultDisplayName;
+                    }
+                }
+                else
+                {
+                    return defaultDisplayName;
+                }
+            }
+        }
+        [SerializeField]
+        [Tooltip("The display name to reset to at the launch of game in case DisplayName is changed during runtime.")]
+        private string defaultDisplayName;
+        [SerializeField]
+        [Tooltip("If we update the DisplayName through an ink variable, then return that saved value.")]
+        private string inkVariableName;
         [PropertyTooltip("The color of the character's displayed name in-game.")]
         public Color NameColor = new Color(255, 255, 255, 255);
         [PropertyTooltip("The color of a character's spoken lines displayed in-game.")]
@@ -158,6 +184,7 @@ namespace com.argentgames.visualnoveltemplate
             
 
         }
+
        
 
     }
