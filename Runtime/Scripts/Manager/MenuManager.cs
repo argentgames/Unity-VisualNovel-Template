@@ -153,6 +153,7 @@ namespace com.argentgames.visualnoveltemplate
                     // TODO
                     var go = Instantiate(menuMap[menuName].prefab, this.transform);
                     openMenus[menuName] = go;
+                    currentMenu = go;
                 }
                 else
                 {
