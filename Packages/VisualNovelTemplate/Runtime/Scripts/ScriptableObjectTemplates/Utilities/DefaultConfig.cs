@@ -36,6 +36,12 @@ namespace com.argentgames.visualnoveltemplate
         public bool showOnscreenCharacterAsPortrait = false;
         public bool autosave = true;
 
+        // music stuff
+        public float musicFadeInDuration = 0f;
+        public float musicFadeOutDuration = 0f;
+        public float ambientFadeInDuration = 0f;
+        public float ambientFadeOutDuration = 0f;
+
         [PropertySpace(SpaceBefore =15f)]
         [InfoBox("Do we use addressable loading mechanism? If so, for which objects?")]
         [BoxGroup("Addressables")]
