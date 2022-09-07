@@ -21,7 +21,7 @@ namespace com.argentgames.visualnoveltemplate
     {
         public SoundType soundType;
         private EventInstance? eventInstance;
-        public EventInstance EventInstance { get { return (EventInstance)eventInstance; } }
+        public EventInstance EventInstance { get { return (EventInstance)eventInstance; } set { eventInstance = value; } }
         public string soundName;
         // QUESTION @Dovah: is it possible to have individual eventInstance volumes, separate from the Bus?
         public float trackVolume;
@@ -84,6 +84,7 @@ namespace com.argentgames.visualnoveltemplate
             // create all our eventInstanceMap so we can have unlimited ambient tracks :>
             eventInstanceMap["music"] = new FMODEventInstanceData(SoundType.Music, new EventInstance(), "", false, 1.0f);
             eventInstanceMap["sfx"] = new FMODEventInstanceData(SoundType.SFX, new EventInstance(), "", false, 1.0f);
+            Debug.Log(eventInstanceMap["music"].EventInstance);
             for (int i = 0; i < numAmbientTracks; i++)
             {
                 eventInstanceMap["ambient" + i.ToString()] = new FMODEventInstanceData(SoundType.Ambient, new EventInstance(), "", false, 1.0f);
@@ -110,15 +111,15 @@ namespace com.argentgames.visualnoveltemplate
                 return "";
             }
         }
-        public List<Tuple<string,int>> GetCurrentPlayingAmbients()
+        public List<Tuple<string, int>> GetCurrentPlayingAmbients()
         {
-            List<Tuple<string,int>> currAmbs = new List<Tuple<string, int>>();
-            for (int i=0; i < numAmbientTracks; i++)
+            List<Tuple<string, int>> currAmbs = new List<Tuple<string, int>>();
+            for (int i = 0; i < numAmbientTracks; i++)
             {
-                var instance = eventInstanceMap["ambient"+i.ToString()];
+                var instance = eventInstanceMap["ambient" + i.ToString()];
                 if (instance.IsPlaying)
                 {
-                    currAmbs.Add(new Tuple<string, int>(instance.soundName,i));
+                    currAmbs.Add(new Tuple<string, int>(instance.soundName, i));
                 }
             }
             return currAmbs;
@@ -156,23 +157,33 @@ namespace com.argentgames.visualnoveltemplate
         }
 
         [Button]
-        public void PlayMusic(string name, float fadein = 0f)
+        public void PlayMusic(string _name, float fadein = 0f)
         {
-            fmodEvent = eventInstanceMap["music"];
-            var obj = audioBank.GetMusic(name);
-            var eventPath = obj.Event;
-
-            // if music is currently playing, we need to stop it before making a new 
-            // music instance, otherwise we will lose the reference to the musicInstance
-            // and it will overlap with new music.
-            musicInstance = fmodEvent.EventInstance;
-            if (fmodEvent.IsPlaying)
+            try
             {
-                StopMusic(0);
+                fmodEvent = eventInstanceMap["music"];
+                var obj = audioBank.GetMusic(_name);
+                var eventPath = obj.Event;
+
+                // if music is currently playing, we need to stop it before making a new 
+                // music instance, otherwise we will lose the reference to the musicInstance
+                // and it will overlap with new music.
+                musicInstance = fmodEvent.EventInstance;
+                if (fmodEvent.IsPlaying)
+                {
+                    StopMusic(0);
+                }
+                musicInstance = RuntimeManager.CreateInstance(eventPath);
+                StartCoroutine(FadeVolume(0, 1f, fadein, musicInstance));
+                musicInstance.start();
+                fmodEvent.EventInstance = musicInstance;
+                eventInstanceMap["music"] = fmodEvent;
             }
-            musicInstance = RuntimeManager.CreateInstance(eventPath);
-            StartCoroutine(FadeVolume(0, 1f, fadein, musicInstance));
-            musicInstance.start();
+            catch
+            {
+                Debug.LogErrorFormat("Unable to play music: [{0}]", _name);
+            }
+
         }
         [Button]
         public void StopMusic(float fadeout = 0f)
@@ -194,20 +205,32 @@ namespace com.argentgames.visualnoveltemplate
         }
 
         [Button]
-        public void PlayAmbient(string name, int channel = 0, float fadein = 0f, float fadeout = 0f)
+        public void PlayAmbient(string _name, int channel = 0, float fadein = 0f, float fadeout = 0f)
         {
-            fmodEvent = eventInstanceMap["ambient" + channel.ToString()];
-            ambientInstance = fmodEvent.EventInstance;
-            var obj = audioBank.GetAmbient(name);
-            var eventPath = obj.Event;
-
-            if (fmodEvent.IsPlaying)
+            try
             {
-                StopAmbient(fadeout, channel);
+                fmodEvent = eventInstanceMap["ambient" + channel.ToString()];
+                ambientInstance = fmodEvent.EventInstance;
+                var obj = audioBank.GetAmbient(_name);
+                var eventPath = obj.Event;
+
+                if (fmodEvent.IsPlaying)
+                {
+                    StopAmbient(fadeout, channel);
+                }
+                ambientInstance = RuntimeManager.CreateInstance(eventPath);
+                StartCoroutine(FadeVolume(0, 1f, fadein, ambientInstance));
+                ambientInstance.start();
+
+                fmodEvent.EventInstance = ambientInstance;
+                eventInstanceMap["ambient" + channel.ToString()] = fmodEvent;
+
             }
-            ambientInstance = RuntimeManager.CreateInstance(eventPath);
-            StartCoroutine(FadeVolume(0, 1f, fadein, ambientInstance));
-            ambientInstance.start();
+            catch
+            {
+                Debug.LogErrorFormat("Unable to play Ambient: [{0}]", _name);
+            }
+
         }
         [Button]
         public void StopAmbient(float fadeout = 0f, int channel = 0)
@@ -233,11 +256,19 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
         [Button]
-        public void PlaySFX(string name)
+        public void PlaySFX(string _name)
         {
-            var obj = audioBank.GetSfx(name);
-            var eventPath = obj.Event;
-            RuntimeManager.PlayOneShot(eventPath);
+            try
+            {
+                var obj = audioBank.GetSfx(_name);
+                var eventPath = obj.Event;
+                RuntimeManager.PlayOneShot(eventPath);
+            }
+            catch
+            {
+                Debug.LogErrorFormat("Unable to play sfx: [{0}]", _name);
+            }
+
         }
 
         public void PlayUIEvent(UIEventType eventType)
