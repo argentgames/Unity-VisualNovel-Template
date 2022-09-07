@@ -8,8 +8,9 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class Music_SO : Sound_SO
     {
-        [SerializeField]
-        private new bool loop = true;
+        public Music_SO() {
+            loop = true; 
+        }
 
     }
 }

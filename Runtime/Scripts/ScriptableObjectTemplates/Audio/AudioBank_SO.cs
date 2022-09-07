@@ -4,7 +4,6 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using FMODUnity;
 using System;
-
 /// <summary>
 /// The AudioBank contains all the sounds used in the game. Populate the Data sounds, and maps will automatically be created.
 /// Use the internalName to access the sound in game.
@@ -33,19 +32,31 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         [BoxGroup("Data")]
         [InfoBox("Ambient sounds. These loop. Optionally specify a default channel to play the sound.")]
+        [ListDrawerSettings(NumberOfItemsPerPage = 5)]
         private List<AudioData> ambientData = new List<AudioData>();
         [SerializeField]
         [BoxGroup("Data")]
         [InfoBox("One-shot sounds. These do not loop.")]
+        [ListDrawerSettings(NumberOfItemsPerPage = 5)]
         private List<AudioData> sfxData = new List<AudioData>();
         [SerializeField]
         [BoxGroup("Data")]
         [InfoBox("Music sounds. These loop.")]
+        [ListDrawerSettings(NumberOfItemsPerPage = 5)]
         private List<AudioData> musicData = new List<AudioData>();
-
+        [SerializeField]
+        List<Sound_SO> sound_SOs = new List<Sound_SO>();
         void OnEnable()
         {
             PopulateMaps();
+        }
+        public void PrintData()
+        {
+            Debug.LogFormat("num sfxData: {0}",sfxData.Count);
+            foreach (var ad in sfxData)
+            {
+                Debug.LogFormat("{0}",ad.internalName);
+            }
         }
 
         // [Button("Populate maps")]
@@ -54,6 +65,7 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         public void PopulateMaps()
         {
+            Debug.Log("populating audio maps now");
             musicMap.Clear();
             ambientMap.Clear();
             sfxMap.Clear();
@@ -88,6 +100,7 @@ namespace com.argentgames.visualnoveltemplate
 
             // try to find any Resources/_SO files and automatically populate from there.
             var sounds = Resources.LoadAll<Sound_SO>(".");
+            Debug.LogFormat("number of sounds found: {0}",sounds.Length);
             for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];

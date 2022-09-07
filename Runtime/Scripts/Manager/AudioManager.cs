@@ -52,6 +52,7 @@ namespace com.argentgames.visualnoveltemplate
 
         [SerializeField]
         AudioBank_SO audioBank;
+        public AudioBank_SO AudioBank => audioBank;
         [SerializeField]
         [InfoBox("How many ambient tracks do we want to be able to play simultaneously? 3 is a pretty safe number, increase at your own risk of confusion!")]
         int numAmbientTracks = 3;
