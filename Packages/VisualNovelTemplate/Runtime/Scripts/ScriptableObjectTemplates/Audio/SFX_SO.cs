@@ -7,9 +7,9 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class SFX_SO : Sound_SO
     {
-        [SerializeField]
-        private new bool loop = true;
-
+        public SFX_SO(){
+            loop = false;
+        }
 
     }
 }

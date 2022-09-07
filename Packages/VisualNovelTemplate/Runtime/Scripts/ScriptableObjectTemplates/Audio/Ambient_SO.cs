@@ -9,12 +9,13 @@ namespace com.argentgames.visualnoveltemplate
     {
 
         [SerializeField]
-        private new bool loop = true;
-        [SerializeField]
         private int channel = 0;
         public int Channel
         {
             get { return channel; }
+        }
+        public Ambient_SO() {
+            loop = true;
         }
 
     }
