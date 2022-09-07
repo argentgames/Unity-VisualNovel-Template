@@ -78,13 +78,15 @@ namespace com.argentgames.visualnoveltemplate
 
             GetFMODBuses();
 
+            eventInstanceMap = new Dictionary<string, FMODEventInstanceData>();
+
 
             // create all our eventInstanceMap so we can have unlimited ambient tracks :>
-            eventInstanceMap["music"] = new FMODEventInstanceData(SoundType.Music, null, "", false, 1.0f);
-            eventInstanceMap["sfx"] = new FMODEventInstanceData(SoundType.SFX, null, "", false, 1.0f);
+            eventInstanceMap["music"] = new FMODEventInstanceData(SoundType.Music, new EventInstance(), "", false, 1.0f);
+            eventInstanceMap["sfx"] = new FMODEventInstanceData(SoundType.SFX, new EventInstance(), "", false, 1.0f);
             for (int i = 0; i < numAmbientTracks; i++)
             {
-                eventInstanceMap["ambient" + i.ToString()] = new FMODEventInstanceData(SoundType.Ambient, null, "", false, 1.0f);
+                eventInstanceMap["ambient" + i.ToString()] = new FMODEventInstanceData(SoundType.Ambient, new EventInstance(), "", false, 1.0f);
             }
 
             await UniTask.WaitUntil(() => GameManager.Instance != null);
