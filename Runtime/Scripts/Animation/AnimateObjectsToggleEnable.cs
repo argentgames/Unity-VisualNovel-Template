@@ -28,12 +28,12 @@ namespace com.argentgames.visualnoveltemplate
         }
         private void OnEnable()
         {
-            Enable(enableAnimationDuration);
+            // Enable(enableAnimationDuration);
         }
         private async UniTaskVoid OnDisable()
         {
-            await Disable(disableAnimationDuration);
-            gameObject.SetActive(false);
+            // await Disable(disableAnimationDuration);
+            // gameObject.SetActive(false);
         }
 
         public void SetAllImagesTransparent()
