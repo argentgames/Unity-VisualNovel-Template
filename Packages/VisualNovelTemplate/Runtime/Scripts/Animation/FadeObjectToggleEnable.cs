@@ -75,6 +75,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public async override UniTask Enable(float duration=-1)
         {
+            Debug.Log("running fade object toggle enable now");
             this.gameObject.SetActive(true);
             // Debug.Log(canvasGroup == null);
             AnimationComplete = false;
