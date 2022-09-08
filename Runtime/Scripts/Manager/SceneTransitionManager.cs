@@ -140,7 +140,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                transitionObject.SetActive(false);
+                animateObjectsToggleEnable.Disable((float)duration);
                 await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
             }
 
