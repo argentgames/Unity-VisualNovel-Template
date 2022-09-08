@@ -131,6 +131,7 @@ namespace com.argentgames.visualnoveltemplate
             Debug.LogFormat("do we have a current save: {0}", SaveLoadManager.Instance.currentSave != null);
 
             await UniTask.WaitUntil(() => !SceneTransitionManager.Instance.IsLoading);
+            Debug.Log("scene transition manager has finished loading");
             MenuManager.Instance.EnableSettingsUIControls();
 
             if (SaveLoadManager.Instance.currentSave != null)
@@ -165,6 +166,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("fading in from ds no save");
 
                 await SceneTransitionManager.Instance.FadeIn(0f);
+                Debug.Log("done fading in with 0");
                 ContinueStory().Forget();
             }
         }
@@ -333,18 +335,22 @@ namespace com.argentgames.visualnoveltemplate
 
         public async UniTaskVoid InkContinueStory()
         {
+            Debug.Log("running inkcontinuestory");
             waitingToContinueStory = false;
             if (cts.IsCancellationRequested)
             {
+                Debug.Log("ctc requested for dsm");
                 cts = new CancellationTokenSource();
                 ct = cts.Token;
             }
             if (VideoPlayerManager.Instance.IsVideoPlaying)
             {
+                Debug.Log("not conitnuing ink story yet; video is playing!");
                 return;
             }
             if (EndGame)
             {
+                Debug.Log("time to end the game");
                 IsContinueStoryRunning = false;
                 return;
             }
