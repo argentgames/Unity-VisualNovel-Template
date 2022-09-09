@@ -16,6 +16,9 @@ namespace com.argentgames.visualnoveltemplate
     public class SpriteWrapperController : SerializedMonoBehaviour
     {
         [SerializeField]
+        [Tooltip("Automatically self register to Image Manager's current characters on screen dict with this name.")]
+        string selfRegisteredName;
+        [SerializeField]
         [Tooltip("Body part object that gets modified for a specific expression body part change.")]
         List<BodyPart> bodyParts = new List<BodyPart>();
         [SerializeField]
@@ -93,6 +96,7 @@ namespace com.argentgames.visualnoveltemplate
             GenerateExpressionsMapForHead();
             SetNewExpression();
             CreateSkipToken();
+            ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject);
         }
 
         /// <summary>

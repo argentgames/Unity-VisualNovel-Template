@@ -133,7 +133,6 @@ namespace com.argentgames.visualnoveltemplate
 
             newBGContainerPosition = NewBackgroundContainer1.transform.position;
 
-
             foreach (var shot in shots)
             {
                 Debug.Log(shot);
@@ -181,6 +180,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 v.SetActive(true);
             }
+        }
+        public void RegisterCharacter(string charName, GameObject go)
+        {
+            charactersOnScreen[charName] = go;
         }
         public void ClearCharactersOnScreen()
         {
