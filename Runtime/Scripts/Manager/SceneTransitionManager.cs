@@ -9,6 +9,7 @@ using AnimeTask;
 
 /// <summary>
 /// Transition between Unity Scenes (e.g. main menu ==> ingame).
+/// Transition within a scene by covering the camera with an overlay
 /// Turns on/off a transition image. If you attach an animation OnEnable/Disable to the transition
 /// image, then the transition should use that animation.
 /// </summary>
@@ -19,13 +20,26 @@ namespace com.argentgames.visualnoveltemplate
         public static SceneTransitionManager Instance { get; set; }
 
         [SerializeField]
-        GameObject transitionObject;
+        GameObject transitionObject, insceneTransitionObject;
+        /// <summary>
+        /// By default a black image that can be wiped/faded in. 
+        /// We might want to assign a render texture to it instead though
+        /// </summary>
+        [SerializeField]
+        GameObject projectedInsceneTransitionImage;
+        Renderer insceneTransitionImageRenderer;
+        [SerializeField]
+        [Tooltip("We may want to change the sort order of the image in case we do want it underneath the dialogue box.")]
+        Canvas insceneTransitionCanvas;
+        private MaterialPropertyBlock _propBlock;
         Color black = new Color(0, 0, 0, 255);
         Color transparent = new Color(0, 0, 0, 0);
         public bool IsLoading { get { return isLoading; } }
         private bool isLoading = false;
         [SerializeField]
         AnimateObjectsToggleEnable animateObjectsToggleEnable;
+        [SerializeField]
+        Texture2D defaultInsceneTransitionImage, defaultInsceneTransitionWipe,transparentImage;
         async void Awake()
         {
             if (Instance != null && Instance != this)
@@ -46,6 +60,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 transitionObject.GetComponent<AnimateObjectsToggleEnable>();
             }
+
+            _propBlock = new MaterialPropertyBlock();
+            insceneTransitionImageRenderer = projectedInsceneTransitionImage.GetComponent<Renderer>();
+            insceneTransitionObject.SetActive(false);
 
             // #if UNITY_EDITOR
             // FadeIn();
@@ -179,6 +197,156 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             Debug.Log("done fading to black");
+
+        }
+
+        /// <summary>
+        /// Go from transparent image ==> transition image
+        /// </summary>
+        /// <param name="duration"></param>
+        /// <param name="transitionImage"></param>
+        /// <param name="transition"></param>
+        /// <returns></returns>
+        public async UniTask ActivateInSceneTransition(float? duration = null, string transitionImage = "", string transition = "w9", int sortOrder = 10000)
+        {
+            insceneTransitionImageRenderer.GetPropertyBlock(_propBlock);
+            if (duration == null)
+            {
+                duration = GameManager.Instance.DefaultConfig.sceneFadeOutDuration;
+            }
+
+            insceneTransitionCanvas.sortingOrder = sortOrder;
+            
+            _propBlock.SetFloat("TransitionAmount", 0);
+            Texture2D img;
+
+            if (transitionImage == "")
+            {   
+                img = defaultInsceneTransitionImage;
+            }
+            else
+            {
+                img = GameManager.Instance.GetWipe(transitionImage).wipePrefab;
+            }
+
+            _propBlock.SetTexture("_MainTex",transparentImage);
+            _propBlock.SetTexture("NewTex", img);
+            
+            if (transition == "fade")
+            {
+                // 1 is true
+                _propBlock.SetFloat("_DoAlpha",1);
+            }
+            else
+            {
+                _propBlock.SetFloat("_DoAlpha",0);
+                 _propBlock.SetTexture("Wipe",GameManager.Instance.GetWipe(transition).wipePrefab);
+            }
+
+           
+
+            insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
+
+            // QUESTION: in theory could run both transitions at the same time since it's now up to the bool DoAlpha whether
+            // one or the other is shown?
+            insceneTransitionObject.SetActive(true);
+
+            if (transition != "fade")
+            {
+                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
+                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "TransitionAmount",skipToken: GameManager.Instance.SkipToken);
+            }
+            else
+            {
+                await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
+                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "Alpha",skipToken: GameManager.Instance.SkipToken);
+            }
+
+            // reset transitionAmount 
+            insceneTransitionImageRenderer.GetPropertyBlock(_propBlock);
+            _propBlock.SetFloat("TransitionAmount", 0);
+            if (transition == "fade")
+            {
+                _propBlock.SetFloat("Alpha", 1);
+            }
+            _propBlock.SetFloat("_DoAlpha",0);
+            _propBlock.SetTexture("_MainTex",img);
+
+            insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
+
+        }
+        /// <summary>
+        /// Go from transition image ==> transparent image
+        /// </summary>
+        /// <param name="duration"></param>
+        /// <param name="transitionImage"></param>
+        /// <param name="transition"></param>
+        /// <returns></returns>
+        public async UniTask DeactivateInSceneTransition(float? duration = null, string transitionImage = "", string transition = "w9")
+        {
+            insceneTransitionImageRenderer.GetPropertyBlock(_propBlock);
+            if (duration == null)
+            {
+                duration = GameManager.Instance.DefaultConfig.sceneFadeOutDuration;
+            }
+            
+            _propBlock.SetFloat("TransitionAmount", 0);
+            Texture2D img;
+
+            if (transitionImage == "")
+            {   
+                img = transparentImage;
+            }
+            else
+            {
+                img = GameManager.Instance.GetWipe(transitionImage).wipePrefab;
+            }
+
+            _propBlock.SetTexture("NewTex", img);
+            
+            
+            if (transition == "fade")
+            {
+                // 1 is true
+                _propBlock.SetFloat("_DoAlpha",1);
+                
+            }
+            else
+            {
+                _propBlock.SetFloat("_DoAlpha",0);
+                _propBlock.SetTexture("Wipe",GameManager.Instance.GetWipe(transition).wipePrefab);
+            }
+
+            
+
+            insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
+
+            // QUESTION: in theory could run both transitions at the same time since it's now up to the bool DoAlpha whether
+            // one or the other is shown?
+            if (transition != "fade")
+            {
+                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
+                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "TransitionAmount",skipToken: GameManager.Instance.SkipToken);
+            }
+            else
+            {
+                await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
+                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "Alpha",skipToken: GameManager.Instance.SkipToken);
+            }
+
+            // reset transitionAmount 
+            insceneTransitionImageRenderer.GetPropertyBlock(_propBlock);
+            _propBlock.SetFloat("TransitionAmount", 0);
+            if (transition == "fade")
+            {
+                _propBlock.SetFloat("Alpha", 1);
+            }
+            _propBlock.SetFloat("_DoAlpha",0);
+            _propBlock.SetTexture("_MainTex",img);
+
+            insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
+
+            insceneTransitionObject.SetActive(false);
 
         }
 

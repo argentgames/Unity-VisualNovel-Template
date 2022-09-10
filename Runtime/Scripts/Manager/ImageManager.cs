@@ -77,7 +77,10 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         Dictionary<string, Shot> cameraShots = new Dictionary<string, Shot>();
         [SerializeField]
+        [Tooltip("We automatically load all shots in Resources/shotsPath, but you can also manually add shots here.")]
         List<Shot> shots = new List<Shot>();
+        [SerializeField]
+        string shotsPath = "Shots";
 
 
         /// <summary>
@@ -133,12 +136,17 @@ namespace com.argentgames.visualnoveltemplate
 
             newBGContainerPosition = NewBackgroundContainer1.transform.position;
 
+            var stuff = Resources.LoadAll<Shot>(shotsPath);
+            foreach (var shot in stuff)
+            {
+                Debug.Log(shot);
+                cameraShots[shot.bgName] = shot;
+            }
             foreach (var shot in shots)
             {
                 Debug.Log(shot);
                 cameraShots[shot.bgName] = shot;
             }
-
             animationTasks.Clear();
             _propBlock = new MaterialPropertyBlock();
             backgroundProjectedImageRenderer = BackgroundProjectedImage.GetComponentInChildren<Renderer>();
@@ -384,20 +392,20 @@ namespace com.argentgames.visualnoveltemplate
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 
             newBGGO.SetActive(true);
-            
+
             if (transition == "dissolve")
             {
 
-                                // await Easing.Create<Linear>(start: 0f, end: 1f, duration: duration).ToColorA(newBGRT);
+                // await Easing.Create<Linear>(start: 0f, end: 1f, duration: duration).ToColorA(newBGRT);
 
             }
             else
             {
                 // Debug.Log("now doing a wipe animation");
 
-                    await Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                    .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount",skipToken: skipToken)
-                                    ;
+                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
+                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipToken)
+                                ;
                 // Debug.Log("done doing wipe   animation");
             }
 
@@ -431,7 +439,7 @@ namespace com.argentgames.visualnoveltemplate
             if (currentNewBGSet == 1)
             {
                 Debug.Log("destroying newbg2 objects");
-                for (int idx=0; idx < NewBackgroundContainer2.transform.childCount; idx++)
+                for (int idx = 0; idx < NewBackgroundContainer2.transform.childCount; idx++)
                 {
                     Destroy(NewBackgroundContainer2.transform.GetChild(idx).gameObject);
                 }
@@ -439,12 +447,12 @@ namespace com.argentgames.visualnoveltemplate
             else
             {
                 Debug.Log("destroying newbg1 objects");
-                for (int idx=0; idx < NewBackgroundContainer1.transform.childCount; idx++)
+                for (int idx = 0; idx < NewBackgroundContainer1.transform.childCount; idx++)
                 {
                     Destroy(NewBackgroundContainer1.transform.GetChild(idx).gameObject);
                 }
             }
-            
+
 
             // reset transitionAmount 
             backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
@@ -453,7 +461,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 _propBlock.SetFloat("Alpha", 1);
             }
-            _propBlock.SetTexture("_MainTex",newBGRT);
+            _propBlock.SetTexture("_MainTex", newBGRT);
 
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 

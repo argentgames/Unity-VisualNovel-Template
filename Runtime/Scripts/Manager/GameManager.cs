@@ -4,11 +4,14 @@ using UnityEngine;
 using System;
 using System.IO;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 using UniRx;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using NaughtyAttributes;
+
+using AnimeTask;
 namespace com.argentgames.visualnoveltemplate
 {
 
@@ -68,6 +71,24 @@ namespace com.argentgames.visualnoveltemplate
         public bool IsSkipping { get { return isSkipping.Value; } }
         public bool isGamePaused = false;
         public Texture2D currentScreenshot;
+
+        /// <summary>
+        /// Globally used skip token. Mainly used for skipping animations and transitions.
+        /// </summary>
+        /// <returns></returns>
+        SkipTokenSource skipTokenSource = new SkipTokenSource();
+        SkipToken skipToken;
+        public SkipToken SkipToken => skipToken;
+        public void CreateSkipToken()
+        {
+            this.skipTokenSource = new SkipTokenSource();
+            skipToken = skipTokenSource.Token;
+        }
+        public void ThrowSkipToken()
+        {
+            skipTokenSource.Skip();
+            CreateSkipToken();
+        }
 
         public void SetSkipping(bool val)
         {
