@@ -27,6 +27,9 @@ namespace com.argentgames.visualnoveltemplate
         [BoxGroup("Maps")]
         [ShowInInspector, ReadOnly]
         readonly Dictionary<string, SFX_SO> sfxMap = new Dictionary<string, SFX_SO>();
+        [BoxGroup("Maps")]
+        [ShowInInspector, ReadOnly]
+        readonly Dictionary<string, SFX_SO> uiSfxMap = new Dictionary<string, SFX_SO>();
 
         [PropertySpace(SpaceBefore = 15)]
         [SerializeField]
@@ -45,7 +48,13 @@ namespace com.argentgames.visualnoveltemplate
         [ListDrawerSettings(NumberOfItemsPerPage = 5)]
         private List<AudioData> musicData = new List<AudioData>();
         [SerializeField]
-        List<Sound_SO> sound_SOs = new List<Sound_SO>();
+        [BoxGroup("Data")]
+        [InfoBox("UI SFX sounds. These don't loop.")]
+        [ListDrawerSettings(NumberOfItemsPerPage = 5)]
+        private List<AudioData> uiSfxData = new List<AudioData>();
+
+        [SerializeField]
+        string ambientPath = "Sound/Ambient", musicPath = "Sound/Music", sfxPath = "Sound/SFX", uiSfxPath = "Sound/SFX/UI";
         void OnEnable()
         {
             PopulateMaps();
@@ -63,7 +72,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <summary>
         /// Clear all the maps and populate with data from the Data lists and the Resources folder.
         /// </summary>
-        public void PopulateMaps()
+        public async void PopulateMaps()
         {
             Debug.Log("populating audio maps now");
             musicMap.Clear();
@@ -88,6 +97,15 @@ namespace com.argentgames.visualnoveltemplate
                 s.ClosedCaption = f.closedCaption;
                 sfxMap.Add(s.InternalName, s);
             }
+            for (int i = 0; i < uiSfxData.Count; i++)
+            {
+                var f = uiSfxData[i];
+                var s = ScriptableObject.CreateInstance<SFX_SO>();
+                s.InternalName = f.internalName;
+                s.Event = f.eventReference;
+                s.ClosedCaption = f.closedCaption;
+                uiSfxMap.Add(s.InternalName, s);
+            }
             for (int i = 0; i < musicData.Count; i++)
             {
                 var f = musicData[i];
@@ -99,26 +117,44 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             // try to find any Resources/_SO files and automatically populate from there.
-            var sounds = Resources.LoadAll<Sound_SO>(".");
-            Debug.LogFormat("number of sounds found: {0}",sounds.Length);
+            var sounds = Resources.LoadAll<Sound_SO>(ambientPath);
+            Debug.LogFormat("number of ambient sounds found: {0}",sounds.Length);
             for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];
-                if (sound is SFX_SO)
-                {
-                    sfxMap[sound.InternalName] = (SFX_SO)sound;
-                }
-                else if (sound is Ambient_SO)
+                 if (sound is Ambient_SO)
                 {
                     ambientMap[sound.InternalName] = (Ambient_SO)sound;
                 }
-                else if (sound is Music_SO)
+            }
+            sounds = Resources.LoadAll<Sound_SO>(musicPath);
+            Debug.LogFormat("number of music sounds found: {0}",sounds.Length);
+            for (int i = 0; i < sounds.Length; i++)
+            {
+                var sound = sounds[i];
+                 if (sound is Music_SO)
                 {
                     musicMap[sound.InternalName] = (Music_SO)sound;
                 }
-                else
+            }
+            sounds = Resources.LoadAll<Sound_SO>(sfxPath);
+            Debug.LogFormat("number of sfx sounds found: {0}",sounds.Length);
+            for (int i = 0; i < sounds.Length; i++)
+            {
+                var sound = sounds[i];
+                 if (sound is SFX_SO)
                 {
-                    Debug.LogFormat("Unable to add sound {0} to appropriate map.", sound.name);
+                    sfxMap[sound.InternalName] = (SFX_SO)sound;
+                }
+            }
+            sounds = Resources.LoadAll<Sound_SO>(uiSfxPath);
+            Debug.LogFormat("number of ui sfx sounds found: {0}",sounds.Length);
+            for (int i = 0; i < sounds.Length; i++)
+            {
+                var sound = sounds[i];
+                 if (sound is SFX_SO)
+                {
+                    uiSfxMap[sound.InternalName] = (SFX_SO)sound;
                 }
             }
 
