@@ -21,7 +21,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - NewTex:
-        m_Texture: {fileID: 2800000, guid: a78bffbeb81b48ae9ec71ad7969613e5, type: 3}
+        m_Texture: {fileID: 2800000, guid: e07c34bc5d26150468e37b29bbcaa9ef, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - Texture2D_10ea92fc262f44e0b69b171397dc8691:
@@ -70,13 +70,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - Alpha: 1
+    - Alpha: 0
     - GaussianBlurOffset: 0
     - NoiseAmount: 0
     - NoiseOpacity: 0.378
     - TransitionAmount: 0
     - Vector1_0df79675aee640a588761587acd0507f: 0
-    - _DoAlpha: 0
+    - _Cutoff: 0.2
+    - _DoAlpha: 1
     - _EnableExternalAlpha: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

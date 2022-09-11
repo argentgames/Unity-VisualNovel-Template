@@ -150,6 +150,13 @@ namespace com.argentgames.visualnoveltemplate
             animationTasks.Clear();
             _propBlock = new MaterialPropertyBlock();
             backgroundProjectedImageRenderer = BackgroundProjectedImage.GetComponentInChildren<Renderer>();
+            backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
+            Debug.LogFormat("propblock {0}",_propBlock.GetFloat("TransitionAmount"));
+            _propBlock.SetFloat("TransitionAmount", 1);
+            Debug.LogFormat("propblock after set float to 1 {0}",_propBlock.GetFloat("TransitionAmount"));
+            backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
+            backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
+            Debug.LogFormat("propblock after assign mbp to renderer {0}",_propBlock.GetFloat("TransitionAmount"));
             CreateCancellationToken();
             CreateSkipToken();
         }
@@ -286,6 +293,8 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
 
+            CreateSkipToken();
+
             // destroy the previous bg that was spawned, but it may be under newbg1 or newbg2.
             // do we even still need currentbg........ or the first time we spawn anything we just
             // spawn it to both bgs?
@@ -401,12 +410,12 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                // Debug.Log("now doing a wipe animation");
+                Debug.Log("now doing a wipe animation");
 
                 await Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
                 .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipToken)
                                 ;
-                // Debug.Log("done doing wipe   animation");
+                Debug.Log("done doing wipe   animation");
             }
 
 
@@ -467,7 +476,7 @@ namespace com.argentgames.visualnoveltemplate
 
 
 
-            // Debug.Log("done running showbg");
+            Debug.Log("done running showbg");
 
 
 

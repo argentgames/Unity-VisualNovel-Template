@@ -69,6 +69,8 @@ namespace com.argentgames.visualnoveltemplate
             {
                 Debug.Log("running action function, do nothing except turn off skipping");
                 ImageManager.Instance.ThrowSkipToken();
+                GameManager.Instance.ThrowSkipToken();
+                DialogueSystemManager.Instance.RunCancellationToken();
                 return;
             }
             else if (WaitingForPlayerToSelectChoice)
@@ -81,7 +83,7 @@ namespace com.argentgames.visualnoveltemplate
                 if (!wasSkipping)
                 {
                     DialogueSystemManager.Instance.InkContinueStory().Forget();
-                    HideCTC();
+                    // HideCTC();
                     // DisableCTC();
                     ClearText();
                 }

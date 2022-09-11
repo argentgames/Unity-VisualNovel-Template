@@ -158,9 +158,10 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                animateObjectsToggleEnable.Disable((float)duration);
-                await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
+                await animateObjectsToggleEnable.Disable((float)duration);
+                // await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
             }
+            transitionObject.SetActive(false);
 
         }
         /// <summary>
@@ -193,7 +194,8 @@ namespace com.argentgames.visualnoveltemplate
             else
             {
                 transitionObject.SetActive(true);
-                await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
+                await animateObjectsToggleEnable.Enable((float)duration);
+                // await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
             }
 
             Debug.Log("done fading to black");

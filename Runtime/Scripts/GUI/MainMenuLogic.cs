@@ -20,7 +20,8 @@ namespace com.argentgames.visualnoveltemplate
         public float fadeToBlackDuration = 2.5f;
         public float fadeOutOfBlackDuration = 1.5f;
         public bool stopSoundOnLoad = true;
-
+        [SerializeField]
+        string mainMenuSettingsName = "mmSettings";
         void Awake()
         {
             gameObject.SetActive(true);
@@ -47,7 +48,7 @@ namespace com.argentgames.visualnoveltemplate
 
         public async UniTask OpenMenu(string menu="")
         {
-            await MenuManager.Instance.OpenPage("mainMenuSettings",menu);
+            await MenuManager.Instance.OpenPage(mainMenuSettingsName,menu);
         }
 
     }
