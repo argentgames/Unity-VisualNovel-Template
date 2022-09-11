@@ -120,11 +120,11 @@ namespace com.argentgames.visualnoveltemplate
             // TECHDEBT
             if (SceneManager.GetActiveScene().name == "MainMenu")
             {
-                await UniTask.WaitUntil(() => SaveLoadManager.Instance.DoneLoadingSaves);
+                // await UniTask.WaitUntil(() => SaveLoadManager.Instance.DoneLoadingSaves);
             }
             else if (!SaveLoadManager.Instance.DoneLoadingSaves)
             {
-                await SaveLoadManager.Instance.LoadSaveFiles();
+                // await SaveLoadManager.Instance.LoadSaveFiles();
             }
 
             // if we are ingame, we need to take a screenshot before the settings page shows up and covers the screen

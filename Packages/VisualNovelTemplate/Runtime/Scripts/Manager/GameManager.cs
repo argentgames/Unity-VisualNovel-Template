@@ -86,6 +86,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void ThrowSkipToken()
         {
+            Debug.Log("throwing gm skip token");
             skipTokenSource.Skip();
             CreateSkipToken();
         }

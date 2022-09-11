@@ -105,11 +105,12 @@ namespace com.argentgames.visualnoveltemplate
                 // Set our default dialogue ui window 
                 if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
                 {
-                dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                    dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 }
                 window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
                 window.GetComponentInChildren<DialogueUIManager>().ClearUI();
-                
+                window.GetComponentInChildren<Canvas>().sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
+
             }
 
             Debug.Log((string)story.variablesState["mc_shirt"]);
@@ -120,7 +121,7 @@ namespace com.argentgames.visualnoveltemplate
 
         async UniTaskVoid Start()
         {
-
+            
         }
 
         // URGENT: Need to update this because DSM is now persistent across all scenes, not just ingame!!!
@@ -185,6 +186,10 @@ namespace com.argentgames.visualnoveltemplate
             cts = new CancellationTokenSource();
             ct = cts.Token;
             IsContinueStoryRunning = false;
+            if (IsRunningActionFunction)
+            {
+                IsRunningActionFunction = false;
+            }
             Debug.LogFormat("is cts cancellation requested after creating new cts {0}", cts.IsCancellationRequested);
         }
 
@@ -293,7 +298,7 @@ namespace com.argentgames.visualnoveltemplate
                 if (NeedToRunActionFunction())
                 {
                     stopwatch.Restart();
-                    // Debug.Log("actually running an action function now");
+                    Debug.Log("actually running an action function now");
                     IsRunningActionFunction = true;
                     await RunActionFunction();
                     IsRunningActionFunction = false;
@@ -442,7 +447,7 @@ namespace com.argentgames.visualnoveltemplate
         public string CreateHash(string s)
         {
 #if DEVELOPMENT_BUILD
-        return s;
+            return s;
 #endif
             hash128 = new Hash128();
             hash128.Append(s);
@@ -509,6 +514,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
+                Debug.LogFormat("available ct: {0}",ct.CanBeCanceled);
                 await customActionFunctions.ActionFunction(story.currentText, this.ct);
             }
             InkContinueStory();
