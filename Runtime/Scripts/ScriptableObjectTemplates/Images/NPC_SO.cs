@@ -55,9 +55,9 @@ namespace com.argentgames.visualnoveltemplate
         [Tooltip("If we update the DisplayName through an ink variable, then return that saved value.")]
         private string inkVariableName;
         [PropertyTooltip("The color of the character's displayed name in-game.")]
-        public Color NameColor = new Color(255, 255, 255, 255);
+        public Color NameColor = new Color(1,1,1,1);
         [PropertyTooltip("The color of a character's spoken lines displayed in-game.")]
-        public Color TextColor = new Color(255, 255, 255, 255);
+        public Color TextColor = new Color(1,1,1,1);
 
 
         [PropertySpace(SpaceBefore = 20)]

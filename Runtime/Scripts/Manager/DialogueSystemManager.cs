@@ -76,7 +76,7 @@ namespace com.argentgames.visualnoveltemplate
         CancellationToken ct;
         System.Diagnostics.Stopwatch stopwatch;
         Hash128 hash128 = new Hash128();
-        void Awake()
+        async UniTaskVoid Awake()
         {
             if (Instance != null && Instance != this)
             {
@@ -95,6 +95,8 @@ namespace com.argentgames.visualnoveltemplate
 
             customActionFunctions = GetComponent<CustomActionFunctions>();
 
+            await UniTask.WaitUntil(() => GameManager.Instance != null);
+
             // Spawn all the dialogue windows we want to use ingame and deactivate them.
             // Hold a reference to them so we can select the one to use through ink!
             GameObject window;
@@ -109,7 +111,15 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
                 window.GetComponentInChildren<DialogueUIManager>().ClearUI();
-                window.GetComponentInChildren<Canvas>().sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
+                try
+                {
+                    window.GetComponentInChildren<Canvas>().sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
+                }
+                catch
+                {
+                    Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
+                }
+                
 
             }
 
