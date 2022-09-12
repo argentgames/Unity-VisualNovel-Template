@@ -78,6 +78,7 @@ namespace com.argentgames.visualnoveltemplate
             musicMap.Clear();
             ambientMap.Clear();
             sfxMap.Clear();
+            uiSfxMap.Clear();
 
             for (int i = 0; i < ambientData.Count; i++)
             {

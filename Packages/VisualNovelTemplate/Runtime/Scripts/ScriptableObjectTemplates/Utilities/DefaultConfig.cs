@@ -44,6 +44,21 @@ namespace com.argentgames.visualnoveltemplate
         public float ambientFadeInDuration = 0f;
         public float ambientFadeOutDuration = 0f;
 
+        // UI stuff
+
+        [PropertySpace(SpaceBefore =15f)]
+        [BoxGroup("UI")]
+        [InfoBox("Default sfx strings used for selectables")]
+        public string selectableClickSfx = "";
+        [BoxGroup("UI")]
+        public string selectableDownSfx = "";
+        [BoxGroup("UI")]
+        public string selectableUpSfx = "";
+        [BoxGroup("UI")]
+        public string selectableExitSfx = "";
+        [BoxGroup("UI")]
+        public string selectableEnterSfx = "";
+
         [PropertySpace(SpaceBefore =15f)]
         [InfoBox("Do we use addressable loading mechanism? If so, for which objects?")]
         [BoxGroup("Addressables")]
