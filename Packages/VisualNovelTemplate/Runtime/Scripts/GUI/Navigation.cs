@@ -19,13 +19,37 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         Selectable settings, history, saveLoad, save, load;
         [SerializeField]
-        Selectable cgGallery, musicGallery, credits, about, mainMenu;
+        Selectable cgGallery, musicGallery, credits, about, mainMenu, closeMenu;
         [SerializeField]
         MenuPresenter menuPresenter;
+        [SerializeField]
+        ToggleGroupExtension toggleGroupExtension;
+
+        Dictionary<string,Selectable> navMap = new Dictionary<string, Selectable>();
+
+        void Awake()
+        {
+             navMap = new Dictionary<string, Selectable>();
+            navMap["Settings"] = settings;
+            navMap["History"] = history;
+            navMap["SaveLoad"] = saveLoad;
+            navMap["Save"] = save;
+            navMap["Load"] = load;
+            navMap["CGGallery"] = cgGallery;
+            navMap["MusicGallery"] = musicGallery;
+            navMap["Credits"] = credits;
+            navMap["About"] = about;
+            
+            foreach (var kv in navMap.Keys)
+            {
+                Debug.Log(kv);
+            } SetRXSubscriptions();
+        }
 
         void Start()
         {
-            SetRXSubscriptions();
+           
+           
         }
         void DisplayHeadingText(string text)
         {
@@ -42,14 +66,22 @@ namespace com.argentgames.visualnoveltemplate
                         if (val)
                         {
                             var metadata = settings.GetComponentInChildren<GameObjectMetadata>();
-                            var pageName = "settings";
+                            var pageName = "Settings";
                             var displayName = "Settings";
                             if (metadata != null)
                             {
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                            var toggleExtension = settings.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to Settings!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -59,7 +91,7 @@ namespace com.argentgames.visualnoveltemplate
                     ((Button)settings).OnClickAsObservable().Subscribe(val =>
                     {
                         var metadata = settings.GetComponentInChildren<GameObjectMetadata>();
-                            var pageName = "settings";
+                            var pageName = "Settings";
                             var displayName = "Settings";
                             if (metadata != null)
                             {
@@ -85,14 +117,22 @@ namespace com.argentgames.visualnoveltemplate
                         if (val)
                         {
                             var metadata = history.GetComponentInChildren<GameObjectMetadata>();
-                            var pageName = "history";
+                            var pageName = "History";
                             var displayName = "History";
                             if (metadata != null)
                             {
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                            var toggleExtension = history.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to History!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -102,7 +142,7 @@ namespace com.argentgames.visualnoveltemplate
                     ((Button)history).OnClickAsObservable().Subscribe(val =>
                     {
                         var metadata = history.GetComponentInChildren<GameObjectMetadata>();
-                            var pageName = "history";
+                            var pageName = "History";
                             var displayName = "History";
                             if (metadata != null)
                             {
@@ -135,7 +175,15 @@ namespace com.argentgames.visualnoveltemplate
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                            var toggleExtension = saveLoad.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to SaveLoad!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -177,7 +225,15 @@ namespace com.argentgames.visualnoveltemplate
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                           var toggleExtension = load.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to Load!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -219,7 +275,15 @@ namespace com.argentgames.visualnoveltemplate
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                            var toggleExtension = save.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to Save!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -262,7 +326,15 @@ namespace com.argentgames.visualnoveltemplate
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                           var toggleExtension = cgGallery.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to CGGallery!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -305,7 +377,15 @@ namespace com.argentgames.visualnoveltemplate
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                            var toggleExtension = musicGallery.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to MusicGallery!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -348,7 +428,15 @@ namespace com.argentgames.visualnoveltemplate
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                            var toggleExtension = credits.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to Credits!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -391,7 +479,15 @@ namespace com.argentgames.visualnoveltemplate
                                 pageName = metadata.InternalName;
                                 displayName = metadata.DisplayName;
                             }
-                            menuPresenter.OpenPage(pageName);
+                           var toggleExtension = about.GetComponentInChildren<ToggleExtension>();
+                            if (toggleExtension != null)
+                            {
+                                toggleGroupExtension.EnableGameObject(toggleExtension.GameObjectToToggleOn);
+                            }
+                            else
+                            {
+                                Debug.Log("don't know what page to turn on; add a toggle extension to About!");
+                            }
                             DisplayHeadingText(displayName);
                         }
                     });
@@ -437,7 +533,40 @@ namespace com.argentgames.visualnoveltemplate
                     Debug.LogWarningFormat("Selectable type not implemented. No subscription made for {0}", mainMenu);
                 }
             }
+            
+            if (closeMenu != null)
+            {
+                if (closeMenu is Toggle)
+                {
+                    Debug.LogWarning("Did you mean to make CloseMenu a Toggle? Not setting any subscriptions!");
+                }
+                else if (closeMenu is Button)
+                {
+                    ((Button)closeMenu).OnClickAsObservable().Subscribe(val =>
+                    {
+                        menuPresenter.CloseMenu();
+                    });
+                }
+            }
 
+        }
+        public void OpenNavPage(string navPage)
+        {
+            foreach (var k in navMap.Keys)
+            {
+                Debug.Log(k);
+            }
+            var page = navMap[navPage];
+            if (page is Toggle)
+            {
+                Debug.Log("settting toggle on for navPage " + navPage);
+                ((Toggle)page).isOn = true;
+            }
+            else if (page is Button)
+            {
+                Debug.Log("page is button?");
+                ((Button)page).Select(); // I don't think this actually submits the Button?
+            }
         }
     }
 }

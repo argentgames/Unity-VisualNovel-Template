@@ -46,6 +46,7 @@ namespace com.argentgames.visualnoveltemplate
         public virtual void Load(SettingsSaveData data)
         {
             Debug.Log("the text speed we're loading is: " + data.textSpeed.ToString());
+            Debug.Log("music volume we load is: " + data.musicVolume.ToString());
             MusicVolume.Value = data.musicVolume;
             SFXVolume.Value = data.sfxVolume;
             TextSpeed.Value = data.textSpeed;

@@ -17,6 +17,7 @@ using Sirenix.OdinInspector;
 
 namespace com.argentgames.visualnoveltemplate {
     public abstract class MenuPresenter : SerializedMonoBehaviour {
+        [Tooltip("The page we open to if we just call generic OpenPage()")]
         public string defaultPage;
         [Tooltip("The parent that we show/hide when opening/closing the menu.")]
         public GameObject menuContainer;

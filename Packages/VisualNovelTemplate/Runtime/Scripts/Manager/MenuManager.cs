@@ -114,6 +114,7 @@ namespace com.argentgames.visualnoveltemplate
 
         public async UniTask OpenPage(string menuName, string pageName = "")
         {
+            Debug.LogFormat("trying to open menu: {0}, {1}", menuName, pageName);
 
             // we shouldn't need this, but we may need to check that saves are done loading
             // before we allow any opening of settings pages

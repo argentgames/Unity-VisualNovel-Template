@@ -29,6 +29,9 @@ public class ToggleExtension : MonoBehaviour
     TMP_Text textField;
     Toggle toggle;
 
+    [SerializeField]
+    [Tooltip("Oftentimes we want to toggle another object when we select this toggle.")]
+    public GameObject GameObjectToToggleOn;
     // Start is called before the first frame update
     void Start()
     {
@@ -75,6 +78,12 @@ public class ToggleExtension : MonoBehaviour
                 ImageColorSwapOnSelect(val);
             }
             InputExtensions.DeselectClickedButton(toggle.gameObject);
+
+            if (GameObjectToToggleOn != null)
+            {
+               GameObjectToToggleOn.SetActive(val); 
+            }
+            
         }).AddTo(this);
 
 
