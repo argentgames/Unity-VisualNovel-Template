@@ -20,11 +20,58 @@ namespace com.argentgames.visualnoveltemplate
         List<string> resolutionsOrder = new List<string>();
         [SerializeField]
         TMP_Dropdown resolutionsDropdown;
+
+        [SerializeField]
+        Slider masterVolume, ambientVolume, musicVolume, sfxVolume, textSpeed, autoSpeed;
+        [SerializeField]
+        Toggle skipAllText, fullscreen;
         private void Awake()
         {
-            resolutionsDropdown.ClearOptions();
+            if (resolutionsDropdown != null)
+            {
+                resolutionsDropdown.ClearOptions();
             resolutionsDropdown.AddOptions(resolutionsOrder);
+            }
+            
 
+
+
+        }
+        private void Start()
+        {
+            // set init values in Start so any toggle extensions can register first
+            if (masterVolume != null)
+            {
+                masterVolume.value = GameManager.Instance.Settings.MasterVolume.Value;
+            }
+            if (ambientVolume != null)
+            {
+                ambientVolume.value = GameManager.Instance.Settings.AmbientVolume.Value;
+            }
+            if (musicVolume != null)
+            {
+                musicVolume.value = GameManager.Instance.Settings.MusicVolume.Value;
+            }
+            if (sfxVolume != null)
+            {
+                sfxVolume.value = GameManager.Instance.Settings.SFXVolume.Value;
+            }
+            if (textSpeed != null)
+            {
+                textSpeed.value = GameManager.Instance.Settings.TextSpeed.Value;
+            }
+            if (autoSpeed != null)
+            {
+                autoSpeed.value = GameManager.Instance.Settings.AutoSpeed.Value;
+            }
+            if (skipAllText != null)
+            {
+                skipAllText.isOn = GameManager.Instance.Settings.skipAllText;
+            }
+            if (fullscreen != null)
+            {
+                fullscreen.isOn = Screen.fullScreen;
+            }
         }
         public void UpdateMusicVolume(System.Single val)
         {

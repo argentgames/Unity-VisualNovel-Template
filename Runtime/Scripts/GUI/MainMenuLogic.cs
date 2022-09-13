@@ -21,11 +21,20 @@ namespace com.argentgames.visualnoveltemplate
         public float fadeOutOfBlackDuration = 1.5f;
         public bool stopSoundOnLoad = true;
         [SerializeField]
+        [Tooltip("What audio do we play when loading into the main menu scene?")]
+        string mainMenuAudio = "MainMenu";
+        [SerializeField]
+        float mainMenuAudioFadeInDuration = .5f;
+        [SerializeField]
         string mainMenuSettingsName = "mmSettings";
         void Awake()
         {
             gameObject.SetActive(true);
-            AudioManager.Instance.PlayMusic("mm", .5f);
+            if (mainMenuAudio != "")
+            {
+                AudioManager.Instance.PlayMusic(mainMenuAudio, mainMenuAudioFadeInDuration);
+            }
+            
         }
 
         public void StartNewGame()

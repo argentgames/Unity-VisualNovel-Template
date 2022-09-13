@@ -13,7 +13,11 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         // [AllowNesting]
         List<GameObject> pages = new List<GameObject>();
-        Dictionary<string,GameObject> pagesMap = new Dictionary<string, GameObject>();
+        Dictionary<string, GameObject> pagesMap = new Dictionary<string, GameObject>();
+
+        [SerializeField]
+        [Tooltip("Menus usually have a navigation toolbar somewhere so we're going to grab that and open pages by selecting stuff in the nav")]
+        Navigation navigation;
 
 
         void Awake()
@@ -36,47 +40,59 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     page.gameObject.SetActive(false);
                 }
-                
+
             }
 
             menuContainer.SetActive(false);
         }
-        public override async UniTask OpenPage(string pageName="")
+        public override async UniTask OpenPage(string pageName = "")
         {
+
             if (!menuContainer.activeSelf)
             {
                 menuContainer.SetActive(true);
             }
-            var newPage = pagesMap[pageName];
-            newPage.SetActive(true);
-
-            foreach (var page in pages)
+            if (navigation != null)
             {
-                var metadata = page.GetComponentInChildren<GameObjectMetadata>();
-                string _pageName = page.name;
-                if (metadata != null)
-                {
-                    _pageName = metadata.InternalName;
-                }
+                Debug.Log("using navigation openNavPage");
+                navigation.OpenNavPage(pageName);
+            }
+            else
+            {
+                // fallback to just manually turn on the specific page if no Navigation is present
+                var newPage = pagesMap[pageName];
+                newPage.SetActive(true);
 
-                var animator = page.GetComponentInChildren<AnimateObjectsToggleEnable>();
-
-                if (_pageName != pageName)
+                foreach (var page in pages)
                 {
-                    if (animator != null)
+                    var metadata = page.GetComponentInChildren<GameObjectMetadata>();
+                    string _pageName = page.name;
+                    if (metadata != null)
                     {
-                        animator.Disable(0);
+                        _pageName = metadata.InternalName;
                     }
-                    else
+
+                    var animator = page.GetComponentInChildren<AnimateObjectsToggleEnable>();
+
+                    if (_pageName != pageName)
                     {
-                        page.gameObject.SetActive(false);
+                        if (animator != null)
+                        {
+                            animator.Disable(0);
+                        }
+                        else
+                        {
+                            page.gameObject.SetActive(false);
+                        }
+
                     }
-                    
+
                 }
-                
             }
 
-            
+
+
+
         }
     }
 }
