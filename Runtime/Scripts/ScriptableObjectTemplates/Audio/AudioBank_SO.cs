@@ -179,7 +179,16 @@ namespace com.argentgames.visualnoveltemplate
         {
             try
             {
-                return sfxMap[trackName];
+                if (sfxMap.ContainsKey(trackName))
+                {
+                    return sfxMap[trackName];
+                }
+                if (uiSfxMap.ContainsKey(trackName))
+                {
+                    return uiSfxMap[trackName];
+                }
+                return null;
+                
             }
             catch
             {
