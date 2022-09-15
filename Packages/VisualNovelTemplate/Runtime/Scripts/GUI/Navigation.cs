@@ -43,7 +43,8 @@ namespace com.argentgames.visualnoveltemplate
             foreach (var kv in navMap.Keys)
             {
                 Debug.Log(kv);
-            } SetRXSubscriptions();
+            } 
+            SetRXSubscriptions();
         }
 
         void Start()

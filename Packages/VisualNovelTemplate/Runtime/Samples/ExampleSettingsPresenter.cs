@@ -47,6 +47,10 @@ namespace com.argentgames.visualnoveltemplate
         }
         public override async UniTask OpenPage(string pageName = "")
         {
+            if (pageName == "")
+            {
+                pageName = defaultPage;
+            }
 
             if (!menuContainer.activeSelf)
             {

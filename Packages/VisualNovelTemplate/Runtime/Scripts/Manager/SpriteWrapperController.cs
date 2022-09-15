@@ -50,6 +50,14 @@ namespace com.argentgames.visualnoveltemplate
         SkipTokenSource skipTokenSource = new SkipTokenSource();
         SkipToken skipToken;
 
+        /// <summary>
+        /// Holds the current expression for each bodyparth that changes so that we can save/load it
+        /// </summary>
+        /// <typeparam name="string"></typeparam>
+        /// <typeparam name="string"></typeparam>
+        /// <returns></returns>
+        Dictionary<string,string> currentExpression = new Dictionary<string, string>();
+
         public void CreateSkipToken()
         {
             this.skipTokenSource = new SkipTokenSource();
@@ -83,9 +91,12 @@ namespace com.argentgames.visualnoveltemplate
         void Awake()
         {
             bodyPartsMap.Clear();
+            currentExpression.Clear();
             foreach (var part in bodyParts)
             {
                 bodyPartsMap[part.prefix] = part.gameObject.GetComponentInChildren<SpriteRenderer>();
+                // init; set our currentExpression dict to hold all the relevant bodyparts
+                currentExpression[part.prefix] = "";
             }
             colorTintsMap.Clear();
             foreach (var tint in colorTints)
@@ -201,6 +212,8 @@ namespace com.argentgames.visualnoveltemplate
                     bodyPartSpriteRenderer = bodyPartsMap[_prefix];
                     newExpSprite = GetExpressionImage(part);
                     bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
+
+                    currentExpression[_prefix] = part;
                 }
                 catch
                 {
@@ -333,43 +346,29 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
             }
         }
 
-
-        // public void Save()
-        // {
-        //     var s = new SpriteSaveData();
-        //     s.expressionImageName = currentExpression;
-        //     s.position = transform.position;
-        //     SaveLoadManager.Instance.currentSave.spriteSaveDatas.Add(npc.internalName,s);
-        // }
         public SpriteSaveData Save()
         {
             var s = new SpriteSaveData();
-            s.expressionImageName = CurrentExpression;
 
-            // this is dumb but hardcoding 
-            // TECHDEBT:
-            if (DialogueSystemManager.Instance != null)
+            // idk if there's any reason to not save a dict but for now lets just use the save string...
+            s.expressionImageName = "";
+            foreach (var kv in currentExpression)
             {
-                if ((bool)DialogueSystemManager.Instance.Story.variablesState["sidepanel"])
-                {
-                    s.position = this.transform.parent.parent.position;
-                }
-                else
-                {
-                    s.position = transform.position;
-                }
-            }
-            else
-            {
-                s.position = transform.position;
+                s.expressionImageName += string.Format("{0}{1}{2}",kv.Key,prefixDelimiter,kv.Value);
             }
 
-            Debug.Log("expression: " + CurrentExpression);
+            
+            s.position = transform.position;
+            
+            // TODO: add in tint color
+
+            // Debug.Log("expression: " + CurrentExpression)
             return s;
         }
-        public void Load()
+        public void Load(SpriteSaveData saveData)
         {
-
+            transform.position = saveData.position;
+            SetNewExpression(saveData.expressionImageName);
         }
     }
 }

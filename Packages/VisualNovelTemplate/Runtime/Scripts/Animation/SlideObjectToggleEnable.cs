@@ -18,14 +18,14 @@ public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
 
 
     [Button]
-    public async override UniTask Disable(float duration=-1)
+    public async override UniTask Disable(float duration=-1,bool destroyOnDisable=false)
     {
         if (duration == -1)
         {
             duration = disableAnimationDuration;
         }
         await Easing.Create<InQuad>(to: disableEndPosition, duration: duration).ToLocalPosition(transform);
-        OnCompleteDisableAnimation();
+        OnCompleteDisableAnimation(destroyOnDisable);
 
     }
 
@@ -45,7 +45,7 @@ public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
     {
         AnimationComplete = true;
     }
-    public override void OnCompleteDisableAnimation()
+    public override void OnCompleteDisableAnimation(bool destroyOnDisable)
     {
         AnimationComplete = true;
     }
