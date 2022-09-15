@@ -165,7 +165,7 @@ namespace com.argentgames.visualnoveltemplate
 
                 var actualSavedFP = SaveLoadManager.Instance.CreateSavePath("current.PNG");
 
-                Debug.Log("trying to save screenshot to " + sspath);
+                Debug.Log("trying to save screenshot to " + actualSavedFP);
                 // if (File.Exists(actualSavedFP))
                 // {
                 //     File.Delete(actualSavedFP);

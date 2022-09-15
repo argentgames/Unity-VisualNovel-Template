@@ -17,7 +17,7 @@ namespace com.argentgames.visualnoveltemplate
     public class SavePage : MonoBehaviour
     {
         [SerializeField]
-        GameObject saveSlotPrefab, saveSlotContentHolder;
+        GameObject saveSlotPrefab, saveSlotContentHolder, autoSaveSlotPrefab;
         GameObject overwriteSavePanelPrefab;
         [SerializeField]
         int numSaveSlots = 9;
@@ -159,7 +159,7 @@ namespace com.argentgames.visualnoveltemplate
 
             save.currentBGCameraPosition = ImageManager.Instance.CurrentBGCamera.transform.position;
             save.currentBGCameraRotation = ImageManager.Instance.CurrentBGCamera.transform.eulerAngles;
-            ;
+            
             save.currentBGSize = ImageManager.Instance.CurrentBGCamera.orthographicSize;
             save.currentShot = ImageManager.Instance.CurrentCameraShot;
 

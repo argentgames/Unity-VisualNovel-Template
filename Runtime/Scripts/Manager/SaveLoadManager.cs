@@ -9,12 +9,11 @@ using UniRx;
 using Sirenix.Serialization;
 using UnityEngine.SceneManagement;
 using NaughtyAttributes;
-public class SpriteSaveData
+public struct SpriteSaveData
 {
     public string expressionImageName;
     public Vector3 position;
     public string activeTintColor;
-    public SpriteSaveData() { }
 }
 namespace com.argentgames.visualnoveltemplate
 {
@@ -33,6 +32,8 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         public string saveFileNamePrefix = "gameSave_";
         public string autoSaveNamePrefix = "autosave";
+        [SerializeField]
+        string saveDir = "Saves";
         [SerializeField]
         bool jsonFormat = true;
         public string extension = ".json";
@@ -164,7 +165,7 @@ namespace com.argentgames.visualnoveltemplate
         public async UniTaskVoid LoadGame(string filePath)
         {
             Debug.Log("loading game from: " + filePath);
-            this.currentSave = saveFiles[filePath];
+            this.currentSave = GetSaveData(filePath);
 
             GameManager.Instance.SetSkipping(false);
             GameManager.Instance.SetAuto(false);
@@ -172,7 +173,6 @@ namespace com.argentgames.visualnoveltemplate
             {
                 Debug.Log("please run cancellation on ds");
                 DialogueSystemManager.Instance.RunCancellationToken();
-                Destroy(DialogueSystemManager.Instance.gameObject);
             }
             AudioManager.Instance.StopMusic(1);
             AudioManager.Instance.StopAllAmbient(1);
@@ -200,6 +200,33 @@ namespace com.argentgames.visualnoveltemplate
 
 
 
+        }
+        public void SaveGame(string fileName = "autosave")
+        {
+            Debug.Log("run save game from slm please");
+            string filePath = saveFileNamePrefix + fileName + extension;
+            string date = System.DateTime.Now.ToString("dddd, MMM dd yyyy, hh:mm", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"));
+
+            var save = new SaveData(DialogueSystemManager.Instance.Story.state.ToJson(),
+            GameManager.Instance.currentScreenshot, date);
+
+            save.spriteSaveDatas = ImageManager.Instance.GetAllCharacterOnScreenSaveData();
+
+            save.currentMusic = AudioManager.Instance.GetCurrentPlayingMusic();
+            save.currentAmbients = AudioManager.Instance.GetCurrentPlayingAmbients();
+
+            save.currentBGCameraPosition = ImageManager.Instance.CurrentBGCamera.transform.position;
+            save.currentBGCameraRotation = ImageManager.Instance.CurrentBGCamera.transform.eulerAngles;
+            
+            save.currentBGSize = ImageManager.Instance.CurrentBGCamera.orthographicSize;
+            save.currentShot = ImageManager.Instance.CurrentCameraShot;
+
+            save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
+
+            saveFiles[filePath] = save;
+
+            byte[] bytes = SerializationUtility.SerializeValue(save, DataFormat.JSON);
+            File.WriteAllBytes(CreateSavePath(saveDir + "/" + filePath), bytes);
         }
         public void SaveSettings()
         {
@@ -239,6 +266,25 @@ namespace com.argentgames.visualnoveltemplate
             //Convert textures to sprites
             return loadTexture;
             // _paintImage.sprite = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), Vector2.zero);
+        }
+
+        public SaveData GetSaveData(string saveFileName)
+        {
+            string filePath = saveFileNamePrefix + saveFileName + extension;
+            return saveFiles[filePath];
+        }
+        public bool SaveExists(string saveFileName)
+        {
+            foreach (var k in saveFiles.Keys)
+            {
+                Debug.LogFormat("save file exists: {0}",k);
+            }
+            string filePath = saveFileNamePrefix + saveFileName + extension;
+            if (saveFiles.ContainsKey(filePath))
+            {
+                return true;
+            }
+            return false;
         }
 
 

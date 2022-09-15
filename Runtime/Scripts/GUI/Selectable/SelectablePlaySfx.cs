@@ -103,9 +103,9 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (onEnter)
             {
-                if (selectable is Toggle)
+                if (toggle != null)
                 {
-                    if ((toggle)selectable.isOn)
+                    if (toggle.isOn)
                     {
                         return;
                     }
@@ -117,9 +117,9 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (onExit)
             {
-                if (selectable is Toggle)
+                if (toggle != null)
                 {
-                    if ((toggle)selectable.isOn)
+                    if (toggle.isOn)
                     {
                         return;
                     }

@@ -42,6 +42,7 @@ namespace com.argentgames.visualnoveltemplate
             // set init values in Start so any toggle extensions can register first
             if (masterVolume != null)
             {
+                
                 masterVolume.value = GameManager.Instance.Settings.MasterVolume.Value;
             }
             if (ambientVolume != null)
@@ -50,6 +51,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             if (musicVolume != null)
             {
+                Debug.Log("current music volume: " + GameManager.Instance.Settings.MusicVolume.Value.ToString());
                 musicVolume.value = GameManager.Instance.Settings.MusicVolume.Value;
             }
             if (sfxVolume != null)

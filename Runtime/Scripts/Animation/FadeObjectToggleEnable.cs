@@ -32,7 +32,7 @@ namespace com.argentgames.visualnoveltemplate
             canvasGroup = GetComponentInChildren<CanvasGroup>();
         }
         
-        public async override UniTask Disable(float duration=-1)
+        public async override UniTask Disable(float duration=-1,bool destroyOnDisable=false)
         {
             Debug.Log("who is calling me...");
             AnimationComplete = false;
@@ -44,14 +44,14 @@ namespace com.argentgames.visualnoveltemplate
             {
 
                 await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup);
-                OnCompleteDisableAnimation();
+                OnCompleteDisableAnimation(destroyOnDisable);
 
             }
 
             else if (image != null)
             {
                 await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image);
-                OnCompleteDisableAnimation();
+                OnCompleteDisableAnimation(destroyOnDisable);
             }
             // else if (sprite != null)
             // {
@@ -118,11 +118,11 @@ namespace com.argentgames.visualnoveltemplate
         }
 
 
-        public override void OnCompleteDisableAnimation()
+        public override void OnCompleteDisableAnimation(bool destroyOnDisable=false)
         {
             AnimationComplete = true;
             this.gameObject.SetActive(false);
-            if (DestroyOnDisable)
+            if (destroyOnDisable)
             {
                 Destroy(this.gameObject);
             }
