@@ -103,6 +103,13 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (onEnter)
             {
+                if (selectable is Toggle)
+                {
+                    if ((toggle)selectable.isOn)
+                    {
+                        return;
+                    }
+                }
                 AudioManager.Instance.PlaySFX(enterSound);
             }
         }
@@ -110,6 +117,13 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (onExit)
             {
+                if (selectable is Toggle)
+                {
+                    if ((toggle)selectable.isOn)
+                    {
+                        return;
+                    }
+                }
                 AudioManager.Instance.PlaySFX(exitSound);
             }
         }
