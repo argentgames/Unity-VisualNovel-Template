@@ -39,7 +39,10 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         AnimateObjectsToggleEnable animateObjectsToggleEnable;
         [SerializeField]
-        Texture2D defaultInsceneTransitionImage, defaultInsceneTransitionWipe,transparentImage;
+        Texture2D defaultInsceneTransitionImage, defaultInsceneTransitionWipe, transparentImage;
+        CanvasGroup canvasGroup;
+        [SerializeField]
+        RenderTexture currentBGRT;
         async void Awake()
         {
             if (Instance != null && Instance != this)
@@ -61,9 +64,12 @@ namespace com.argentgames.visualnoveltemplate
                 transitionObject.GetComponent<AnimateObjectsToggleEnable>();
             }
 
+            canvasGroup = insceneTransitionCanvas.GetComponentInChildren<CanvasGroup>();
             _propBlock = new MaterialPropertyBlock();
             insceneTransitionImageRenderer = projectedInsceneTransitionImage.GetComponent<Renderer>();
             insceneTransitionObject.SetActive(false);
+
+
 
             // #if UNITY_EDITOR
             // FadeIn();
@@ -203,7 +209,7 @@ namespace com.argentgames.visualnoveltemplate
         }
 
         /// <summary>
-        /// Go from transparent image ==> transition image
+        /// Used when you want to hide things with variable sort order...............maybe we can get rid of the other scene transition if we're setting sortOrder?!?
         /// </summary>
         /// <param name="duration"></param>
         /// <param name="transitionImage"></param>
@@ -218,34 +224,39 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             insceneTransitionCanvas.sortingOrder = sortOrder;
-            
+
             _propBlock.SetFloat("TransitionAmount", 0);
             Texture2D img;
 
             if (transitionImage == "")
-            {   
+            {
                 img = defaultInsceneTransitionImage;
             }
             else
             {
-                img = GameManager.Instance.GetWipe(transitionImage).wipePrefab;
+                // TODO: CLEAN UP NAMING BECAUSE THIS IS CONFUSING. IT IS JUST A NAMED IMAGE
+                img = GameManager.Instance.GetWipe(transitionImage).wipePrefab; // confusing; this isn't a WIPE, just a named image :^ 
             }
 
-            _propBlock.SetTexture("_MainTex",transparentImage);
+            _propBlock.SetTexture("_MainTex", currentBGRT);
             _propBlock.SetTexture("NewTex", img);
-            
+
+            // for fade, we change the canvas group and set the maintex == newtex
             if (transition == "fade")
             {
                 // 1 is true
-                _propBlock.SetFloat("_DoAlpha",1);
+                _propBlock.SetTexture("_MainTex", img);
+                _propBlock.SetFloat("_DoAlpha", 1);
+                canvasGroup.alpha = 0;
             }
             else
             {
-                _propBlock.SetFloat("_DoAlpha",0);
-                 _propBlock.SetTexture("Wipe",GameManager.Instance.GetWipe(transition).wipePrefab);
+                _propBlock.SetFloat("_DoAlpha", 0);
+                _propBlock.SetTexture("Wipe", GameManager.Instance.GetWipe(transition).wipePrefab);
+                canvasGroup.alpha = 1;
             }
 
-           
+
 
             insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
 
@@ -256,23 +267,22 @@ namespace com.argentgames.visualnoveltemplate
             if (transition != "fade")
             {
                 await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "TransitionAmount",skipToken: GameManager.Instance.SkipToken);
+                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken);
             }
             else
             {
-                await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "Alpha",skipToken: GameManager.Instance.SkipToken);
+
+                // we just want to fade in the canvas on the already set final image 
+                _propBlock.SetFloat("TransitionAmount", 1);
+                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
+                //                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "Alpha",skipToken: GameManager.Instance.SkipToken);
             }
 
             // reset transitionAmount 
             insceneTransitionImageRenderer.GetPropertyBlock(_propBlock);
             _propBlock.SetFloat("TransitionAmount", 0);
-            if (transition == "fade")
-            {
-                _propBlock.SetFloat("Alpha", 1);
-            }
-            _propBlock.SetFloat("_DoAlpha",0);
-            _propBlock.SetTexture("_MainTex",img);
+            _propBlock.SetFloat("_DoAlpha", 0);
+            _propBlock.SetTexture("_MainTex", img);
 
             insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
 
@@ -291,35 +301,40 @@ namespace com.argentgames.visualnoveltemplate
             {
                 duration = GameManager.Instance.DefaultConfig.sceneFadeOutDuration;
             }
-            
+
             _propBlock.SetFloat("TransitionAmount", 0);
-            Texture2D img;
+            Texture2D? img = null;
 
             if (transitionImage == "")
-            {   
-                img = transparentImage;
+            {
+                // img = transparentImage;
+                _propBlock.SetTexture("NewTex", currentBGRT);
             }
             else
             {
+
                 img = GameManager.Instance.GetWipe(transitionImage).wipePrefab;
+
+                _propBlock.SetTexture("NewTex", img);
             }
 
-            _propBlock.SetTexture("NewTex", img);
-            
-            
+
+
+
             if (transition == "fade")
             {
                 // 1 is true
-                _propBlock.SetFloat("_DoAlpha",1);
-                
+                _propBlock.SetFloat("_DoAlpha", 1);
+                // _propBlock.SetTexture("_MainTex", currentBGRT); //?
+
             }
             else
             {
-                _propBlock.SetFloat("_DoAlpha",0);
-                _propBlock.SetTexture("Wipe",GameManager.Instance.GetWipe(transition).wipePrefab);
+                _propBlock.SetFloat("_DoAlpha", 0);
+                _propBlock.SetTexture("Wipe", GameManager.Instance.GetWipe(transition).wipePrefab);
             }
 
-            
+
 
             insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
 
@@ -328,27 +343,35 @@ namespace com.argentgames.visualnoveltemplate
             if (transition != "fade")
             {
                 await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "TransitionAmount",skipToken: GameManager.Instance.SkipToken);
+                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken);
             }
             else
             {
-                await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "Alpha",skipToken: GameManager.Instance.SkipToken);
+                // await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
+                //     .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "Alpha", skipToken: GameManager.Instance.SkipToken);
+                
+                _propBlock.SetFloat("TransitionAmount", 1);
+                await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
             }
 
             // reset transitionAmount 
             insceneTransitionImageRenderer.GetPropertyBlock(_propBlock);
             _propBlock.SetFloat("TransitionAmount", 0);
-            if (transition == "fade")
-            {
-                _propBlock.SetFloat("Alpha", 1);
-            }
-            _propBlock.SetFloat("_DoAlpha",0);
-            _propBlock.SetTexture("_MainTex",img);
+            _propBlock.SetFloat("_DoAlpha", 0);
 
-            insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
+            if (img == null)
+            {
+                _propBlock.SetTexture("_MainTex", currentBGRT);
+            }
+            else
+            {
+                _propBlock.SetTexture("_MainTex", img);
+            }
 
             insceneTransitionObject.SetActive(false);
+            insceneTransitionImageRenderer.SetPropertyBlock(_propBlock);
+
+
 
         }
 
