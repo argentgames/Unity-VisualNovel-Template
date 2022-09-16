@@ -82,6 +82,10 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (onClick)
             {
+               if (!selectable.interactable)
+                    {
+                        return;
+                    }
                 AudioManager.Instance.PlaySFX(clickSound);
             }
         }
@@ -89,6 +93,10 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (onDown)
             {
+                if (!selectable.interactable)
+                    {
+                        return;
+                    }
                 AudioManager.Instance.PlaySFX(downSound);
             }
         }
@@ -96,6 +104,10 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (onUp)
             {
+                    if (!selectable.interactable)
+                    {
+                        return;
+                    }
                 AudioManager.Instance.PlaySFX(upSound);
             }
         }
@@ -110,6 +122,10 @@ namespace com.argentgames.visualnoveltemplate
                         return;
                     }
                 }
+                if (!selectable.interactable)
+                    {
+                        return;
+                    }
                 AudioManager.Instance.PlaySFX(enterSound);
             }
         }
@@ -124,6 +140,10 @@ namespace com.argentgames.visualnoveltemplate
                         return;
                     }
                 }
+                if (!selectable.interactable)
+                    {
+                        return;
+                    }
                 AudioManager.Instance.PlaySFX(exitSound);
             }
         }
