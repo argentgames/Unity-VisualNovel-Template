@@ -347,7 +347,7 @@ namespace com.argentgames.visualnoveltemplate
 
             // TODO: figure out how to specify Ease with AnimeTask
             // Ease ease;
-            if (transition != "dissolve")
+            if (transition != "fade")
             {
                 transitionWipe = GameManager.Instance.GetWipe(transition);
                 //  ease = transitionWipe.ease;
@@ -398,20 +398,26 @@ namespace com.argentgames.visualnoveltemplate
             // create a sequence to simultaneously play the transition wipe and turn on/off noise
 
             // Debug.Log("time to add animations to animationTask");
-            backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 
             newBGGO.SetActive(true);
 
-            if (transition == "dissolve")
+            if (transition == "fade")
             {
-
-                // await Easing.Create<Linear>(start: 0f, end: 1f, duration: duration).ToColorA(newBGRT);
+// 1 is true
+                _propBlock.SetFloat("_DoAlpha", 1);
+                
+            backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
+                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
+                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipToken);
 
             }
             else
             {
+                // 1 is true
+                _propBlock.SetFloat("_DoAlpha", 0);
                 Debug.Log("now doing a wipe animation");
 
+            backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
                 await Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
                 .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipToken)
                                 ;
@@ -466,11 +472,9 @@ namespace com.argentgames.visualnoveltemplate
             // reset transitionAmount 
             backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
             _propBlock.SetFloat("TransitionAmount", 0);
-            if (transition == "dissolve")
-            {
-                _propBlock.SetFloat("Alpha", 1);
-            }
             _propBlock.SetTexture("_MainTex", newBGRT);
+            // 1 is true
+                _propBlock.SetFloat("_DoAlpha", 0);
 
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 
