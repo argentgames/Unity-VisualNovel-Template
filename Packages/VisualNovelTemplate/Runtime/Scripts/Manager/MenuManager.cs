@@ -116,6 +116,7 @@ namespace com.argentgames.visualnoveltemplate
                     var go = Instantiate(menuMap[menuName].prefab, this.transform);
                     openMenus[menuName] = go;
                     currentMenu = go;
+                    Debug.Log("spawning a new menu: " + menuName);
                 }
                 else
                 {
