@@ -167,6 +167,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void ThrowSkipToken()
         {
+            Debug.Log("throwing skip token from IM");
             skipTokenSource.Skip();
             CreateSkipToken();
 
@@ -188,6 +189,13 @@ namespace com.argentgames.visualnoveltemplate
         public void ThrowCancellationToken()
         {
             cts.Cancel();
+        }
+        public void UnregisterCharacter(string charName)
+        {
+            if (charactersOnScreen.ContainsKey(charName))
+            {
+                charactersOnScreen.Remove(charName);
+            }
         }
         public void SetAllCharactersOnScreenActive()
         {
@@ -285,7 +293,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="duration"></param>
         /// <returns></returns>
         // [Button]
-        public async UniTask ShowBG(string bgName, string transition = "w9", float duration = 1.4f)
+        public async UniTask ShowBG(string bgName, string transition = "w9", float? duration = null)
         {
             if (bgName == "")
             {
@@ -293,7 +301,12 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
 
-            CreateSkipToken();
+            if (duration == null)
+            {
+                duration = (float) GameManager.Instance.DefaultConfig.bgTransitionDuration;
+            }
+
+            // CreateSkipToken();
 
             // destroy the previous bg that was spawned, but it may be under newbg1 or newbg2.
             // do we even still need currentbg........ or the first time we spawn anything we just
@@ -370,8 +383,8 @@ namespace com.argentgames.visualnoveltemplate
             // if bg shot is black, turn off the noise and particle system
             var noiseOpacity = GameManager.Instance.DefaultConfig.bgNoiseOpacity;
             // TECHDEBT: random hardcoded noise time/duration multiplication
-            float noiseStartTime = .8f * duration;
-            float noiseDuration = .2f * duration;
+            float noiseStartTime = .8f * (float)duration;
+            float noiseDuration = .2f * (float)duration;
             bool toggleParticleSystem = true;
             // #if ANDROID_PLATFORM
             //         toggleParticleSystem = false;
@@ -407,8 +420,8 @@ namespace com.argentgames.visualnoveltemplate
                 _propBlock.SetFloat("_DoAlpha", 1);
                 
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
-                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipToken);
+                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
+                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken);
 
             }
             else
@@ -418,8 +431,8 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("now doing a wipe animation");
 
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
-                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: skipToken)
+                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
+                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken)
                                 ;
                 Debug.Log("done doing wipe   animation");
             }
@@ -550,12 +563,12 @@ namespace com.argentgames.visualnoveltemplate
 
             if (GameManager.Instance.IsSkipping)
             {
-                ThrowSkipToken();
+                GameManager.Instance.ThrowSkipToken();
             }
         }
         public void SkipBGTween()
         {
-            ThrowSkipToken();
+            GameManager.Instance.ThrowSkipToken();
             ResetBGTween();
 
         }
@@ -633,6 +646,10 @@ namespace com.argentgames.visualnoveltemplate
                 duration = (float)GameManager.Instance.DefaultConfig.spawnCharacterDuration;
             }
             var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
+            if (expression == "")
+            {
+                expression = npc.defaultExpression;
+            }
             GameObject charSprite;
             Debug.LogFormat("SpawnChar parmas: {0}, {1}, {2}", charName, expression, location);
             if (!charactersOnScreen.ContainsKey(charName.TrimStart(null).TrimEnd(null)))
@@ -712,7 +729,8 @@ namespace com.argentgames.visualnoveltemplate
             var animationComplete = false;
             if (location != null)
             {
-                await Easing.Create<InQuart>(to: (Vector3)location, duration: duration).ToLocalPosition(go);
+                await Easing.Create<InQuart>(to: (Vector3)location, duration: duration)
+                    .ToLocalPosition(go,skipToken:GameManager.Instance.SkipToken);
                 animationComplete = true;
             }
             else
@@ -736,7 +754,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     animationTasks.Add(
                     Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                    .ToMaterialPropertyFloat(sr, "Alpha")
+                    .ToMaterialPropertyFloat(sr, "Alpha",skipToken:GameManager.Instance.SkipToken)
                     );
 
 
@@ -767,7 +785,7 @@ namespace com.argentgames.visualnoveltemplate
             // TECHDEBT
             // if (!GameManager.Instance.IsSkipping)
             // {
-            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText));
+            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText),cancellationToken:ct);
             // }
             // else
             // {
@@ -797,7 +815,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 animationTasks.Add(
                     Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(sr, "Alpha", skipToken: skipToken)
+                    .ToMaterialPropertyFloat(sr, "Alpha",skipToken:GameManager.Instance.SkipToken)
                 );
             }
             if (GameManager.Instance.IsSkipping)

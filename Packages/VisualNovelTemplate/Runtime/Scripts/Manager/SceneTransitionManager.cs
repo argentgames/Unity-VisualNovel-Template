@@ -139,7 +139,7 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public async UniTask FadeIn(float? duration = null)
+        public async UniTask FadeIn(float? duration = null, SkipToken? skipToken = null)
         {
             if (duration == null)
             {
@@ -150,8 +150,18 @@ namespace com.argentgames.visualnoveltemplate
             {
                 try
                 {
+
                     var image = transitionObject.GetComponentInChildren<Image>();
-                    await Easing.Create<Linear>(start: 1f, end: 0f, (float)duration).ToColorA(image);
+                    if (skipToken != null)
+                    {
+                        await Easing.Create<Linear>(start: 1f, end: 0f, (float)duration).ToColorA(image, skipToken: (SkipToken)skipToken);
+                    }
+                    else
+                    {
+                        await Easing.Create<Linear>(start: 1f, end: 0f, (float)duration).ToColorA(image);
+                    }
+
+
 
                 }
                 // TODO: add specific null compoennt exception
@@ -164,7 +174,18 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                await animateObjectsToggleEnable.Disable((float)duration);
+                var image = transitionObject.GetComponentInChildren<Image>();
+
+                if (skipToken != null)
+                {
+                    await Easing.Create<Linear>(start: 1f, end: 0f, (float)duration).ToColorA(image, skipToken: (SkipToken)skipToken);
+                }
+                else
+                {
+                    await Easing.Create<Linear>(start: 1f, end: 0f, (float)duration).ToColorA(image);
+                }
+
+                // await animateObjectsToggleEnable.Disable((float)duration);
                 // await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
             }
             transitionObject.SetActive(false);
@@ -175,7 +196,7 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public async UniTask FadeToBlack(float? duration = null)
+        public async UniTask FadeToBlack(float? duration = null, SkipToken? skipToken = null)
         {
             if (duration == null)
             {
@@ -189,7 +210,16 @@ namespace com.argentgames.visualnoveltemplate
                     transitionObject.GetComponent<Image>().color = transparent;
                     transitionObject.SetActive(true);
                     var image = transitionObject.GetComponentInChildren<Image>();
-                    await Easing.Create<Linear>(start: 0f, end: 1f, (float)duration).ToColorA(image);
+
+                    if (skipToken != null)
+                    {
+                        await Easing.Create<Linear>(start: 0f, end: 1f, (float)duration).ToColorA(image, skipToken: (SkipToken)skipToken);
+                    }
+                    else
+                    {
+                        await Easing.Create<Linear>(start: 0f, end: 1f, (float)duration).ToColorA(image);
+                    }
+
                 }
                 catch
                 {
@@ -200,7 +230,18 @@ namespace com.argentgames.visualnoveltemplate
             else
             {
                 transitionObject.SetActive(true);
-                await animateObjectsToggleEnable.Enable((float)duration);
+var image = transitionObject.GetComponentInChildren<Image>();
+                // TECHDEBT: for now hard coding the transitions because we want optional skip token for ingame usage !!!!!!
+                if (skipToken != null)
+                    {
+                        await Easing.Create<Linear>(start: 0f, end: 1f, (float)duration).ToColorA(image, skipToken: (SkipToken)skipToken);
+                    }
+                    else
+                    {
+                        await Easing.Create<Linear>(start: 0f, end: 1f, (float)duration).ToColorA(image);
+                    }
+
+                // await animateObjectsToggleEnable.Enable((float)duration);
                 // await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
             }
 
@@ -349,7 +390,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 // await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
                 //     .ToMaterialPropertyFloat(insceneTransitionImageRenderer, "Alpha", skipToken: GameManager.Instance.SkipToken);
-                
+
                 _propBlock.SetFloat("TransitionAmount", 1);
                 await Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
             }

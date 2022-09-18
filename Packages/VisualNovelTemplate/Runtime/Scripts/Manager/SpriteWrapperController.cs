@@ -370,5 +370,10 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
             transform.position = saveData.position;
             SetNewExpression(saveData.expressionImageName);
         }
+        
+        void OnDestroy()
+        {
+            ImageManager.Instance.UnregisterCharacter(selfRegisteredName);
+        }
     }
 }

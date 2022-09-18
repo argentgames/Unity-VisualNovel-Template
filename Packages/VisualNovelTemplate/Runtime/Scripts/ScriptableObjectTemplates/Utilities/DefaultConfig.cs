@@ -21,6 +21,7 @@ namespace com.argentgames.visualnoveltemplate
         public DialogueWindowMode_SO defaultDialogueWindow;
         public float sceneFadeInDuration = 1.5f;
         public float sceneFadeOutDuration = 1.5f;
+        public float bgTransitionDuration = .8f;
         public float delayBeforeShowText = .4f;
         public float delayBeforHideClickUIFX = .4f;
         public float expressionChangeDuration = .35f;

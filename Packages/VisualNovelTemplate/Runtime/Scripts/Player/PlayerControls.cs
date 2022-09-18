@@ -28,15 +28,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
             ""id"": ""e2c68a70-5a28-4c06-b439-23608a3d5853"",
             ""actions"": [
                 {
-                    ""name"": ""HideIngameUI"",
-                    ""type"": ""Button"",
-                    ""id"": ""335c785c-c1c4-4f75-8644-7e52910ea066"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Click"",
                     ""type"": ""PassThrough"",
                     ""id"": ""82223749-a72d-48f0-9e94-9679b8a8fc66"",
@@ -116,20 +107,18 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MousePosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""8d56d12b-ab12-4c1c-9a82-a39aa0696990"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""24e8a4e7-9e01-42be-85d0-b3ebce620a0e"",
-                    ""path"": ""<Keyboard>/h"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Default"",
-                    ""action"": ""HideIngameUI"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
                 {
                     ""name"": """",
                     ""id"": ""43e3c44f-d798-42fa-9551-94b5b0acb3f4"",
@@ -569,6 +558,76 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Settings"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cf72051d-741e-4f9f-929f-4e82bc76d6ec"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MousePosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""VNGameplay"",
+            ""id"": ""0d5d9e7d-b55b-4f82-ac2c-66d7158b7b22"",
+            ""actions"": [
+                {
+                    ""name"": ""Click"",
+                    ""type"": ""Button"",
+                    ""id"": ""17ccecf6-bd7a-4057-9b8a-0b2259c8e491"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HideIngameUI"",
+                    ""type"": ""Button"",
+                    ""id"": ""0cb20477-4c1c-4d4b-b96b-ff7873fc0b44"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""53615cdc-3c11-4737-a4eb-f2ecbc58fa7f"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Click"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4200cd91-e551-4d02-9652-710859b6547e"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Click"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8c78efcd-a07d-4409-ae4d-f71f22f4fbd4"",
+                    ""path"": ""<Keyboard>/h"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Default"",
+                    ""action"": ""HideIngameUI"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -599,7 +658,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
 }");
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
-        m_UI_HideIngameUI = m_UI.FindAction("HideIngameUI", throwIfNotFound: true);
         m_UI_Click = m_UI.FindAction("Click", throwIfNotFound: true);
         m_UI_RightClick = m_UI.FindAction("RightClick", throwIfNotFound: true);
         m_UI_Point = m_UI.FindAction("Point", throwIfNotFound: true);
@@ -609,6 +667,11 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_UI_MiddleClick = m_UI.FindAction("MiddleClick", throwIfNotFound: true);
         m_UI_Cancel = m_UI.FindAction("Cancel", throwIfNotFound: true);
         m_UI_Settings = m_UI.FindAction("Settings", throwIfNotFound: true);
+        m_UI_MousePosition = m_UI.FindAction("MousePosition", throwIfNotFound: true);
+        // VNGameplay
+        m_VNGameplay = asset.FindActionMap("VNGameplay", throwIfNotFound: true);
+        m_VNGameplay_Click = m_VNGameplay.FindAction("Click", throwIfNotFound: true);
+        m_VNGameplay_HideIngameUI = m_VNGameplay.FindAction("HideIngameUI", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -668,7 +731,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     // UI
     private readonly InputActionMap m_UI;
     private IUIActions m_UIActionsCallbackInterface;
-    private readonly InputAction m_UI_HideIngameUI;
     private readonly InputAction m_UI_Click;
     private readonly InputAction m_UI_RightClick;
     private readonly InputAction m_UI_Point;
@@ -678,11 +740,11 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_MiddleClick;
     private readonly InputAction m_UI_Cancel;
     private readonly InputAction m_UI_Settings;
+    private readonly InputAction m_UI_MousePosition;
     public struct UIActions
     {
         private @PlayerControls m_Wrapper;
         public UIActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
-        public InputAction @HideIngameUI => m_Wrapper.m_UI_HideIngameUI;
         public InputAction @Click => m_Wrapper.m_UI_Click;
         public InputAction @RightClick => m_Wrapper.m_UI_RightClick;
         public InputAction @Point => m_Wrapper.m_UI_Point;
@@ -692,6 +754,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @MiddleClick => m_Wrapper.m_UI_MiddleClick;
         public InputAction @Cancel => m_Wrapper.m_UI_Cancel;
         public InputAction @Settings => m_Wrapper.m_UI_Settings;
+        public InputAction @MousePosition => m_Wrapper.m_UI_MousePosition;
         public InputActionMap Get() { return m_Wrapper.m_UI; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -701,9 +764,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         {
             if (m_Wrapper.m_UIActionsCallbackInterface != null)
             {
-                @HideIngameUI.started -= m_Wrapper.m_UIActionsCallbackInterface.OnHideIngameUI;
-                @HideIngameUI.performed -= m_Wrapper.m_UIActionsCallbackInterface.OnHideIngameUI;
-                @HideIngameUI.canceled -= m_Wrapper.m_UIActionsCallbackInterface.OnHideIngameUI;
                 @Click.started -= m_Wrapper.m_UIActionsCallbackInterface.OnClick;
                 @Click.performed -= m_Wrapper.m_UIActionsCallbackInterface.OnClick;
                 @Click.canceled -= m_Wrapper.m_UIActionsCallbackInterface.OnClick;
@@ -731,13 +791,13 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Settings.started -= m_Wrapper.m_UIActionsCallbackInterface.OnSettings;
                 @Settings.performed -= m_Wrapper.m_UIActionsCallbackInterface.OnSettings;
                 @Settings.canceled -= m_Wrapper.m_UIActionsCallbackInterface.OnSettings;
+                @MousePosition.started -= m_Wrapper.m_UIActionsCallbackInterface.OnMousePosition;
+                @MousePosition.performed -= m_Wrapper.m_UIActionsCallbackInterface.OnMousePosition;
+                @MousePosition.canceled -= m_Wrapper.m_UIActionsCallbackInterface.OnMousePosition;
             }
             m_Wrapper.m_UIActionsCallbackInterface = instance;
             if (instance != null)
             {
-                @HideIngameUI.started += instance.OnHideIngameUI;
-                @HideIngameUI.performed += instance.OnHideIngameUI;
-                @HideIngameUI.canceled += instance.OnHideIngameUI;
                 @Click.started += instance.OnClick;
                 @Click.performed += instance.OnClick;
                 @Click.canceled += instance.OnClick;
@@ -765,10 +825,54 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Settings.started += instance.OnSettings;
                 @Settings.performed += instance.OnSettings;
                 @Settings.canceled += instance.OnSettings;
+                @MousePosition.started += instance.OnMousePosition;
+                @MousePosition.performed += instance.OnMousePosition;
+                @MousePosition.canceled += instance.OnMousePosition;
             }
         }
     }
     public UIActions @UI => new UIActions(this);
+
+    // VNGameplay
+    private readonly InputActionMap m_VNGameplay;
+    private IVNGameplayActions m_VNGameplayActionsCallbackInterface;
+    private readonly InputAction m_VNGameplay_Click;
+    private readonly InputAction m_VNGameplay_HideIngameUI;
+    public struct VNGameplayActions
+    {
+        private @PlayerControls m_Wrapper;
+        public VNGameplayActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Click => m_Wrapper.m_VNGameplay_Click;
+        public InputAction @HideIngameUI => m_Wrapper.m_VNGameplay_HideIngameUI;
+        public InputActionMap Get() { return m_Wrapper.m_VNGameplay; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(VNGameplayActions set) { return set.Get(); }
+        public void SetCallbacks(IVNGameplayActions instance)
+        {
+            if (m_Wrapper.m_VNGameplayActionsCallbackInterface != null)
+            {
+                @Click.started -= m_Wrapper.m_VNGameplayActionsCallbackInterface.OnClick;
+                @Click.performed -= m_Wrapper.m_VNGameplayActionsCallbackInterface.OnClick;
+                @Click.canceled -= m_Wrapper.m_VNGameplayActionsCallbackInterface.OnClick;
+                @HideIngameUI.started -= m_Wrapper.m_VNGameplayActionsCallbackInterface.OnHideIngameUI;
+                @HideIngameUI.performed -= m_Wrapper.m_VNGameplayActionsCallbackInterface.OnHideIngameUI;
+                @HideIngameUI.canceled -= m_Wrapper.m_VNGameplayActionsCallbackInterface.OnHideIngameUI;
+            }
+            m_Wrapper.m_VNGameplayActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Click.started += instance.OnClick;
+                @Click.performed += instance.OnClick;
+                @Click.canceled += instance.OnClick;
+                @HideIngameUI.started += instance.OnHideIngameUI;
+                @HideIngameUI.performed += instance.OnHideIngameUI;
+                @HideIngameUI.canceled += instance.OnHideIngameUI;
+            }
+        }
+    }
+    public VNGameplayActions @VNGameplay => new VNGameplayActions(this);
     private int m_DefaultSchemeIndex = -1;
     public InputControlScheme DefaultScheme
     {
@@ -780,7 +884,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     }
     public interface IUIActions
     {
-        void OnHideIngameUI(InputAction.CallbackContext context);
         void OnClick(InputAction.CallbackContext context);
         void OnRightClick(InputAction.CallbackContext context);
         void OnPoint(InputAction.CallbackContext context);
@@ -790,5 +893,11 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnMiddleClick(InputAction.CallbackContext context);
         void OnCancel(InputAction.CallbackContext context);
         void OnSettings(InputAction.CallbackContext context);
+        void OnMousePosition(InputAction.CallbackContext context);
+    }
+    public interface IVNGameplayActions
+    {
+        void OnClick(InputAction.CallbackContext context);
+        void OnHideIngameUI(InputAction.CallbackContext context);
     }
 }
