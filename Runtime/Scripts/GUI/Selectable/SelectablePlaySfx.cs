@@ -54,7 +54,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                button = (Button)selectable;
+                button = selectable as Button;
             }
             if (clickSound == "")
             {
