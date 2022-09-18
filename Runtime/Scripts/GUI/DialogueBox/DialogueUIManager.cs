@@ -55,6 +55,8 @@ namespace com.argentgames.visualnoveltemplate
 
         private bool playerHidUI = false;
         public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value;}}
+        private bool playerAllowedToHideUI = false;
+        public bool PlayerAllowedToHideUI { get { return playerAllowedToHideUI; } set { playerAllowedToHideUI = value;}}
 
         #region Click to continue
         public virtual async UniTaskVoid CTCLogic()
@@ -148,6 +150,10 @@ namespace com.argentgames.visualnoveltemplate
            var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
+                if (duration == -1)
+                {
+                    duration = animator.enableAnimationDuration;
+                }
                 animator.Enable(duration).Forget();
             }
             else
@@ -156,6 +162,29 @@ namespace com.argentgames.visualnoveltemplate
                 UIHolder.SetActive(true);
             }
            Debug.Log("done showing dialogue ui");
+
+        }
+
+        /// <summary>
+        /// If UI is showing, then hide it, otherwise show it without.
+        /// </summary>
+        public virtual void ToggleUI()
+        {
+            if (UIHolder.activeSelf)
+            {
+                HideUI();
+            }
+            else
+            {
+                ShowUIWithoutClearing();
+            }
+        }
+
+        /// <summary>
+        /// Show UI in its current state. Same as ShowUI in this abstract class...
+        /// </summary>
+        public virtual void ShowUIWithoutClearing()
+        {
 
         }
 

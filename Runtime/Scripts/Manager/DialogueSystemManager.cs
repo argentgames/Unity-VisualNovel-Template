@@ -154,6 +154,8 @@ namespace com.argentgames.visualnoveltemplate
 
                     await dialogueUIManager.ShowUI();
                     await dialogueUIManager.DisplayLine(ct);
+                    
+                    dialogueUIManager.PlayerAllowedToHideUI = true;
                     dialogueUIManager.HideCTC();
                     SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
 
@@ -474,6 +476,8 @@ namespace com.argentgames.visualnoveltemplate
             if (!dialogueUIManager.IsShowingUI)
             {
                 Debug.Log("are we stuck waiting to show ui?");
+                
+                    dialogueUIManager.PlayerAllowedToHideUI = true;
                 await dialogueUIManager.ShowUI();
                 Debug.Log("done showing ui");
             }
@@ -588,7 +592,13 @@ namespace com.argentgames.visualnoveltemplate
                 dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 if (dialogueUIManager != null)
                 {
-                    dialogueUIManager.ShowUI();
+                    float duration = -1f;
+                    if (GameManager.Instance.IsSkipping)
+            {
+                duration = 0;
+            }
+                    dialogueUIManager.ShowUI(duration);
+                    dialogueUIManager.PlayerAllowedToHideUI = true;
                 }
                 else
                 {
@@ -604,6 +614,7 @@ namespace com.argentgames.visualnoveltemplate
         public void HideDialogueWindow()
         {
             dialogueUIManager.HideUI();
+            dialogueUIManager.PlayerAllowedToHideUI = false;
         }
 
 
