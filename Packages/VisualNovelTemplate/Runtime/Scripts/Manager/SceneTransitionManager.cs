@@ -101,7 +101,6 @@ namespace com.argentgames.visualnoveltemplate
             bool doStopSound = true)
         {
             isLoading = true;
-            MenuManager.Instance.DisableSettingsUIControls();
             if (fadeOutDuration == null)
             {
                 fadeOutDuration = GameManager.Instance.DefaultConfig.sceneFadeOutDuration;
@@ -139,7 +138,7 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public async UniTask FadeIn(float? duration = null, SkipToken? skipToken = null)
+        public async UniTask FadeIn(float? duration = null, SkipToken? skipToken = null, bool enableSettingsMenuControl = true)
         {
             if (duration == null)
             {
@@ -189,6 +188,10 @@ namespace com.argentgames.visualnoveltemplate
                 // await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
             }
             transitionObject.SetActive(false);
+            if (enableSettingsMenuControl)
+            {
+                MenuManager.Instance.EnableSettingsUIControls();
+            }
 
         }
         /// <summary>
@@ -196,11 +199,15 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public async UniTask FadeToBlack(float? duration = null, SkipToken? skipToken = null)
+        public async UniTask FadeToBlack(float? duration = null, SkipToken? skipToken = null, bool disableSettingsControls = true)
         {
             if (duration == null)
             {
                 duration = GameManager.Instance.DefaultConfig.sceneFadeOutDuration;
+            }
+            if (disableSettingsControls)
+            {
+                MenuManager.Instance.DisableSettingsUIControls();
             }
             // Debug.Log ("start fading to black");
             if (animateObjectsToggleEnable == null)
