@@ -74,7 +74,7 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         public async void PopulateMaps()
         {
-            Debug.Log("populating audio maps now");
+            // Debug.Log("populating audio maps now");
             musicMap.Clear();
             ambientMap.Clear();
             sfxMap.Clear();
@@ -119,7 +119,7 @@ namespace com.argentgames.visualnoveltemplate
 
             // try to find any Resources/_SO files and automatically populate from there.
             var sounds = Resources.LoadAll<Sound_SO>(ambientPath);
-            Debug.LogFormat("number of ambient sounds found: {0}",sounds.Length);
+            // Debug.LogFormat("number of ambient sounds found: {0}",sounds.Length);
             for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];
@@ -129,7 +129,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
             sounds = Resources.LoadAll<Sound_SO>(musicPath);
-            Debug.LogFormat("number of music sounds found: {0}",sounds.Length);
+            // Debug.LogFormat("number of music sounds found: {0}",sounds.Length);
             for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];
@@ -139,7 +139,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
             sounds = Resources.LoadAll<Sound_SO>(sfxPath);
-            Debug.LogFormat("number of sfx sounds found: {0}",sounds.Length);
+            // Debug.LogFormat("number of sfx sounds found: {0}",sounds.Length);
             for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];
@@ -149,7 +149,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
             sounds = Resources.LoadAll<Sound_SO>(uiSfxPath);
-            Debug.LogFormat("number of ui sfx sounds found: {0}",sounds.Length);
+            // Debug.LogFormat("number of ui sfx sounds found: {0}",sounds.Length);
             for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];

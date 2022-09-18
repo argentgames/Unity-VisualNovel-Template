@@ -40,10 +40,10 @@ namespace com.argentgames.visualnoveltemplate
             navMap["Credits"] = credits;
             navMap["About"] = about;
             
-            foreach (var kv in navMap.Keys)
-            {
-                Debug.Log(kv);
-            } 
+            // foreach (var kv in navMap.Keys)
+            // {
+            //     Debug.Log(kv);
+            // } 
             SetRXSubscriptions();
         }
 
@@ -115,6 +115,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     ((Toggle)history).onValueChanged.AsObservable().Subscribe(val =>
                     {
+                        Debug.LogFormat("running history toggle with value: {0}",val);
                         if (val)
                         {
                             var metadata = history.GetComponentInChildren<GameObjectMetadata>();
@@ -137,6 +138,7 @@ namespace com.argentgames.visualnoveltemplate
                             DisplayHeadingText(displayName);
                         }
                     });
+                    
                 }
                 else if (history.GetType() == typeof(Button))
                 {
@@ -158,6 +160,8 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     Debug.LogWarningFormat("Selectable type not implemented. No subscription made for {0}", history);
                 }
+
+                Debug.Log("done setting history rx subs");
             }
 
             if (saveLoad != null)
@@ -553,10 +557,10 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void OpenNavPage(string navPage)
         {
-            foreach (var k in navMap.Keys)
-            {
-                Debug.Log(k);
-            }
+            // foreach (var k in navMap.Keys)
+            // {
+            //     Debug.Log(k);
+            // }
             var page = navMap[navPage];
             if (page is Toggle)
             {
