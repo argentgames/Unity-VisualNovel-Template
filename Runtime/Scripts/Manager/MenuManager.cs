@@ -37,6 +37,7 @@ namespace com.argentgames.visualnoveltemplate
         Dictionary<string, GameObject> openMenus = new Dictionary<string, GameObject>();
         GameObject currentMenu;
 
+        public bool IsMenuOpen { get { return currentMenu != null; }}
         async UniTaskVoid Awake()
         {
             Instance = this;
@@ -48,38 +49,6 @@ namespace com.argentgames.visualnoveltemplate
                 menuMap[menu.internalName] = menu;
             }
 
-            _playerControls = new PlayerControls();
-            _playerControls.UI.Settings.performed += ctx =>
-            {
-                try
-                {
-                    // Don't let player skip SplashScreen scene because we are doing loading during it.
-                    if (SceneManager.GetActiveScene().name == "SplashScreens")
-                    {
-                        return;
-                    }
-                    // Don't open menus while a video is playing
-                    if (VideoPlayerManager.Instance != null)
-                    {
-                        if (VideoPlayerManager.Instance.IsVideoPlaying)
-                        {
-                            return;
-                        }
-                    }
-                    if (currentMenu != null)
-                    {
-                        CloseAllMenus();
-                    }
-
-                    GameManager.Instance.SetSkipping(false);
-                    GameManager.Instance.SetAuto(false);
-                }
-                catch
-                {
-                    Debug.Log("someon is spam clicking D:<");
-                }
-
-            };
 
         }
         async UniTaskVoid RunCancellation()
@@ -95,21 +64,13 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         public void EnableSettingsUIControls()
         {
-            _playerControls.Enable();
+            PlayerControlsManager.Instance.EnableSettingsControls();
         }
         public void DisableSettingsUIControls()
         {
-            _playerControls.Disable();
+            PlayerControlsManager.Instance.DisableSettingsControls();
         }
 
-        private void OnEnable()
-        {
-            _playerControls.Enable();
-        }
-        private void OnDisable()
-        {
-            _playerControls.Disable();
-        }
         void Update() { }
 
         public async UniTask OpenPage(string menuName, string pageName = "")
@@ -175,8 +136,10 @@ namespace com.argentgames.visualnoveltemplate
             for (int i = 0; i < transform.childCount; i++)
             {
                 transform.GetChild(i).GetComponent<MenuPresenter>().CloseMenu();
+                Debug.Log("closing menu");
             }
             GameManager.Instance.ResumeGame();
+            currentMenu = null;
         }
 
     }
