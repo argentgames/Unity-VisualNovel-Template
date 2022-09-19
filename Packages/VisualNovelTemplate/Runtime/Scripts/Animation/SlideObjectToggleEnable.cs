@@ -49,6 +49,10 @@ public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
     {
         AnimationComplete = true;
     }
+    public override void CompleteAnimation()
+    {
+        
+    }
 
 }
 
