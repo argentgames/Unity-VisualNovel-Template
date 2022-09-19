@@ -19,6 +19,7 @@ namespace com.argentgames.visualnoveltemplate
         public string newGameLoadScene = "CharacterCustomization";
         public float fadeToBlackDuration = 2.5f;
         public float fadeOutOfBlackDuration = 1.5f;
+        public float delayBeforeFadeOut = 1f;
         public bool stopSoundOnLoad = true;
         [SerializeField]
         [Tooltip("What audio do we play when loading into the main menu scene?")]
@@ -43,7 +44,7 @@ namespace com.argentgames.visualnoveltemplate
             // if someone finished the game and in the same session they start a new game,
             // we dont want the ingamebrain to try to load up old save
             SaveLoadManager.Instance.currentSave = null;
-            SceneTransitionManager.Instance.LoadScene(newGameLoadScene, fadeToBlackDuration, fadeOutOfBlackDuration, stopSoundOnLoad);
+            SceneTransitionManager.Instance.LoadScene(newGameLoadScene, fadeToBlackDuration, fadeOutOfBlackDuration, doStopSound:stopSoundOnLoad, delayBeforeFadeIn: delayBeforeFadeOut);
 
         }
         public void QuitGame()
