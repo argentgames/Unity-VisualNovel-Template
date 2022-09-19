@@ -18,6 +18,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         [SerializeField]
         List<string> resolutionsOrder = new List<string>();
+        Dictionary<string,int>resolutionsMap = new Dictionary<string, int>();
         [SerializeField]
         TMP_Dropdown resolutionsDropdown;
 
@@ -31,6 +32,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 resolutionsDropdown.ClearOptions();
             resolutionsDropdown.AddOptions(resolutionsOrder);
+            }
+            for (int i=0; i < resolutionsOrder.Count;i++)
+            {
+                resolutionsMap[resolutionsOrder[i]] = i;
             }
             
 
@@ -73,6 +78,22 @@ namespace com.argentgames.visualnoveltemplate
             if (fullscreen != null)
             {
                 fullscreen.isOn = Screen.fullScreen;
+            }
+
+            // if resolutions isn't null, then set current resolutions value
+            if (resolutionsDropdown != null)
+            {
+                var currentResolution = Screen.currentResolution;
+                var res = string.Format("{0}x{1}",currentResolution.width,currentResolution.height);
+                try
+                {
+                    SetResolutionDropdown(resolutionsMap[res]);
+                }
+                catch
+                {
+                    Debug.LogWarningFormat("trying to set an unsupportred resolution~! {0}",res);
+                }
+                
             }
         }
         public void UpdateMusicVolume(System.Single val)

@@ -47,19 +47,33 @@ namespace com.argentgames.visualnoveltemplate
         }
         public override async UniTask OpenPage(string pageName = "")
         {
+            // wait a couple frames for our rx subscriptsiont to set?
+            await UniTask.Yield();
+            await UniTask.Yield();
+            await UniTask.Yield();
+
+            // TECHDEBT: Beautiful transitions animations don't run when game is paused <_<
+            // GameManager.Instance.PauseGame();
             if (pageName == "")
             {
                 pageName = defaultPage;
             }
 
-            if (!menuContainer.activeSelf)
-            {
-                menuContainer.SetActive(true);
-            }
+
             if (navigation != null)
             {
-                Debug.Log("using navigation openNavPage");
+                // Debug.Log("using navigation openNavPage");
+                // Debug.LogFormat("state of menucontainer: {0}", menuContainer.activeSelf);
+                // menuContainer.SetActive(true);
+                // Debug.LogFormat("state of menucontainer: {0}", menuContainer.activeSelf);
                 navigation.OpenNavPage(pageName);
+
+                if (!menuContainer.activeSelf)
+                {
+                    Debug.Log("setting menu container active0");
+                    menuContainer.SetActive(true);
+                }
+
             }
             else
             {
@@ -92,6 +106,13 @@ namespace com.argentgames.visualnoveltemplate
                     }
 
                 }
+
+                if (!menuContainer.activeSelf)
+                {
+                    Debug.Log("setting menu container active0");
+                    menuContainer.SetActive(true);
+                }
+
             }
 
 
