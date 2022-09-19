@@ -41,6 +41,15 @@ namespace com.argentgames.visualnoveltemplate
         [PropertyTooltip("Parent wrapper for the entire dialogue UI box.")]
         public GameObject UIHolder;
 
+        [SerializeField]
+        [SceneObjectsOnly]
+        [PropertyTooltip("Parent wrapper for quick menu")]
+        public GameObject QMenu;
+
+        [SerializeField]
+        [Tooltip("the literal ctc used to continue. usually not visible to player.")]
+        public Button actualCTC;
+
 
         // NOTE: Unused. Inkscript lets you add tags to the end of lines, so instead of parsing information at the beginning of a line (e.g. speaker name)
         // you could attach stuff to tags.
@@ -110,12 +119,14 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         public virtual void HideCTC()
         {
+            actualCTC.gameObject.SetActive(false);
         }
         /// <summary>
         /// If we have a CTC for the player to select, then show it.
         /// </summary>
         public virtual void ShowCTC()
         {
+            actualCTC.gameObject.SetActive(true);
         }
         #endregion
 
@@ -130,7 +141,7 @@ namespace com.argentgames.visualnoveltemplate
            var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
-                animator.Disable(duration).Forget();
+                await animator.Disable(duration);
             }
             else
             {
@@ -154,14 +165,27 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     duration = animator.enableAnimationDuration;
                 }
-                animator.Enable(duration).Forget();
+                await animator.Enable(duration);
             }
             else
             {
-                Debug.LogFormat("No animation available for hiding UI. Hiding instantly.");
+                Debug.LogFormat("No animation available for showing UI. showing instantly.");
                 UIHolder.SetActive(true);
             }
            Debug.Log("done showing dialogue ui");
+
+        }
+        /// <summary>
+        /// If your dialogue window has a separate NVL panel, maybe you want to manually show it with different timing and pauses
+        /// </summary>
+        /// <param name="duration"></param>
+        /// <returns></returns>
+        public virtual async UniTask ShowNVL(float duration = .3f)
+        {
+
+        }
+        public virtual async UniTask HideNVL(float duration = .3f)
+        {
 
         }
 
@@ -186,6 +210,44 @@ namespace com.argentgames.visualnoveltemplate
         public virtual void ShowUIWithoutClearing()
         {
 
+        }
+        public void TogglePlayerOpenedQMenu()
+        {
+            DialogueSystemManager.Instance.SetPlayerOpenedQmenu(!DialogueSystemManager.Instance.PlayerOpenedQMenu);
+        }
+        public virtual void OpenQMenu(float duration=-1)
+        {
+            var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
+            if (animator != null)
+            {
+                if (duration == -1)
+                {
+                    duration = animator.enableAnimationDuration;
+                }
+                 animator.Enable(duration).Forget();
+            }
+            else
+            {
+                QMenu.SetActive(true);
+            }
+            
+        }
+        public virtual void CloseQmenu(float duration=-1)
+        {
+            var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
+            if (animator != null)
+            {
+                if (duration == -1)
+                {
+                    duration = animator.disableAnimationDuration;
+                }
+                animator.Disable(duration).Forget();
+            }
+            else
+            {
+                Debug.LogFormat("No animation available for hiding UI. Hiding instantly.");
+                QMenu.SetActive(false);
+            }
         }
 
         /// <summary>
@@ -243,6 +305,32 @@ namespace com.argentgames.visualnoveltemplate
         public virtual void KillTypewriter() {}
         public virtual void PauseTypewriter() {}
         public virtual void ContinueTypewriter() {}
+
+        /// <summary>
+        /// Every UI Manager needs to set up its continue story logic, which is usually tied to buttons
+        /// or by setting subscriptions to the PlayerControls VNGameplay input map. If we change between
+        /// different UIs, then we need to remove our previous UI's control scheme otherwise we will start
+        /// stacking up many UI continue logic subscriptions !
+        /// 
+        /// We usually want BOTH a button and a VNGameplay input map subscription because it can be difficult
+        /// to select QMenu buttons when the VNGameplay input map is active, as there isn't anything blocking that input
+        /// (and checking for mouse over UI elements is not very reliable). We want a VNGameplay input map so that
+        /// players can spam click through even while the UI (and thus the continue button) is hidden.
+        /// </summary>
+        public abstract void RemoveVNControlSubscriptions();
+        public abstract void AddVNControlSubscriptions();
+        public virtual void HideUILogic(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+        {
+            if (DialogueSystemManager.Instance.DialogueUIManager.PlayerAllowedToHideUI)
+            {
+                Debug.Log("hide ui logic from boom");
+                ToggleUI();
+                GameManager.Instance.SetAuto(false);
+                GameManager.Instance.SetSkipping(false);
+                PlayerHidUI = !PlayerHidUI;
+
+            }
+        }
 
 
 

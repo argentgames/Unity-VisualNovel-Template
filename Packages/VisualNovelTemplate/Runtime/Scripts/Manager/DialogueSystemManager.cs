@@ -69,7 +69,17 @@ namespace com.argentgames.visualnoveltemplate
         /// Any custom functions that we can't use ink functions for.
         /// </summary>
         CustomActionFunctions customActionFunctions;
+        public CustomActionFunctions CustomActionFunctions => customActionFunctions;
 
+        /// <summary>
+        /// Did the player open the QMenu? If so, we might want to auto open the qmenu when we show the window
+        /// </summary>
+        bool playerOpenedQmenu = false;
+        public bool PlayerOpenedQMenu => playerOpenedQmenu;
+        public void SetPlayerOpenedQmenu(bool val)
+        {
+            playerOpenedQmenu = val;
+        }
 
         /* Utilities */
         CancellationTokenSource cts;
@@ -109,8 +119,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 }
-                window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
-                window.GetComponentInChildren<DialogueUIManager>().ClearUI();
+                
                 try
                 {
                     window.GetComponentInChildren<Canvas>().sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
@@ -119,7 +128,11 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
                 }
-                
+
+                await UniTask.Yield();
+                window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
+                window.GetComponentInChildren<DialogueUIManager>().ClearUI();
+
 
             }
 
@@ -131,7 +144,7 @@ namespace com.argentgames.visualnoveltemplate
 
         async UniTaskVoid Start()
         {
-            
+
         }
 
         // URGENT: Need to update this because DSM is now persistent across all scenes, not just ingame!!!
@@ -154,7 +167,7 @@ namespace com.argentgames.visualnoveltemplate
 
                     await dialogueUIManager.ShowUI();
                     await dialogueUIManager.DisplayLine(ct);
-                    
+
                     dialogueUIManager.PlayerAllowedToHideUI = true;
                     dialogueUIManager.HideCTC();
                     SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
@@ -178,9 +191,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 Debug.Log("fading in from ds no save");
 
-                await SceneTransitionManager.Instance.FadeIn(0f);
+
                 Debug.Log("done fading in with 0");
                 ContinueStory().Forget();
+                await SceneTransitionManager.Instance.FadeIn(0f);
             }
         }
 
@@ -476,8 +490,8 @@ namespace com.argentgames.visualnoveltemplate
             if (!dialogueUIManager.IsShowingUI)
             {
                 Debug.Log("are we stuck waiting to show ui?");
-                
-                    dialogueUIManager.PlayerAllowedToHideUI = true;
+
+                dialogueUIManager.PlayerAllowedToHideUI = true;
                 await dialogueUIManager.ShowUI();
                 Debug.Log("done showing ui");
             }
@@ -528,7 +542,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                Debug.LogFormat("available ct: {0}",ct.CanBeCanceled);
+                Debug.LogFormat("available ct: {0}", ct.CanBeCanceled);
                 await customActionFunctions.ActionFunction(story.currentText, this.ct);
             }
             InkContinueStory();
@@ -576,28 +590,33 @@ namespace com.argentgames.visualnoveltemplate
         {
             try
             {
+                // unregister vngameplaymap from all windows and then enable it in the appropriate window
+                foreach (var win in dialogueWindows.Values)
+                {
+                    win.GetComponentInChildren<DialogueUIManager>().RemoveVNControlSubscriptions();
+                }
                 var window = dialogueWindows[internalName];
                 dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                dialogueUIManager.AddVNControlSubscriptions();
             }
             catch
             {
                 Debug.LogErrorFormat("dialogue window [{0}] is not registered.", internalName);
             }
         }
-        public void ShowDialogueWindow(string internalName)
+        public async UniTask ShowDialogueWindow(string internalName)
         {
             try
             {
-                var window = dialogueWindows[internalName];
-                dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                SetDialogueWindow(internalName);
                 if (dialogueUIManager != null)
                 {
                     float duration = -1f;
                     if (GameManager.Instance.IsSkipping)
-            {
-                duration = 0;
-            }
-                    dialogueUIManager.ShowUI(duration);
+                    {
+                        duration = 0;
+                    }
+                    await dialogueUIManager.ShowUI(duration);
                     dialogueUIManager.PlayerAllowedToHideUI = true;
                 }
                 else
@@ -611,10 +630,37 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogErrorFormat("dialogue window [{0}] is not registered.", internalName);
             }
         }
-        public void HideDialogueWindow()
+        public async UniTask HideDialogueWindow()
         {
-            dialogueUIManager.HideUI();
             dialogueUIManager.PlayerAllowedToHideUI = false;
+            await dialogueUIManager.HideUI();
+        }
+        public async UniTask ShowNVLWindow(string internalName)
+        {
+            try
+            {
+                if (dialogueUIManager == null)
+                {
+                    var window = dialogueWindows[internalName];
+                    dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                }
+                float duration = -1f;
+                    if (GameManager.Instance.IsSkipping)
+                    {
+                        duration = 0;
+                    }
+                await dialogueUIManager.ShowNVL(duration);
+                dialogueUIManager.PlayerAllowedToHideUI = true;
+            }
+            catch
+            {
+                Debug.LogErrorFormat("dialogue window [{0}] is not registered.", internalName);
+            }
+        }
+        public async UniTask HideNVLWindow()
+        {
+            dialogueUIManager.PlayerAllowedToHideUI = false;
+            await dialogueUIManager.HideNVL();
         }
 
 
