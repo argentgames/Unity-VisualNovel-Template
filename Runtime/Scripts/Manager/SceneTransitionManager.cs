@@ -98,7 +98,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="doStopSound">Do we need to stop current playing music when we load the scene? E.g. going from main menu ==> ingame.</param>
         /// <returns></returns>
         public async UniTask LoadScene(string level, float? fadeOutDuration = null, float? fadeInDuration = null, bool doFadeIn = true,
-            bool doStopSound = true)
+            bool doStopSound = true, float? delayBeforeFadeIn = null)
         {
             isLoading = true;
             if (fadeOutDuration == null)
@@ -125,6 +125,10 @@ namespace com.argentgames.visualnoveltemplate
             await SceneManager.LoadSceneAsync(level, LoadSceneMode.Single).AsAsyncOperationObservable()
                 .Do(x => { });
             // await LoadingScreenManager.Instance.HideLoadingScreen();
+            if (delayBeforeFadeIn != null)
+            {
+                await UniTask.Delay(System.TimeSpan.FromSeconds((float)delayBeforeFadeIn));
+            }
             if (doFadeIn && fadeInDuration != 0)
             {
                 await FadeIn(fadeInDuration.Value);
@@ -138,11 +142,21 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public async UniTask FadeIn(float? duration = null, SkipToken? skipToken = null, bool enableSettingsMenuControl = true)
+        public async UniTask FadeIn(float? duration = null, SkipToken? skipToken = null, bool enableSettingsMenuControl = true,
+        bool useInsceneObject = false)
         {
             if (duration == null)
             {
                 duration = GameManager.Instance.DefaultConfig.sceneFadeInDuration;
+            }
+            GameObject objToTransition;
+            if (useInsceneObject)
+            {
+                objToTransition = insceneTransitionObject;
+            }
+            else
+            {
+                objToTransition = transitionObject;
             }
             // Debug.Log ("FADE IN");
             if (animateObjectsToggleEnable == null)
@@ -150,7 +164,7 @@ namespace com.argentgames.visualnoveltemplate
                 try
                 {
 
-                    var image = transitionObject.GetComponentInChildren<Image>();
+                    var image = objToTransition.GetComponentInChildren<Image>();
                     if (skipToken != null)
                     {
                         await Easing.Create<Linear>(start: 1f, end: 0f, (float)duration).ToColorA(image, skipToken: (SkipToken)skipToken);
@@ -168,12 +182,12 @@ namespace com.argentgames.visualnoveltemplate
                 {
 
                 }
-                transitionObject.SetActive(false);
+                objToTransition.SetActive(false);
 
             }
             else
             {
-                var image = transitionObject.GetComponentInChildren<Image>();
+                var image = objToTransition.GetComponentInChildren<Image>();
 
                 if (skipToken != null)
                 {
@@ -187,7 +201,7 @@ namespace com.argentgames.visualnoveltemplate
                 // await animateObjectsToggleEnable.Disable((float)duration);
                 // await UniTask.WaitUntil(() => animateObjectsToggleEnable.AnimationComplete);
             }
-            transitionObject.SetActive(false);
+            objToTransition.SetActive(false);
             if (enableSettingsMenuControl)
             {
                 MenuManager.Instance.EnableSettingsUIControls();
@@ -199,7 +213,8 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public async UniTask FadeToBlack(float? duration = null, SkipToken? skipToken = null, bool disableSettingsControls = true)
+        public async UniTask FadeToBlack(float? duration = null, SkipToken? skipToken = null, bool disableSettingsControls = true,
+        bool useInsceneObject = false)
         {
             if (duration == null)
             {
@@ -209,14 +224,23 @@ namespace com.argentgames.visualnoveltemplate
             {
                 MenuManager.Instance.DisableSettingsUIControls();
             }
+            GameObject objToTransition;
+            if (useInsceneObject)
+            {
+                objToTransition = insceneTransitionObject;
+            }
+            else
+            {
+                objToTransition = transitionObject;
+            }
             // Debug.Log ("start fading to black");
             if (animateObjectsToggleEnable == null)
             {
                 try
                 {
-                    transitionObject.GetComponent<Image>().color = transparent;
-                    transitionObject.SetActive(true);
-                    var image = transitionObject.GetComponentInChildren<Image>();
+                    objToTransition.GetComponent<Image>().color = transparent;
+                    objToTransition.SetActive(true);
+                    var image = objToTransition.GetComponentInChildren<Image>();
 
                     if (skipToken != null)
                     {
@@ -232,12 +256,12 @@ namespace com.argentgames.visualnoveltemplate
                 {
 
                 }
-                transitionObject.SetActive(true);
+                objToTransition.SetActive(true);
             }
             else
             {
-                transitionObject.SetActive(true);
-var image = transitionObject.GetComponentInChildren<Image>();
+                objToTransition.SetActive(true);
+var image = objToTransition.GetComponentInChildren<Image>();
                 // TECHDEBT: for now hard coding the transitions because we want optional skip token for ingame usage !!!!!!
                 if (skipToken != null)
                     {
