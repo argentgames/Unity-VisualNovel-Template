@@ -29,21 +29,12 @@ namespace com.argentgames.visualnoveltemplate
 
         void Awake()
         {
-             navMap = new Dictionary<string, Selectable>();
-            navMap["Settings"] = settings;
-            navMap["History"] = history;
-            navMap["SaveLoad"] = saveLoad;
-            navMap["Save"] = save;
-            navMap["Load"] = load;
-            navMap["CGGallery"] = cgGallery;
-            navMap["MusicGallery"] = musicGallery;
-            navMap["Credits"] = credits;
-            navMap["About"] = about;
+            PopulateMap();
             
-            // foreach (var kv in navMap.Keys)
-            // {
-            //     Debug.Log(kv);
-            // } 
+            foreach (var kv in navMap.Keys)
+            {
+                Debug.Log(kv);
+            } 
             SetRXSubscriptions();
         }
 
@@ -55,6 +46,22 @@ namespace com.argentgames.visualnoveltemplate
         void DisplayHeadingText(string text)
         {
             heading.text = text;
+        }
+        void PopulateMap()
+        {
+            if (navMap.Count == 0)
+            {
+                navMap["Settings"] = settings;
+            navMap["History"] = history;
+            navMap["SaveLoad"] = saveLoad;
+            navMap["Save"] = save;
+            navMap["Load"] = load;
+            navMap["CGGallery"] = cgGallery;
+            navMap["MusicGallery"] = musicGallery;
+            navMap["Credits"] = credits;
+            navMap["About"] = about;
+            Debug.Log("populating nvv map");
+            }
         }
         void SetRXSubscriptions()
         {
@@ -557,10 +564,14 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void OpenNavPage(string navPage)
         {
-            // foreach (var k in navMap.Keys)
-            // {
-            //     Debug.Log(k);
-            // }
+            foreach (var k in navMap.Keys)
+            {
+                Debug.Log(k);
+            }
+            
+
+            PopulateMap();
+            
             var page = navMap[navPage];
             if (page is Toggle)
             {
