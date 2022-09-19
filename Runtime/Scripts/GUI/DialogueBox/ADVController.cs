@@ -75,14 +75,14 @@ namespace com.argentgames.visualnoveltemplate
         void Awake()
         {
             _playerControls = new PlayerControls();
-            _playerControls.UI.HideIngameUI.performed += ctx =>
+            _playerControls.VNGameplay.HideIngameUI.performed += ctx =>
            {
                ToggleUI();
                GameManager.Instance.SetAuto(false);
                GameManager.Instance.SetSkipping(false);
                PlayerHidUI = !PlayerHidUI;
            };
-            _playerControls.UI.Click.performed += ctx =>
+            _playerControls.VNGameplay.Click.performed += ctx =>
             {
                 if (PlayerHidUI)
                 {
@@ -740,6 +740,14 @@ namespace com.argentgames.visualnoveltemplate
         private void OnDisable()
         {
             _playerControls.Disable();
+        }
+
+        public override void RemoveVNControlSubscriptions()
+        {
+        }
+        public override void AddVNControlSubscriptions()
+        {
+            throw new NotImplementedException();
         }
 
     }
