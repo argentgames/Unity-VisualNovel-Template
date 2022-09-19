@@ -18,12 +18,14 @@ namespace com.argentgames.visualnoveltemplate
         public Color transparent = new Color(255, 255, 255, 0);
 
         public float disableAnimationDuration = .5f, enableAnimationDuration = .5f;
+        public bool IsRunningEnableAnimation = false;
+        public bool IsRunningDisableAnimation = false;
 
-        private CancellationTokenSource _source = new CancellationTokenSource();
-        CancellationTokenSource cts = new CancellationTokenSource();
+        CancellationTokenSource cts;
         CancellationToken ct;
         void Start()
         {
+            cts = new CancellationTokenSource();
             ct = cts.Token;
         }
         private void OnEnable()
@@ -53,6 +55,12 @@ namespace com.argentgames.visualnoveltemplate
         public abstract UniTask Disable(float duration, bool destroyOnDisable=false);
         public abstract void OnCompleteEnableAnimation();
         public abstract void OnCompleteDisableAnimation(bool destroyOnDisable=false);
+        public virtual void CompleteAnimation()
+        {
+            AnimationComplete = true;
+            IsRunningDisableAnimation = false;
+            IsRunningEnableAnimation = false;
+        }
 
         public virtual void ToggleState()
         {

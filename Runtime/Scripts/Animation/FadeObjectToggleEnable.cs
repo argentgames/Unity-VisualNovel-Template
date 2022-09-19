@@ -31,11 +31,19 @@ namespace com.argentgames.visualnoveltemplate
             }
             canvasGroup = GetComponentInChildren<CanvasGroup>();
         }
-        
+        public override void CompleteAnimation()
+        {
+            if (IsRunningDisableAnimation)
+            {
+
+            }
+            base.CompleteAnimation();
+        }
         public async override UniTask Disable(float duration=-1,bool destroyOnDisable=false)
         {
             Debug.Log("who is calling me...");
             AnimationComplete = false;
+            IsRunningDisableAnimation = true;
             if (duration == -1)
             {
                 duration = disableAnimationDuration;
@@ -43,14 +51,15 @@ namespace com.argentgames.visualnoveltemplate
             if (canvasGroup != null)
             {
 
-                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup);
+                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup,skipToken:GameManager.Instance.SkipToken);
                 OnCompleteDisableAnimation(destroyOnDisable);
 
             }
 
             else if (image != null)
             {
-                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image);
+                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image,skipToken:GameManager.Instance.SkipToken);
+                CompleteAnimation();
                 OnCompleteDisableAnimation(destroyOnDisable);
             }
             // else if (sprite != null)
@@ -79,6 +88,7 @@ namespace com.argentgames.visualnoveltemplate
             this.gameObject.SetActive(true);
             // Debug.Log(canvasGroup == null);
             AnimationComplete = false;
+            IsRunningEnableAnimation = true;
             if (duration == -1)
             {
                 duration = enableAnimationDuration;
@@ -86,14 +96,15 @@ namespace com.argentgames.visualnoveltemplate
             if (canvasGroup != null)
             {
 
-                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup);
+                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup,skipToken:GameManager.Instance.SkipToken);
+                CompleteAnimation();
                 OnCompleteEnableAnimation();
 
             }
 
             else if (image != null)
             {
-                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image);
+                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image,skipToken:GameManager.Instance.SkipToken);
                 OnCompleteEnableAnimation();
             }
             // else if (sprite != null)
