@@ -571,17 +571,26 @@ namespace com.argentgames.visualnoveltemplate
             
 
             PopulateMap();
-            
-            var page = navMap[navPage];
-            if (page is Toggle)
+
+            // turn everything off so our toggle runs?
+            foreach ( var page in navMap.Values)
+            {
+                if (page is Toggle)
+                {
+                    ((Toggle)page).isOn = false;
+                }
+            }
+
+             var _page = navMap[navPage];
+            if (_page is Toggle)
             {
                 Debug.Log("settting toggle on for navPage " + navPage);
-                ((Toggle)page).isOn = true;
+                ((Toggle)_page).isOn = true;
             }
-            else if (page is Button)
+            else if (_page is Button)
             {
                 Debug.Log("page is button?");
-                ((Button)page).Select(); // I don't think this actually submits the Button?
+                ((Button)_page).Select(); // I don't think this actually submits the Button?
             }
         }
     }

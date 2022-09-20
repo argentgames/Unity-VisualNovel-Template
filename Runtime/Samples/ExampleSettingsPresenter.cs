@@ -48,9 +48,7 @@ namespace com.argentgames.visualnoveltemplate
         public override async UniTask OpenPage(string pageName = "")
         {
             // wait a couple frames for our rx subscriptsiont to set?
-            await UniTask.Yield();
-            await UniTask.Yield();
-            await UniTask.Yield();
+            
 
             // TECHDEBT: Beautiful transitions animations don't run when game is paused <_<
             // GameManager.Instance.PauseGame();
