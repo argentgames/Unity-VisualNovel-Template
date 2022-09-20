@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UniRx;
 using Sirenix.Serialization;
+using Sirenix.OdinInspector;
 using UnityEngine.SceneManagement;
 using NaughtyAttributes;
 public struct SpriteSaveData
@@ -20,7 +21,7 @@ namespace com.argentgames.visualnoveltemplate
 
 
 
-    public class SaveLoadManager : MonoBehaviour
+    public class SaveLoadManager : SerializedMonoBehaviour
     {
         public static SaveLoadManager Instance { get; set; }
 
@@ -28,14 +29,18 @@ namespace com.argentgames.visualnoveltemplate
 
 
         // each saveFile is a json
+        [SerializeField]
         public Dictionary<string, SaveData> saveFiles = new Dictionary<string, SaveData>();
         [SerializeField]
         public string saveFileNamePrefix = "gameSave_";
         public string autoSaveNamePrefix = "autosave";
+        
         [SerializeField]
         string saveDir = "Saves";
         [SerializeField]
         bool jsonFormat = true;
+        [SerializeField]
+        DataFormat format = DataFormat.JSON;
         public string extension = ".json";
 
         public bool DoneLoadingSaves = false;
@@ -120,12 +125,12 @@ namespace com.argentgames.visualnoveltemplate
             Debug.Log("our save path is: " + s);
             return s;
         }
-
+        [Sirenix.OdinInspector.Button]
         public async UniTask LoadSaveFiles()
         {
             try
             {
-                var path = CreateSavePath("Saves");
+                var path = CreateSavePath(saveDir);
                 Debug.Log("Load saves from: " + path);
                 string[] fileArray = Directory.GetFiles(path, "*" + extension);
                 var taskList = new List<UniTask>();
@@ -145,26 +150,45 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             DoneLoadingSaves = true;
+            Debug.LogFormat("done loading save files");
 
         }
-        async UniTask LoadSaveFile(string filePath)
+        /// <summary>
+        /// Helper function so we can load multiple saves simultaneously. Mostly an Android thing
+        /// because loading up images is slow (for screenshot)
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public async UniTask LoadSaveFile(string filePath)
         {
-            Debug.Log("reading save file..." + filePath);
+            try
+            {
+                Debug.Log("reading save file..." + filePath);
 
             // byte[] bytes = File.ReadAllBytes(filePath);
 
-            var save = new SaveData().Load(filePath);// SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
+            var save = new SaveData().Load(filePath,format);// SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
+
+            Debug.LogFormat("our loaded save object has date: {0}",save.dateTime);
 
             await UniTask.Yield();
             await UniTask.Yield();
 
             // var saveData = File.ReadAllText(fileArray[i]);
             // SaveData save = JsonUtility.FromJson<SaveData>(saveData);
+            Debug.LogFormat("we have added this save to savefiles with name: {0}",Path.GetFileName(filePath));
             saveFiles[Path.GetFileName(filePath)] = save;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogErrorFormat("failed to load save from: {0}, {1}",filePath, e);
+            }
+            
         }
         public async UniTaskVoid LoadGame(string filePath)
         {
             Debug.Log("loading game from: " + filePath);
+            filePath = SaveFilePath(filePath);
             this.currentSave = GetSaveData(filePath);
 
             GameManager.Instance.SetSkipping(false);
@@ -187,10 +211,15 @@ namespace com.argentgames.visualnoveltemplate
             }
 
         }
+        /// <summary>
+        /// DELETE
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="save"></param>
         public void SaveGame(string filePath, SaveData save)
         {
             Debug.Log("saving game to: " + filePath);
-            save.Save(filePath);
+            save.Save(filePath,format);
             // byte[] bytes = SerializationUtility.SerializeValue(save, DataFormat.JSON);
             // File.WriteAllBytes(filePath, bytes);
 
@@ -201,10 +230,14 @@ namespace com.argentgames.visualnoveltemplate
 
 
         }
+        /// <summary>
+        /// This is the actually used function.
+        /// </summary>
+        /// <param name="fileName"></param>
         public void SaveGame(string fileName = "autosave")
         {
             Debug.Log("run save game from slm please");
-            string filePath = saveFileNamePrefix + fileName + extension;
+            string filePath = SaveFilePath(fileName);
             string date = System.DateTime.Now.ToString("dddd, MMM dd yyyy, hh:mm", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"));
 
             var save = new SaveData(DialogueSystemManager.Instance.Story.state.ToJson(),
@@ -222,11 +255,22 @@ namespace com.argentgames.visualnoveltemplate
             save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
             save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
+            save.currentDialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
+            save.currentDialogueWindowMode = DialogueSystemManager.Instance.CurrentDialogueWindow;
+
+            save.Save(CreateSavePath(saveDir + "/" + filePath),format);
 
             saveFiles[filePath] = save;
 
-            byte[] bytes = SerializationUtility.SerializeValue(save, DataFormat.JSON);
-            File.WriteAllBytes(CreateSavePath(saveDir + "/" + filePath), bytes);
+        }
+        /// <summary>
+        /// Unsure if this is needed if we modify the save after it's been Saved...
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="save"></param>
+        public void UpdateSaveFile(string fileName,SaveData save)
+        {
+            saveFiles[fileName] = save;
         }
         public void SaveSettings()
         {
@@ -256,6 +300,7 @@ namespace com.argentgames.visualnoveltemplate
 
         }
 
+        
         private Texture2D ConvertToTextureAndLoad(string path)
         {
             //Read
@@ -268,23 +313,45 @@ namespace com.argentgames.visualnoveltemplate
             // _paintImage.sprite = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), Vector2.zero);
         }
 
+        public void SetCurrentSave(string saveName)
+        {
+            try {
+                currentSave = GetSaveData(saveName);
+            
+            }
+            catch
+            {
+                Debug.LogErrorFormat("failed to set currentSave to: {0}",saveName);
+            }
+        }
+
         public SaveData GetSaveData(string saveFileName)
         {
-            string filePath = saveFileNamePrefix + saveFileName + extension;
+            if (SaveExists(saveFileName))
+            {
+                string filePath = SaveFilePath(saveFileName);
             return saveFiles[filePath];
+            }
+            else
+
+            {
+                Debug.LogErrorFormat("save {0} doesn't exist in our loaded saves map!!",saveFileName);
+                return null;
+            }
+            
         }
         public bool SaveExists(string saveFileName)
         {
-            foreach (var k in saveFiles.Keys)
-            {
-                Debug.LogFormat("save file exists: {0}",k);
-            }
-            string filePath = saveFileNamePrefix + saveFileName + extension;
+            string filePath = SaveFilePath(saveFileName);
             if (saveFiles.ContainsKey(filePath))
             {
                 return true;
             }
             return false;
+        }
+        public string SaveFilePath(string saveFileName) 
+        { 
+            return CreateSavePath(saveDir) + "/" + saveFileNamePrefix + saveFileName + extension;
         }
 
 

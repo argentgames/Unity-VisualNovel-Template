@@ -98,7 +98,7 @@ namespace com.argentgames.visualnoveltemplate
 #if PLATFORM_ANDROID
                 await UniTask.Delay (100);
 #endif
-                GameManager.Instance.TakeScreenshot();
+                await GameManager.Instance.TakeScreenshot();
 
 #if PLATFORM_ANDROID
                 await UniTask.Delay (100);

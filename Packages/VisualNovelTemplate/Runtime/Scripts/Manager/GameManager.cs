@@ -171,7 +171,7 @@ namespace com.argentgames.visualnoveltemplate
                 //     File.Delete(actualSavedFP);
                 //     Console.WriteLine("The file exists.");
                 // }
-                ScreenCapture.CaptureScreenshot(sspath);
+                ScreenCapture.CaptureScreenshot(actualSavedFP);
                 await UniTask.WaitUntil(() => File.Exists(actualSavedFP));
                 //Read
 #if PLATFORM_ANDROID

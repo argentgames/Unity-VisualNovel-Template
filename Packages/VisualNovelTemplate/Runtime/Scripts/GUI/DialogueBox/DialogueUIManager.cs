@@ -54,18 +54,18 @@ namespace com.argentgames.visualnoveltemplate
         // NOTE: Unused. Inkscript lets you add tags to the end of lines, so instead of parsing information at the beginning of a line (e.g. speaker name)
         // you could attach stuff to tags.
         private List<string> currentTags = new List<string>();
-        public List<string> CurrentTags { get { return currentTags;} set { currentTags = value;}}
+        public List<string> CurrentTags { get { return currentTags; } set { currentTags = value; } }
 
         private bool isDisplayingLine = false;
-        public bool IsDisplayingLine { get { return isDisplayingLine; } set {isDisplayingLine = value;}}
+        public bool IsDisplayingLine { get { return isDisplayingLine; } set { isDisplayingLine = value; } }
 
         private bool waitingForPlayerToSelectChoice = false;
-        public bool WaitingForPlayerToSelectChoice { get;set;}
+        public bool WaitingForPlayerToSelectChoice { get; set; }
 
         private bool playerHidUI = false;
-        public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value;}}
+        public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value; } }
         private bool playerAllowedToHideUI = false;
-        public bool PlayerAllowedToHideUI { get { return playerAllowedToHideUI; } set { playerAllowedToHideUI = value;}}
+        public bool PlayerAllowedToHideUI { get { return playerAllowedToHideUI; } set { playerAllowedToHideUI = value; } }
 
         #region Click to continue
         public virtual async UniTaskVoid CTCLogic()
@@ -138,7 +138,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public virtual async UniTask HideUI(float duration = .3f)
         {
-           var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
+            var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
                 await animator.Disable(duration);
@@ -150,7 +150,7 @@ namespace com.argentgames.visualnoveltemplate
             }
 
         }
-        
+
         /// <summary>
         /// Make the dialogue box UI visible to the player.
         /// </summary>
@@ -158,7 +158,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public virtual async UniTask ShowUI(float duration = .3f)
         {
-           var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
+            var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
                 if (duration == -1)
@@ -172,7 +172,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogFormat("No animation available for showing UI. showing instantly.");
                 UIHolder.SetActive(true);
             }
-           Debug.Log("done showing dialogue ui");
+            Debug.Log("done showing dialogue ui");
 
         }
         /// <summary>
@@ -215,24 +215,33 @@ namespace com.argentgames.visualnoveltemplate
         {
             DialogueSystemManager.Instance.SetPlayerOpenedQmenu(!DialogueSystemManager.Instance.PlayerOpenedQMenu);
         }
-        public virtual void OpenQMenu(float duration=-1)
+        public virtual void OpenQMenu(float duration = -1)
         {
-            var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
-            if (animator != null)
+            // don't open if it's already open...
+            if (!DialogueSystemManager.Instance.PlayerOpenedQMenu)
             {
-                if (duration == -1)
+                var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
+                if (animator != null)
                 {
-                    duration = animator.enableAnimationDuration;
+                    if (duration == -1)
+                    {
+                        duration = animator.enableAnimationDuration;
+                    }
+                    animator.Enable(duration).Forget();
                 }
-                 animator.Enable(duration).Forget();
+                else
+                {
+                    QMenu.SetActive(true);
+                }
             }
             else
             {
-                QMenu.SetActive(true);
+                CloseQmenu(duration);
             }
-            
+
+
         }
-        public virtual void CloseQmenu(float duration=-1)
+        public virtual void CloseQmenu(float duration = -1)
         {
             var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
@@ -272,7 +281,7 @@ namespace com.argentgames.visualnoveltemplate
         #endregion
 
 
-        
+
         /// <summary>
         /// How we display a line of ink text.
         /// </summary>
@@ -301,10 +310,10 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public abstract UniTaskVoid SelectChoice();
 
-        public virtual void ClearUI() {}
-        public virtual void KillTypewriter() {}
-        public virtual void PauseTypewriter() {}
-        public virtual void ContinueTypewriter() {}
+        public virtual void ClearUI() { }
+        public virtual void KillTypewriter() { }
+        public virtual void PauseTypewriter() { }
+        public virtual void ContinueTypewriter() { }
 
         /// <summary>
         /// Every UI Manager needs to set up its continue story logic, which is usually tied to buttons
