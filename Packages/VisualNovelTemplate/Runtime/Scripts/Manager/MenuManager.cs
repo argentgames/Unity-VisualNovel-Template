@@ -126,6 +126,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
             var menuPresenter = currentMenu.GetComponent<MenuPresenter>();
+
             menuPresenter.OpenPage(pageName);
         }
 
