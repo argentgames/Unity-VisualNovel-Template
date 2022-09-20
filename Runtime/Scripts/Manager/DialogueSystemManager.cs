@@ -30,6 +30,8 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         private DialogueUIManager dialogueUIManager;
         public DialogueUIManager DialogueUIManager { get { return dialogueUIManager; } }
+        private string currentDialogueWindow = "";
+        public string CurrentDialogueWindow => currentDialogueWindow;
 
         [SerializeField]
         [PropertyTooltip("The different types of dialogue textbox UIs we want to use, such as ADV and NVL.")]
@@ -596,6 +598,7 @@ namespace com.argentgames.visualnoveltemplate
                     win.GetComponentInChildren<DialogueUIManager>().RemoveVNControlSubscriptions();
                 }
                 var window = dialogueWindows[internalName];
+                currentDialogueWindow = internalName;
                 dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 dialogueUIManager.AddVNControlSubscriptions();
             }
@@ -635,6 +638,15 @@ namespace com.argentgames.visualnoveltemplate
             dialogueUIManager.PlayerAllowedToHideUI = false;
             await dialogueUIManager.HideUI();
         }
+        public async UniTask HideAllDialogueWindows()
+        {
+            List<UniTask> windowHiding = new List<UniTask>();
+            foreach (var window in dialogueWindows.Values)
+            {
+                windowHiding.Add(window.transform.GetComponentInChildren<DialogueUIManager>().HideUI(0));
+            }
+            await UniTask.WhenAll(windowHiding);
+        }
         public async UniTask ShowNVLWindow(string internalName)
         {
             try
@@ -643,6 +655,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     var window = dialogueWindows[internalName];
                     dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                    currentDialogueWindow = internalName;
                 }
                 float duration = -1f;
                     if (GameManager.Instance.IsSkipping)
