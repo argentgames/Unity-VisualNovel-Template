@@ -28,6 +28,7 @@ namespace com.argentgames.visualnoveltemplate
         float mainMenuAudioFadeInDuration = .5f;
         [SerializeField]
         string mainMenuSettingsName = "mmSettings";
+
         void Awake()
         {
             gameObject.SetActive(true);

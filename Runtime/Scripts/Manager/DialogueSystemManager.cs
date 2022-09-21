@@ -88,6 +88,11 @@ namespace com.argentgames.visualnoveltemplate
         CancellationToken ct;
         System.Diagnostics.Stopwatch stopwatch;
         Hash128 hash128 = new Hash128();
+        public void RestartGame()
+        {
+            story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
+            SetEndGame(false);
+        }
         async UniTaskVoid Awake()
         {
             if (Instance != null && Instance != this)
@@ -281,6 +286,7 @@ namespace com.argentgames.visualnoveltemplate
         public bool IsProcessingLine = true;
         public bool IsRunningActionFunction = false;
         public bool IsContinueStoryRunning = false;
+        bool firstTimeSeeingChoices = false;
         public async UniTaskVoid ContinueStory()
         {
 
@@ -289,10 +295,15 @@ namespace com.argentgames.visualnoveltemplate
 
             stopwatch = new System.Diagnostics.Stopwatch();
 
+            IsProcessingLine = false;
+
             while (true && !EndGame)
             {
 
-
+                if (IsProcessingLine)
+                {
+                    continue;
+                }
 
 
                 // Debug.Log("loop stuck before first delay?");
@@ -310,16 +321,21 @@ namespace com.argentgames.visualnoveltemplate
                 // if (story.canContinue)
                 // {
 
-                if (story.currentChoices.Count > 0)
-                {
-                    while (story.canContinue)
-                    {
-                        Debug.Log("collection choices");
-                        story.Continue();
-                    }
-                }
-
-                Debug.LogFormat("Do we need to display choices?: {0}", NeedToDisplayChoices());
+                // if (story.currentChoices.Count > 0)
+                // {
+                //     while (story.canContinue)
+                //     {
+                //         Debug.Log("collection choices");
+                //         story.Continue();
+                //     }
+                // }
+                var needToDisplayChoices = NeedToDisplayChoices();
+                Debug.LogFormat("Do we need to display choices?: {0}", needToDisplayChoices);
+                // if (needToDisplayChoices)
+                // {
+                //     firstTimeSeeingChoices = !firstTimeSeeingChoices;
+                // }
+                
 
                 // }
                 // Debug.Break();
@@ -332,8 +348,12 @@ namespace com.argentgames.visualnoveltemplate
                     IsRunningActionFunction = false;
                     // Debug.Log("time to run action function: " + stopwatch.ElapsedMilliseconds.ToString());
                 }
-                else if (NeedToDisplayChoices())
+                else if (needToDisplayChoices)
                 {
+                    // if (firstTimeSeeingChoices)
+                    // {
+                    //     continue;
+                    // }
                     dialogueUIManager.EnableCTC();
                     // Debug.Log("actually displaying choices now");
                     stopwatch.Restart();
@@ -354,6 +374,7 @@ namespace com.argentgames.visualnoveltemplate
                     stopwatch.Restart();
                     dialogueUIManager.EnableCTC();
                     await RunRegularLine();
+                    Debug.Log("done running regular line");
                     // Debug.Log("time to run regular line: " + stopwatch.ElapsedMilliseconds.ToString());
 
 
