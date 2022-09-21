@@ -67,6 +67,10 @@ namespace com.argentgames.visualnoveltemplate
         private bool playerAllowedToHideUI = false;
         public bool PlayerAllowedToHideUI { get { return playerAllowedToHideUI; } set { playerAllowedToHideUI = value; } }
 
+        Coroutine ctcDelay;
+        public float delayBeforeAllowCTCLogic = .1f;
+        bool isRunningCTCDelay = false;
+
         #region Click to continue
         public virtual async UniTaskVoid CTCLogic()
         {
@@ -76,18 +80,23 @@ namespace com.argentgames.visualnoveltemplate
 
             GameManager.Instance.SetAuto(false);
 
+            // prevent spam clicking too fast <_<
+            if (isRunningCTCDelay)
+            {
+                Debug.Log("please stop spam clicking"); 
+                return;
+            }
+
             if (DialogueSystemManager.Instance.IsRunningActionFunction)
             {
                 Debug.Log("running action function, do nothing except turn off skipping");
                 ImageManager.Instance.ThrowSkipToken();
                 GameManager.Instance.ThrowSkipToken();
                 DialogueSystemManager.Instance.RunCancellationToken();
-                return;
             }
             else if (WaitingForPlayerToSelectChoice)
             {
                 Debug.Log("do nothing, waiting for player to select choice");
-                return;
             }
             else
             {
@@ -100,6 +109,17 @@ namespace com.argentgames.visualnoveltemplate
                 }
 
             }
+
+            isRunningCTCDelay = true;
+            ctcDelay = StartCoroutine(RunCTCDelay());
+            
+        }
+        IEnumerator RunCTCDelay()
+        {
+            Debug.Log("is runnin gtct delay");
+            yield return new WaitForSeconds(delayBeforeAllowCTCLogic);
+            isRunningCTCDelay = false;
+            Debug.Log("done running tc delay");
         }
         /// <summary>
         /// Do not allow the player to interact with the CTC, even if it is currently visible.
