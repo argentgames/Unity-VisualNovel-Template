@@ -38,6 +38,11 @@ namespace com.argentgames.visualnoveltemplate
         [InfoBox("TODO: NOT SUPPORTED RIGHT NOW. Some games like to show the current speaking character on screen as a Midground sprite + in the bottom corner as a portrait sprite. We don't use this design paradigm. However, we might consider supporting it with this flag later...")]
         public bool showOnscreenCharacterAsPortrait = false;
         public bool autosave = true;
+        /// <summary>
+        /// The starting scene of your game. Used to reset the game when starting a new run (often when you hit START or NEW GAME)
+        /// </summary>
+        [Tooltip("The starting scene of your game. Used to reset the game when starting a new run (often when you hit START or NEW GAME)")]
+        public string startSceneName = "start";
 
         // music stuff
         public float musicFadeInDuration = 0f;
