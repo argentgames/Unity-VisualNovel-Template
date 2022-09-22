@@ -25,9 +25,13 @@ namespace com.argentgames.visualnoveltemplate
         {
             sprite = GetComponentInChildren<SpriteRenderer>();
             image = GetComponentInChildren<Image>();
-            if (image.color.a != 1 && image.color.a != 0)
+            Debug.Log("current alpha a value: " + image.color.a.ToString());
+            if (image != null)
             {
-                endAlpha = image.color.a;
+                if (image.color.a != 1 && image.color.a != 0)
+                {
+                    endAlpha = image.color.a;
+                }
             }
             canvasGroup = GetComponentInChildren<CanvasGroup>();
         }
@@ -39,9 +43,17 @@ namespace com.argentgames.visualnoveltemplate
             }
             base.CompleteAnimation();
         }
-        public async override UniTask Disable(float duration=-1,bool destroyOnDisable=false)
+        public async override UniTask Disable(float duration = -1, bool destroyOnDisable = false)
         {
             Debug.Log("who is calling me...");
+            if (image != null)
+            {
+                if (image.color.a != 1 && image.color.a != 0)
+                {
+                    endAlpha = image.color.a;
+                }
+            }
+
             AnimationComplete = false;
             IsRunningDisableAnimation = true;
             if (duration == -1)
@@ -51,14 +63,14 @@ namespace com.argentgames.visualnoveltemplate
             if (canvasGroup != null)
             {
 
-                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup,skipToken:GameManager.Instance.SkipToken);
+                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
                 OnCompleteDisableAnimation(destroyOnDisable);
 
             }
 
             else if (image != null)
             {
-                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image,skipToken:GameManager.Instance.SkipToken);
+                await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
                 CompleteAnimation();
                 OnCompleteDisableAnimation(destroyOnDisable);
             }
@@ -82,13 +94,21 @@ namespace com.argentgames.visualnoveltemplate
 
             // await UniTask.WaitUntil(() => AnimationComplete);
         }
-        public async override UniTask Enable(float duration=-1)
+        public async override UniTask Enable(float duration = -1)
         {
             Debug.Log("running fade object toggle enable now");
             this.gameObject.SetActive(true);
             // Debug.Log(canvasGroup == null);
             AnimationComplete = false;
             IsRunningEnableAnimation = true;
+            Debug.Log("current alpha a value: " + image.color.a.ToString());
+            if (image != null)
+            {
+                if (image.color.a != 1 && image.color.a != 0)
+                {
+                    endAlpha = image.color.a;
+                }
+            }
             if (duration == -1)
             {
                 duration = enableAnimationDuration;
@@ -96,7 +116,7 @@ namespace com.argentgames.visualnoveltemplate
             if (canvasGroup != null)
             {
 
-                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup,skipToken:GameManager.Instance.SkipToken);
+                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
                 CompleteAnimation();
                 OnCompleteEnableAnimation();
 
@@ -104,7 +124,7 @@ namespace com.argentgames.visualnoveltemplate
 
             else if (image != null)
             {
-                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image,skipToken:GameManager.Instance.SkipToken);
+                await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
                 OnCompleteEnableAnimation();
             }
             // else if (sprite != null)
@@ -129,7 +149,7 @@ namespace com.argentgames.visualnoveltemplate
         }
 
 
-        public override void OnCompleteDisableAnimation(bool destroyOnDisable=false)
+        public override void OnCompleteDisableAnimation(bool destroyOnDisable = false)
         {
             AnimationComplete = true;
             this.gameObject.SetActive(false);
