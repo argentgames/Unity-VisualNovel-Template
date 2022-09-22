@@ -139,12 +139,12 @@ namespace com.argentgames.visualnoveltemplate
             var stuff = Resources.LoadAll<Shot>(shotsPath);
             foreach (var shot in stuff)
             {
-                Debug.Log(shot);
+                // Debug.Log(shot);
                 cameraShots[shot.bgName] = shot;
             }
             foreach (var shot in shots)
             {
-                Debug.Log(shot);
+                // Debug.Log(shot);
                 cameraShots[shot.bgName] = shot;
             }
             animationTasks.Clear();
