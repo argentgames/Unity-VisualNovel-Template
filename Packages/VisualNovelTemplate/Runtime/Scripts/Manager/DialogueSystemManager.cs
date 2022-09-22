@@ -126,7 +126,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 }
-                
+
                 try
                 {
                     window.GetComponentInChildren<Canvas>().sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
@@ -200,7 +200,7 @@ namespace com.argentgames.visualnoveltemplate
 
 
                 Debug.Log("done fading in with 0");
-                ContinueStory().Forget();
+                RunContinueStory().Forget();
                 await SceneTransitionManager.Instance.FadeIn(0f);
             }
         }
@@ -281,7 +281,7 @@ namespace com.argentgames.visualnoveltemplate
         public void RunStoryNode(string node)
         {
             story.ChoosePathString(node);
-            ContinueStory().Forget();
+            RunContinueStory().Forget();
         }
         public bool IsProcessingLine = true;
         public bool IsRunningActionFunction = false;
@@ -335,7 +335,7 @@ namespace com.argentgames.visualnoveltemplate
                 // {
                 //     firstTimeSeeingChoices = !firstTimeSeeingChoices;
                 // }
-                
+
 
                 // }
                 // Debug.Break();
@@ -361,6 +361,7 @@ namespace com.argentgames.visualnoveltemplate
                     // why does the line before choices section get combined into 
                     // current choices collection?
                     // await DisplayLine();
+                    Debug.Log("is this display choices running? line 364");
                     await DisplayChoices();
                     // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
 
@@ -397,11 +398,11 @@ namespace com.argentgames.visualnoveltemplate
                 cts = new CancellationTokenSource();
                 ct = cts.Token;
             }
-            if (VideoPlayerManager.Instance.IsVideoPlaying)
-            {
-                Debug.Log("not conitnuing ink story yet; video is playing!");
-                return;
-            }
+            // if (VideoPlayerManager.Instance.IsVideoPlaying)
+            // {
+            //     Debug.Log("not conitnuing ink story yet; video is playing!");
+            //     return;
+            // }
             if (EndGame)
             {
                 Debug.Log("time to end the game");
@@ -420,9 +421,9 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     Debug.LogError("why can't i continue story? try to display choices?");
 
-                    if (NeedToDisplayChoices())
+                    if (NeedToDisplayChoices() && !dialogueUIManager.WaitingForPlayerToSelectChoice)
                     {
-                        Debug.Log("displaying some weird choice stuff");
+                        // Debug.Log("displaying some weird choice stuff");
                         dialogueUIManager.EnableCTC();
                         Debug.Log("actually displaying choices now");
                         stopwatch.Restart();
@@ -431,11 +432,16 @@ namespace com.argentgames.visualnoveltemplate
                         // current choices collection?
                         // await DisplayLine();
                         await DisplayChoices();
-                        Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
+                        // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
 
                         // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
                         // errors when spam clicking
                         // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
+                    }
+                    else
+                    {
+                        Debug.Log("display line that got lumped together wit hchoices collection?");
+                        await DisplayLine();
                     }
 
                 }
@@ -449,6 +455,42 @@ namespace com.argentgames.visualnoveltemplate
 
         }
 
+        public async UniTaskVoid RunContinueStory()
+        {
+            // infinite loop to run process the story
+            while (true)
+            {
+                if (story.canContinue)
+                {
+                    story.Continue();
+                    Debug.Log("run story.Continue()");
+                }
+                // if we need to end the game, finally quit this function
+                if (EndGame)
+                {
+                    Debug.Log("time to end the game");
+                    IsContinueStoryRunning = false;
+                    return;
+                }
+
+                // is it an action function and thus we want to automatically evaluate it without any user input?
+                if (NeedToRunActionFunction())
+                {
+                    Debug.Log("actually running an action function now");
+                    IsRunningActionFunction = true;
+                    await RunActionFunction();
+                    IsRunningActionFunction = false;
+                }
+                // otherwise it's going to be a regular line that may or may not include choices
+                else
+                {
+                    Debug.Log("actually runnnig a regular line now");
+                    await RunRegularLine();
+                    Debug.Log("done running regular line");
+                }
+            }
+
+        }
         public void ClearCurrentChoices()
         {
             story.currentChoices.Clear();
@@ -512,23 +554,23 @@ namespace com.argentgames.visualnoveltemplate
             // TODO: Turn this into an await for animation to show UI
             if (!dialogueUIManager.IsShowingUI)
             {
-                Debug.Log("are we stuck waiting to show ui?");
+                // Debug.Log("are we stuck waiting to show ui?");
 
                 dialogueUIManager.PlayerAllowedToHideUI = true;
                 await dialogueUIManager.ShowUI();
-                Debug.Log("done showing ui");
+                // Debug.Log("done showing ui");
             }
 
-            Debug.Log("please display line now");
+            // Debug.Log("please display line now");
             await dialogueUIManager.DisplayLine(ct);
-            Debug.Log("done displaing line");
+            // Debug.Log("done displaing line");
             if (!CurrentTextSeenBefore())
             {
                 GameManager.Instance.PersistentGameData.seenText.Add(CreateHash(story.currentText + "_" + story.state.currentPathString));
             }
-            Debug.Log("now wait until dialogue is not displaying line still");
-            await UniTask.WaitUntil(() => !dialogueUIManager.IsDisplayingLine, cancellationToken: this.ct);
-            Debug.Log("finelly we are done with display line function");
+            // Debug.Log("now wait until dialogue is not displaying line still");
+            await UniTask.WaitUntil(() => !dialogueUIManager.WaitingForPlayerContinueStory, cancellationToken: this.ct);
+            // Debug.Log("finelly we are done with display line function");
 
         }
         public bool waitingToContinueStory = false;
@@ -536,19 +578,24 @@ namespace com.argentgames.visualnoveltemplate
         {
             waitingToContinueStory = true;
             CurrentProcessedDialogue = ProcessDialogue(story.currentText);
-            await DisplayLine();
+            await DisplayLine(); // ctc will end this by setting isdisplayling line to false
             await UniTask.Yield();
+
+            if (story.currentChoices.Count > 0)
+            {
+                await DisplayChoices();
+            }
 
             if (GameManager.Instance.IsAuto)
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
                  (1 - GameManager.Instance.Settings.AutoSpeed.Value + .04)), cancellationToken: this.ct);
-                InkContinueStory();
+                // InkContinueStory();
             }
             else if (GameManager.Instance.IsSkipping)
             {
 
-                InkContinueStory();
+                // InkContinueStory();
             }
             else
             {
@@ -568,7 +615,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogFormat("available ct: {0}", ct.CanBeCanceled);
                 await customActionFunctions.ActionFunction(story.currentText, this.ct);
             }
-            InkContinueStory();
+            // InkContinueStory();
         }
 
         /// <summary>
@@ -679,10 +726,10 @@ namespace com.argentgames.visualnoveltemplate
                     currentDialogueWindow = internalName;
                 }
                 float duration = -1f;
-                    if (GameManager.Instance.IsSkipping)
-                    {
-                        duration = 0;
-                    }
+                if (GameManager.Instance.IsSkipping)
+                {
+                    duration = 0;
+                }
                 await dialogueUIManager.ShowNVL(duration);
                 dialogueUIManager.PlayerAllowedToHideUI = true;
             }

@@ -60,7 +60,9 @@ namespace com.argentgames.visualnoveltemplate
         public bool IsDisplayingLine { get { return isDisplayingLine; } set { isDisplayingLine = value; } }
 
         private bool waitingForPlayerToSelectChoice = false;
-        public bool WaitingForPlayerToSelectChoice { get; set; }
+        public bool WaitingForPlayerToSelectChoice { get { return waitingForPlayerToSelectChoice;} set { waitingForPlayerToSelectChoice = value;} }
+        private bool waitingForPlayerContinueStory = false;
+        public bool WaitingForPlayerContinueStory  { get {return waitingForPlayerContinueStory;} set {waitingForPlayerContinueStory = value;} }
 
         private bool playerHidUI = false;
         public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value; } }
@@ -102,10 +104,13 @@ namespace com.argentgames.visualnoveltemplate
             {
                 if (!wasSkipping)
                 {
-                    DialogueSystemManager.Instance.InkContinueStory().Forget();
+                    // DialogueSystemManager.Instance.InkContinueStory().Forget();
                     // HideCTC();
                     // DisableCTC();
                     ClearText();
+                    waitingForPlayerContinueStory = false;
+                    DialogueSystemManager.Instance.waitingToContinueStory = false;
+                    Debug.Log("not was skipping, please continue the story as normal");
                 }
 
             }
@@ -113,6 +118,27 @@ namespace com.argentgames.visualnoveltemplate
             isRunningCTCDelay = true;
             ctcDelay = StartCoroutine(RunCTCDelay());
             
+        }
+        public virtual void TurnOnSkipOrAuto()
+        {
+            if (DialogueSystemManager.Instance.IsRunningActionFunction)
+            {
+                Debug.Log("running action function, do nothing except turn off skipping");
+                ImageManager.Instance.ThrowSkipToken();
+                GameManager.Instance.ThrowSkipToken();
+                DialogueSystemManager.Instance.RunCancellationToken();
+            }
+
+            // might need an else? not sure
+            else
+
+            {
+                ClearText();
+                    waitingForPlayerContinueStory = false;
+                    DialogueSystemManager.Instance.waitingToContinueStory = false;
+            }
+
+             
         }
         IEnumerator RunCTCDelay()
         {
