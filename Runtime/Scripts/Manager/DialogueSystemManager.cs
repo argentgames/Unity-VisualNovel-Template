@@ -280,6 +280,7 @@ namespace com.argentgames.visualnoveltemplate
         [Button]
         public void RunStoryNode(string node)
         {
+            endGame = false;
             story.ChoosePathString(node);
             RunContinueStory().Forget();
         }
@@ -480,6 +481,7 @@ namespace com.argentgames.visualnoveltemplate
                     IsRunningActionFunction = true;
                     await RunActionFunction();
                     IsRunningActionFunction = false;
+                    Debug.Log("done running action function");
                 }
                 // otherwise it's going to be a regular line that may or may not include choices
                 else
@@ -652,6 +654,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             playerCanContinue = value;
         }
+        [Button]
         public void SetEndGame(bool value)
         {
             endGame = value;
