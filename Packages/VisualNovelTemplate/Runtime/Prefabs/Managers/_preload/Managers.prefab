@@ -321,6 +321,10 @@ PrefabInstance:
       propertyPath: animateObjectsToggleEnable
       value: 
       objectReference: {fileID: 4816367779447681461}
+    - target: {fileID: 891855519572244636, guid: cca4ea443f00f5142afb996da4d9f9d2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6837892667457869989, guid: cca4ea443f00f5142afb996da4d9f9d2, type: 3}
       propertyPath: m_RootOrder
       value: 5
