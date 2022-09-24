@@ -25,6 +25,6 @@ namespace com.argentgames.visualnoveltemplate {
         public virtual void CloseMenu()
         {
             menuContainer.SetActive(false);
-        }
+                    }
     }
 }
