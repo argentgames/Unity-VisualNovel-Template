@@ -20,5 +20,9 @@ SpriteRenderer image;
             image.SetPropertyBlock(_propBlock);
             }
         }
+        public void SetMultiply(bool val)
+        {
+            multiply = val;
+        }
     }
 }
