@@ -15,15 +15,15 @@ namespace com.argentgames.visualnoveltemplate
     public class Navigation : MonoBehaviour
     {
         [SerializeField]
-        TMP_Text heading;
+        public TMP_Text heading;
         [SerializeField]
-        Selectable settings, history, saveLoad, save, load;
+        public Selectable settings, history, saveLoad, save, load;
         [SerializeField]
-        Selectable cgGallery, musicGallery, credits, about, mainMenu, closeMenu;
+        public Selectable cgGallery, musicGallery, credits, about, mainMenu, closeMenu;
         [SerializeField]
-        MenuPresenter menuPresenter;
+        public MenuPresenter menuPresenter;
         [SerializeField]
-        ToggleGroupExtension toggleGroupExtension;
+        public ToggleGroupExtension toggleGroupExtension;
 
         Dictionary<string, Selectable> navMap = new Dictionary<string, Selectable>();
 

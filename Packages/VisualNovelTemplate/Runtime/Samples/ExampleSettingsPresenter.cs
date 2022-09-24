@@ -75,6 +75,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
+                Debug.Log("nav is null! just using fallback");
                 // fallback to just manually turn on the specific page if no Navigation is present
                 var newPage = pagesMap[pageName];
                 newPage.SetActive(true);
