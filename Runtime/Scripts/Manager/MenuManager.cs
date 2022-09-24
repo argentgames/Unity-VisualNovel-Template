@@ -66,8 +66,9 @@ namespace com.argentgames.visualnoveltemplate
         {
             PlayerControlsManager.Instance.EnableSettingsControls();
         }
-        public void DisableSettingsUIControls()
+        public async UniTaskVoid DisableSettingsUIControls()
         {
+            await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
             PlayerControlsManager.Instance.DisableSettingsControls();
         }
 
@@ -109,7 +110,7 @@ namespace com.argentgames.visualnoveltemplate
             // otherwise find the open menu and bring it forward and make it the focused menu
             if (currentMenu == null)
             {
-                if (openMenus.Count == 0)
+                if (openMenus.Count == 0 || !openMenus.ContainsKey(menuName))
                 {
                     // NO ADDRESSABLES SUPPORTED RIGHT NOW
                     // TODO
