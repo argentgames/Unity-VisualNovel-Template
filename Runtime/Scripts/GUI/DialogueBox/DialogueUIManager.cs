@@ -119,7 +119,7 @@ namespace com.argentgames.visualnoveltemplate
             ctcDelay = StartCoroutine(RunCTCDelay());
             
         }
-        public virtual void TurnOnSkipOrAuto()
+        public virtual async UniTaskVoid CTCLogicForAutoOrSkip()
         {
             if (DialogueSystemManager.Instance.IsRunningActionFunction)
             {
@@ -127,6 +127,28 @@ namespace com.argentgames.visualnoveltemplate
                 ImageManager.Instance.ThrowSkipToken();
                 GameManager.Instance.ThrowSkipToken();
                 DialogueSystemManager.Instance.RunCancellationToken();
+            }
+            else if (WaitingForPlayerToSelectChoice)
+            {
+                Debug.Log("do nothing, waiting for player to select choice");
+            }
+            else
+            {
+                    ClearText();
+                    waitingForPlayerContinueStory = false;
+                    DialogueSystemManager.Instance.waitingToContinueStory = false;
+                
+
+            }
+        }
+        public virtual void TurnOnSkipOrAuto()
+        {
+            if (DialogueSystemManager.Instance.IsRunningActionFunction)
+            {
+                Debug.Log("running action function, do nothing except turn off skipping");
+                ImageManager.Instance.ThrowSkipToken();
+                GameManager.Instance.ThrowSkipToken();
+                // DialogueSystemManager.Instance.RunCancellationToken();
             }
 
             // might need an else? not sure
