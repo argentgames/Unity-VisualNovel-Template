@@ -4855,8 +4855,8 @@ Camera:
   m_GameObject: {fileID: 254710539793533724}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -4973,8 +4973,8 @@ Camera:
   m_GameObject: {fileID: 446896048226182727}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -5124,8 +5124,8 @@ Camera:
   m_GameObject: {fileID: 1061645656384114084}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -5538,9 +5538,9 @@ MonoBehaviour:
   BackgroundProjectedImage: {fileID: 7808720176427975013}
   portraitPresenter: {fileID: 0}
   shots: []
+  shotsPath: Shots
   particleSystemHolder: {fileID: 1537130364359913664}
   NeedToCompleteTweensEarly: 0
-  midgroundCharactersRT: {fileID: 8400000, guid: 6511c971f8fe0ed47b38efaab2904f60, type: 2}
 --- !u!1 &1537130364359913664
 GameObject:
   m_ObjectHideFlags: 0
@@ -5616,8 +5616,8 @@ Camera:
   m_GameObject: {fileID: 1744747001060752929}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
