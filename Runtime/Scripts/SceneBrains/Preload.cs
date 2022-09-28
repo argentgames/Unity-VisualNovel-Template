@@ -12,8 +12,9 @@ namespace com.argentgames.visualnoveltemplate
         [Scene]
         public string sceneToLoad = "MainMenu";
         // Start is called before the first frame update
-        void Awake()
+        async UniTaskVoid Awake()
         {
+            await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
             SceneTransitionManager.Instance.FadeToBlack(0);
         }
         async UniTaskVoid Start()

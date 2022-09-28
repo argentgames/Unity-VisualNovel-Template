@@ -237,7 +237,7 @@ namespace com.argentgames.visualnoveltemplate
             var log = new DialogueHistoryLine();
             log.speaker = "";
             log.line = choice;
-            GameManager.Instance.PersistentGameData.chosenChoices.Add(log.line);
+            
             currentSessionDialogueHistory.Add(log);
 
         }
@@ -252,7 +252,6 @@ namespace com.argentgames.visualnoveltemplate
             // remove any inline << >> commands
             string pattern = @"<<.+?>>(?=\s?[a-zA-Z]?)";
             log.line = Regex.Replace(log.line, pattern, "");
-            GameManager.Instance.PersistentGameData.seenText.Add(log.line);
             currentSessionDialogueHistory.Add(log);
         }
 
@@ -474,6 +473,19 @@ namespace com.argentgames.visualnoveltemplate
                     return;
                 }
 
+                // turn off skipping if setting is to only skip seen text
+                if (!GameManager.Instance.Settings.skipAllText)
+                {
+                    if (CurrentTextSeenBefore())
+                    {
+                        if (GameManager.Instance.IsSkipping)
+                        {
+                          GameManager.Instance.SetSkipping(false);  
+                        }
+                        
+                    }
+                }
+
                 // is it an action function and thus we want to automatically evaluate it without any user input?
                 if (NeedToRunActionFunction())
                 {
@@ -490,6 +502,9 @@ namespace com.argentgames.visualnoveltemplate
                     await RunRegularLine();
                     Debug.Log("done running regular line");
                 }
+
+                // finally add the line to our persistent seen text so we know when to stop skipping
+               AddCurrentStoryTextToPersistentHistory();
             }
 
         }
@@ -514,6 +529,11 @@ namespace com.argentgames.visualnoveltemplate
         {
             var line = choice + "_" + pathString;
             GameManager.Instance.PersistentGameData.chosenChoices.Add(line);
+        }
+        public void AddCurrentStoryTextToPersistentHistory()
+        {
+            var line = CreateHash(story.currentText + "_" + story.state.currentPathString);
+            GameManager.Instance.PersistentGameData.seenText.Add(line);
         }
         public bool PreviouslySelectedChoice(string choice, string pathString)
         {
@@ -566,10 +586,6 @@ namespace com.argentgames.visualnoveltemplate
             // Debug.Log("please display line now");
             await dialogueUIManager.DisplayLine(ct);
             // Debug.Log("done displaing line");
-            if (!CurrentTextSeenBefore())
-            {
-                GameManager.Instance.PersistentGameData.seenText.Add(CreateHash(story.currentText + "_" + story.state.currentPathString));
-            }
             // Debug.Log("now wait until dialogue is not displaying line still");
             await UniTask.WaitUntil(() => !dialogueUIManager.WaitingForPlayerContinueStory, cancellationToken: this.ct);
             // Debug.Log("finelly we are done with display line function");
@@ -659,6 +675,11 @@ namespace com.argentgames.visualnoveltemplate
         {
             endGame = value;
         }
+        /// <summary>
+        /// Set the current active dialogue window. Can only haev one at a time.
+        /// If you set it to null, we want to clear out all VNControlSubscriptions and hide everything
+        /// </summary>
+        /// <param name="internalName"></param>
         public void SetDialogueWindow(string internalName)
         {
             try
@@ -668,10 +689,22 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     win.GetComponentInChildren<DialogueUIManager>().RemoveVNControlSubscriptions();
                 }
-                var window = dialogueWindows[internalName];
+                if (internalName == "")
+                {
+                    foreach (var win in dialogueWindows.Values)
+                    {
+                        win.GetComponentInChildren<DialogueUIManager>().HideUI(0);
+                    }
+                    currentDialogueWindow = null;
+                }
+                else
+                {
+                    var window = dialogueWindows[internalName];
                 currentDialogueWindow = internalName;
                 dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                 dialogueUIManager.AddVNControlSubscriptions();
+                }
+                
             }
             catch
             {
