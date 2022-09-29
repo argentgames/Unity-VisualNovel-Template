@@ -256,6 +256,15 @@ namespace com.argentgames.visualnoveltemplate
         {
 
         }
+        /// <summary>
+        /// Reset the UI to its default state. For example, if we spawned some channels in a chat messenger and we want to restart the game,
+        /// then we will want to destroy all those channels.
+        /// </summary>
+        /// <returns></returns>
+        public virtual async UniTask ResetUI()
+        {
+
+        }
 
         /// <summary>
         /// If UI is showing, then hide it, otherwise show it without.

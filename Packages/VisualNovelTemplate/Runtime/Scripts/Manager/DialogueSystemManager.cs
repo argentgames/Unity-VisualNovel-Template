@@ -92,6 +92,10 @@ namespace com.argentgames.visualnoveltemplate
         {
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
+            foreach (var win in dialogueWindows.Values)
+            {
+                win.GetComponentInChildren<DialogueUIManager>().ResetUI();
+            }
         }
         async UniTaskVoid Awake()
         {
@@ -282,6 +286,11 @@ namespace com.argentgames.visualnoveltemplate
             endGame = false;
             story.ChoosePathString(node);
             RunContinueStory().Forget();
+        }
+        [Button]
+        public void JumpToStoryNode(string node)
+        {
+            story.ChoosePathString(node);
         }
         public bool IsProcessingLine = true;
         public bool IsRunningActionFunction = false;
