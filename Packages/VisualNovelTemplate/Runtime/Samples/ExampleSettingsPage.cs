@@ -42,6 +42,43 @@ namespace com.argentgames.visualnoveltemplate
 
 
         }
+        void OnEnable()
+        {
+            if (masterVolume != null)
+            {
+                
+                masterVolume.value = GameManager.Instance.Settings.MasterVolume.Value;
+            }
+            if (ambientVolume != null)
+            {
+                ambientVolume.value = GameManager.Instance.Settings.AmbientVolume.Value;
+            }
+            if (musicVolume != null)
+            {
+                Debug.Log("current music volume: " + GameManager.Instance.Settings.MusicVolume.Value.ToString());
+                musicVolume.value = GameManager.Instance.Settings.MusicVolume.Value;
+            }
+            if (sfxVolume != null)
+            {
+                sfxVolume.value = GameManager.Instance.Settings.SFXVolume.Value;
+            }
+            if (textSpeed != null)
+            {
+                textSpeed.value = GameManager.Instance.Settings.TextSpeed.Value;
+            }
+            if (autoSpeed != null)
+            {
+                autoSpeed.value = GameManager.Instance.Settings.AutoSpeed.Value;
+            }
+            if (skipAllText != null)
+            {
+                skipAllText.isOn = GameManager.Instance.Settings.skipAllText;
+            }
+            if (fullscreen != null)
+            {
+                fullscreen.isOn = Screen.fullScreen;
+            }
+        }
         private void Start()
         {
             // set init values in Start so any toggle extensions can register first

@@ -118,5 +118,6 @@ namespace com.argentgames.visualnoveltemplate
 
 
         }
+
     }
 }
