@@ -13,12 +13,12 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         [Tooltip("If left empty, automatically populates with all immediate children.")]
         HashSet<GameObject> toggleGroupObjects = new HashSet<GameObject>();
-        
+
         void Awake()
         {
             if (toggleGroupObjects.Count == 0)
             {
-                for (int idx=0; idx < gameObject.transform.childCount; idx++)
+                for (int idx = 0; idx < gameObject.transform.childCount; idx++)
                 {
                     toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
                 }
@@ -26,10 +26,10 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void UpdateToggleObjectsList()
         {
-for (int idx=0; idx < gameObject.transform.childCount; idx++)
-                {
-                    toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
-                }
+            for (int idx = 0; idx < gameObject.transform.childCount; idx++)
+            {
+                toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
+            }
         }
         public void EnableGameObject(GameObject gameObject)
         {
@@ -48,6 +48,10 @@ for (int idx=0; idx < gameObject.transform.childCount; idx++)
             {
                 go.SetActive(false);
             }
+        }
+        public void RemoveToggleGameObject(GameObject go)
+        {
+            toggleGroupObjects.Remove(go);
         }
     }
 }
