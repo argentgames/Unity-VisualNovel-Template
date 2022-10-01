@@ -88,6 +88,7 @@ namespace com.argentgames.visualnoveltemplate
         CancellationToken ct;
         System.Diagnostics.Stopwatch stopwatch;
         Hash128 hash128 = new Hash128();
+        [Sirenix.OdinInspector.Button]
         public void RestartGame()
         {
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
@@ -96,6 +97,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 win.GetComponentInChildren<DialogueUIManager>().ResetUI();
             }
+            
         }
         async UniTaskVoid Awake()
         {

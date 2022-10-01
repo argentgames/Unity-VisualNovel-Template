@@ -409,7 +409,6 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (DialogueSystemManager.Instance.DialogueUIManager.PlayerAllowedToHideUI)
             {
-                Debug.Log("hide ui logic from boom");
                 ToggleUI();
                 GameManager.Instance.SetAuto(false);
                 GameManager.Instance.SetSkipping(false);
@@ -419,7 +418,16 @@ namespace com.argentgames.visualnoveltemplate
         }
 
 
+        /// <summary>
+        /// These are mostly for more compliex dialogue windows like Messenger chats if we want to recreate what chats
+        /// and channels are visible when save/loaded, instead of just save/loading into a clean ui window.
+        /// </summary>
+        public virtual void Save() {}
+        public virtual void Load() {}
+
+
 
     }
+
 }
 
