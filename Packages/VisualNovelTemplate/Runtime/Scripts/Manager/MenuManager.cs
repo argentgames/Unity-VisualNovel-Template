@@ -47,7 +47,10 @@ namespace com.argentgames.visualnoveltemplate
             foreach (var menu in menuPrefabs)
             {
                 menuMap[menu.internalName] = menu;
+                
             }
+            await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
+            SpawnAllMenus();
 
 
         }
@@ -57,6 +60,18 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.Yield();
             cts = new CancellationTokenSource();
             ct = cts.Token;
+        }
+        public void SpawnAllMenus()
+        {
+            foreach (var kv in menuMap)
+            {
+                var menuName = kv.Key;
+                var go = Instantiate(menuMap[menuName].prefab, this.transform);
+                    openMenus[menuName] = go;
+                    OpenPage(menuName);
+            }
+            CloseAllMenus();
+            
         }
 
         /// <summary>
