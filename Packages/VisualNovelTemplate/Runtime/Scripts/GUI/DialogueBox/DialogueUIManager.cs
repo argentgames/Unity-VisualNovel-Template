@@ -195,6 +195,7 @@ namespace com.argentgames.visualnoveltemplate
         public virtual void ShowCTC()
         {
             actualCTC.gameObject.SetActive(true);
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
         }
         #endregion
 
