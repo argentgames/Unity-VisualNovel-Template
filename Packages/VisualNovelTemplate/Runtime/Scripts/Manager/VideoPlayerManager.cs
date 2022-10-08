@@ -20,6 +20,9 @@ namespace com.argentgames.visualnoveltemplate
         VideoBank_SO videoBank;
         Video_SO currentVideo = null;
         public bool IsVideoPlaying { get { return videoPlayer.isPlaying; } }
+        [Tooltip("Wrapper that holds all the video content stuffs so we can turn it off when not in use.")]
+        [SerializeField]
+        GameObject wrapper;
         async UniTaskVoid Awake()
         {
             _playerControls = new PlayerControls();
@@ -48,6 +51,7 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
             videoPlayer.frame = 0;
+            wrapper.SetActive(false);
 
         }
         private void OnDisable()
@@ -58,18 +62,20 @@ namespace com.argentgames.visualnoveltemplate
         {
             _playerControls.Enable();
         }
-        [Button]
+        [Sirenix.OdinInspector.Button]
         public async UniTask PlayVideo(string videoName)
         {
             currentVideo = videoBank.GetVideo(videoName);
             videoPlayer.clip = currentVideo.videoClip;
             videoPlayer.Prepare();
             videoPlayer.frame = 0;
-            canvas.gameObject.SetActive(true);
+            wrapper.SetActive(true);
+            
             AudioManager.Instance.PlayMusic(currentVideo.audioName, 0);
             videoPlayer.Play();
+            Debug.Break();
             await UniTask.WaitWhile(() => IsVideoPlaying);
-            canvas.gameObject.SetActive(false);
+            wrapper.SetActive(false);
             currentVideo.watchCount += 1;
         }
         public void StopVideo()
