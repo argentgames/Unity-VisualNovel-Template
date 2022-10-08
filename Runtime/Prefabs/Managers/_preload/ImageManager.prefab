@@ -5077,7 +5077,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9000340083137717370}
-  - {fileID: 357069933626839988}
   m_Father: {fileID: 1061645658037982667}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5581,7 +5580,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6237347488204446052}
+  - component: {fileID: 381990709528917054}
   - component: {fileID: 8337001897984152879}
   - component: {fileID: 2858864925461157352}
   - component: {fileID: 5936134294271293182}
@@ -5592,21 +5591,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6237347488204446052
-Transform:
+--- !u!224 &381990709528917054
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1744747001060752929}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1000, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 236218709339922384}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 1000}
+  m_SizeDelta: {x: 100, y: 56.25}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!20 &8337001897984152879
 Camera:
   m_ObjectHideFlags: 0
@@ -5717,13 +5721,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1861266762219524864}
-  m_LocalRotation: {x: 0, y: -0.70710677, z: 0.70710677, w: 0}
-  m_LocalPosition: {x: -1500, y: -1500, z: 0}
+  m_LocalRotation: {x: -0, y: -0.7071068, z: 0.7071068, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5523834892241117789}
-  m_RootOrder: 1
+  m_Father: {fileID: 309479750687611292}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: -90, z: 90}
 --- !u!33 &4956200752209671128
 MeshFilter:
@@ -5818,7 +5822,8 @@ Transform:
   m_LocalPosition: {x: -1500, y: -1500, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 357069933626839988}
   m_Father: {fileID: 1061645658037982667}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6021,7 +6026,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6237347488204446052}
+  - {fileID: 381990709528917054}
   - {fileID: 6129570996743400830}
   m_Father: {fileID: 1061645657324687006}
   m_RootOrder: 0
@@ -6073,6 +6078,7 @@ GameObject:
   - component: {fileID: 986778770997720002}
   - component: {fileID: 7978247951627478182}
   - component: {fileID: 5692271061375816033}
+  - component: {fileID: 8377825728521683578}
   m_Layer: 5
   m_Name: Foreground (Portrait)
   m_TagString: Untagged
@@ -6135,6 +6141,20 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &8377825728521683578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5631950950935153133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 1
+  m_AspectRatio: 1.7777778
 --- !u!1 &7640408797579921797
 GameObject:
   m_ObjectHideFlags: 0
@@ -6146,6 +6166,7 @@ GameObject:
   - component: {fileID: 8821627257597205483}
   - component: {fileID: 6784066706724121497}
   - component: {fileID: 8435549095063939391}
+  - component: {fileID: 7672495706324784640}
   m_Layer: 5
   m_Name: Overlay (above everything, used for transitions that hide textbox)
   m_TagString: Untagged
@@ -6208,6 +6229,20 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &7672495706324784640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7640408797579921797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 1
+  m_AspectRatio: 1.7777778
 --- !u!1 &7808720176427975013
 GameObject:
   m_ObjectHideFlags: 0
@@ -6219,6 +6254,7 @@ GameObject:
   - component: {fileID: 3911159609617147136}
   - component: {fileID: 5403116031369717812}
   - component: {fileID: 6745688793356456801}
+  - component: {fileID: 4300886253001322849}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -6281,6 +6317,20 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &4300886253001322849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7808720176427975013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 1
+  m_AspectRatio: 1.7777778
 --- !u!1 &8807105874198092196
 GameObject:
   m_ObjectHideFlags: 0
@@ -6292,6 +6342,7 @@ GameObject:
   - component: {fileID: 7912780057883694182}
   - component: {fileID: 4933933710314615747}
   - component: {fileID: 1675426204095215915}
+  - component: {fileID: 2441142071459228089}
   m_Layer: 5
   m_Name: Midground
   m_TagString: Untagged
@@ -6354,6 +6405,20 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &2441142071459228089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8807105874198092196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 1
+  m_AspectRatio: 1.7777778
 --- !u!1001 &5129308076854925157
 PrefabInstance:
   m_ObjectHideFlags: 0
