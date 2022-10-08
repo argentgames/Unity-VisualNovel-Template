@@ -715,6 +715,58 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3911159609617147136, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3911159609617147136, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3911159609617147136, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3911159609617147136, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3911159609617147136, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3911159609617147136, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7912780057883694182, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7912780057883694182, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7912780057883694182, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7912780057883694182, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7912780057883694182, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7912780057883694182, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8709538454619066910, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b0aad7ef5438eb94ebebe3552d4405d6, type: 3}
 --- !u!4 &5123477991883553353 stripped
