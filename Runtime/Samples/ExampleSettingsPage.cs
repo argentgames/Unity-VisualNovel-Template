@@ -159,8 +159,9 @@ namespace com.argentgames.visualnoveltemplate
             var res = Screen.currentResolution;
             width = res.width;
             height = res.height;
-            // we're only using exlcusive full screen, but you could expose every fs mode
             Screen.SetResolution(width, height, fullScreenMode);
+            Screen.fullScreenMode = fullScreenMode;
+            Screen.fullScreen = true;
         }
         public void SetWindowedMode(System.Boolean val)
         {
@@ -173,6 +174,8 @@ namespace com.argentgames.visualnoveltemplate
             width = res.width;
             height = res.height;
             Screen.SetResolution(width, height, FullScreenMode.Windowed);
+            Screen.fullScreenMode = FullScreenMode.Windowed;
+            Screen.fullScreen = false;
         }
         public void SetResolutionDropdown(System.Int32 index)
         {
@@ -185,7 +188,17 @@ namespace com.argentgames.visualnoveltemplate
                 var res = StringExtensions.ParseResolution(resolutionsOrder[index]);
                 if (res != null)
                 {
-                    Screen.SetResolution(res.Item1, res.Item2, Screen.fullScreenMode);
+                    if (Screen.fullScreen)
+                    {
+                        Debug.LogFormat("setting resolution to: {0}x{1} with fsmode {2} to FULLSCREEN",res.Item1,res.Item2,Screen.fullScreenMode);
+                    Screen.SetResolution(res.Item1, res.Item2, fullScreenMode);
+                    }
+                    else
+                    {
+                        Debug.LogFormat("setting resolution to: {0}x{1} with fsmode {2} to WINDOW",res.Item1,res.Item2,Screen.fullScreenMode);
+                    Screen.SetResolution(res.Item1, res.Item2, FullScreenMode.Windowed);
+                    }
+                    
                 }
                 else
                 {
