@@ -20,9 +20,6 @@ namespace com.argentgames.visualnoveltemplate
         VideoBank_SO videoBank;
         Video_SO currentVideo = null;
         public bool IsVideoPlaying { get { return videoPlayer.isPlaying; } }
-        [Tooltip("Wrapper that holds all the video content stuffs so we can turn it off when not in use.")]
-        [SerializeField]
-        GameObject wrapper;
         async UniTaskVoid Awake()
         {
             _playerControls = new PlayerControls();
@@ -51,7 +48,6 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
             videoPlayer.frame = 0;
-            wrapper.SetActive(false);
 
         }
         private void OnDisable()
@@ -65,25 +61,33 @@ namespace com.argentgames.visualnoveltemplate
         [Sirenix.OdinInspector.Button]
         public async UniTask PlayVideo(string videoName)
         {
+            canvas.gameObject.SetActive(true);
             currentVideo = videoBank.GetVideo(videoName);
             videoPlayer.clip = currentVideo.videoClip;
             videoPlayer.Prepare();
             videoPlayer.frame = 0;
-            wrapper.SetActive(true);
+            
+            await UniTask.WaitUntil(() => videoPlayer.isPrepared);
             
             AudioManager.Instance.PlayMusic(currentVideo.audioName, 0);
             videoPlayer.Play();
-            Debug.Break();
             await UniTask.WaitWhile(() => IsVideoPlaying);
-            wrapper.SetActive(false);
-            currentVideo.watchCount += 1;
+            
+            
+            StopVideo();
         }
         public void StopVideo()
         {
+            canvas.gameObject.SetActive(false);
             videoPlayer.frame = (long)videoPlayer.frameCount;
-            videoPlayer.Pause();
+            videoPlayer.Stop();
             AudioManager.Instance.StopMusic(0);
+            currentVideo.watchCount += 1;
             currentVideo = null;
+        }
+        public void PauseVideo()
+        {
+            videoPlayer.Pause();
         }
 
 
