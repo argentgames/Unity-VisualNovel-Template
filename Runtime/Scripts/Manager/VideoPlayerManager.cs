@@ -34,7 +34,7 @@ namespace com.argentgames.visualnoveltemplate
                {
                    if (videoPlayer.isPlaying)
                    {
-                        StopVideo();
+                      videoPlayer.Stop();
                    }
                }
 
@@ -61,6 +61,8 @@ namespace com.argentgames.visualnoveltemplate
         [Sirenix.OdinInspector.Button]
         public async UniTask PlayVideo(string videoName)
         {
+            _playerControls.VNGameplay.Disable();
+
             canvas.gameObject.SetActive(true);
             currentVideo = videoBank.GetVideo(videoName);
             videoPlayer.clip = currentVideo.videoClip;
@@ -71,23 +73,31 @@ namespace com.argentgames.visualnoveltemplate
             
             AudioManager.Instance.PlayMusic(currentVideo.audioName, 0);
             videoPlayer.Play();
+            Debug.LogFormat("right after play current video is: {0}",currentVideo);
             await UniTask.WaitWhile(() => IsVideoPlaying);
-            
+            currentVideo.watchCount += 1;
             
             StopVideo();
         }
         public void StopVideo()
         {
+            Debug.LogFormat("current video is: {0}",currentVideo);
+            _playerControls.VNGameplay.Enable();
+            
             canvas.gameObject.SetActive(false);
             videoPlayer.frame = (long)videoPlayer.frameCount;
             videoPlayer.Stop();
             AudioManager.Instance.StopMusic(0);
-            currentVideo.watchCount += 1;
+            
             currentVideo = null;
         }
         public void PauseVideo()
         {
             videoPlayer.Pause();
+        }
+        public void ResumeVideo()
+        {
+            
         }
 
 
