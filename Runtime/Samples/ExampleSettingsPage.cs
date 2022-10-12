@@ -74,10 +74,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 skipAllText.isOn = GameManager.Instance.Settings.skipAllText;
             }
-            if (fullscreen != null)
+/*             if (fullscreen != null)
             {
                 fullscreen.isOn = Screen.fullScreen;
-            }
+            } */
         }
         private void Start()
         {
@@ -112,10 +112,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 skipAllText.isOn = GameManager.Instance.Settings.skipAllText;
             }
-            if (fullscreen != null)
+/*             if (fullscreen != null)
             {
                 fullscreen.isOn = Screen.fullScreen;
-            }
+            } */
 
             // if resolutions isn't null, then set current resolutions value
             if (resolutionsDropdown != null)
@@ -156,9 +156,8 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
             int width, height;
-            var res = Screen.currentResolution;
-            width = res.width;
-            height = res.height;
+            width = PlayerPrefs.GetInt("screenWidth", 1920);
+            height = PlayerPrefs.GetInt("screenHeight", 1280);
             Screen.SetResolution(width, height, fullScreenMode);
             Screen.fullScreenMode = fullScreenMode;
             Screen.fullScreen = true;
@@ -170,9 +169,8 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
             int width, height;
-            var res = Screen.currentResolution;
-            width = res.width;
-            height = res.height;
+            width = PlayerPrefs.GetInt("screenWidth", 1920);
+            height = PlayerPrefs.GetInt("screenHeight", 1280);
             Screen.SetResolution(width, height, FullScreenMode.Windowed);
             Screen.fullScreenMode = FullScreenMode.Windowed;
             Screen.fullScreen = false;
@@ -198,6 +196,9 @@ namespace com.argentgames.visualnoveltemplate
                         Debug.LogFormat("setting resolution to: {0}x{1} with fsmode {2} to WINDOW",res.Item1,res.Item2,Screen.fullScreenMode);
                     Screen.SetResolution(res.Item1, res.Item2, FullScreenMode.Windowed);
                     }
+                    
+                    PlayerPrefs.SetInt("screenWidth", res.Item1);
+                    PlayerPrefs.SetInt("screenHeight", res.Item2);
                     
                 }
                 else
