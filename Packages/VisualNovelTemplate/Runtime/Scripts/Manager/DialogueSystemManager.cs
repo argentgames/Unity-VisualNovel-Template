@@ -91,13 +91,14 @@ namespace com.argentgames.visualnoveltemplate
         [Sirenix.OdinInspector.Button]
         public void RestartGame()
         {
+            story = new Story(_story.text);
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
             foreach (var win in dialogueWindows.Values)
             {
                 win.GetComponentInChildren<DialogueUIManager>().ResetUI();
             }
-            
+            currentSessionDialogueHistory.Clear();
         }
         async UniTaskVoid Awake()
         {
@@ -148,8 +149,6 @@ namespace com.argentgames.visualnoveltemplate
 
 
             }
-
-            Debug.Log((string)story.variablesState["mc_shirt"]);
             // Debug.Break();
             // RunCancellationToken();
 
@@ -206,6 +205,7 @@ namespace com.argentgames.visualnoveltemplate
 
 
                 Debug.Log("done fading in with 0");
+                Debug.Log("running node: " + story.state.currentPathString);
                 RunContinueStory().Forget();
                 await SceneTransitionManager.Instance.FadeIn(0f);
             }
@@ -468,9 +468,11 @@ namespace com.argentgames.visualnoveltemplate
 
         public async UniTaskVoid RunContinueStory()
         {
+            Debug.Log("running node: " + story.state.currentPathString);
             // infinite loop to run process the story
             while (true)
             {
+                Debug.Log("running node: " + story.state.currentPathString);
                 if (story.canContinue)
                 {
                     story.Continue();
@@ -748,10 +750,18 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogErrorFormat("dialogue window [{0}] is not registered.", internalName);
             }
         }
-        public async UniTask HideDialogueWindow()
+        public async UniTask HideDialogueWindow(float duration=-1)
         {
             dialogueUIManager.PlayerAllowedToHideUI = false;
-            await dialogueUIManager.HideUI();
+            if (duration == -1)
+            {
+                await dialogueUIManager.HideUI();
+            }
+            else
+            {
+                await dialogueUIManager.HideUI(duration);
+            }
+            
         }
         public async UniTask HideAllDialogueWindows()
         {

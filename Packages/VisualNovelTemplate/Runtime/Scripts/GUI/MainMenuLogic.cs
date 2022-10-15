@@ -46,6 +46,7 @@ namespace com.argentgames.visualnoveltemplate
             // we dont want the ingamebrain to try to load up old save
             SaveLoadManager.Instance.currentSave = null;
             SceneTransitionManager.Instance.LoadScene(newGameLoadScene, fadeToBlackDuration, fadeOutOfBlackDuration, doStopSound:stopSoundOnLoad, delayBeforeFadeIn: delayBeforeFadeOut);
+            DialogueSystemManager.Instance.RestartGame();
 
         }
         public void QuitGame()

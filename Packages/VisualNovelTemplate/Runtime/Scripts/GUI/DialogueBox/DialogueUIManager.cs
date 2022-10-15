@@ -107,7 +107,7 @@ namespace com.argentgames.visualnoveltemplate
                     // DialogueSystemManager.Instance.InkContinueStory().Forget();
                     // HideCTC();
                     // DisableCTC();
-                    ClearText();
+                    // ClearText();
                     waitingForPlayerContinueStory = false;
                     DialogueSystemManager.Instance.waitingToContinueStory = false;
                     Debug.Log("not was skipping, please continue the story as normal");
@@ -134,7 +134,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                    ClearText();
+                    // ClearText();
                     waitingForPlayerContinueStory = false;
                     DialogueSystemManager.Instance.waitingToContinueStory = false;
                 
