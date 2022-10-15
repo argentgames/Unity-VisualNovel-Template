@@ -96,7 +96,34 @@ namespace com.argentgames.visualnoveltemplate
             SetEndGame(false);
             foreach (var win in dialogueWindows.Values)
             {
-                win.GetComponentInChildren<DialogueUIManager>().ResetUI();
+                Destroy(win);
+                // win.GetComponentInChildren<DialogueUIManager>().ResetUI();
+            }
+            dialogueWindows.Clear();
+            GameObject window;
+            foreach (var dialogueWindowMode in dialogueWindowModes)
+            {
+                window = Instantiate(dialogueWindowMode.prefab, this.transform);
+                dialogueWindows[dialogueWindowMode.internalName] = window;
+                // Set our default dialogue ui window 
+                if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
+                {
+                    dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                }
+
+                try
+                {
+                    window.GetComponentInChildren<Canvas>().sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
+                }
+                catch
+                {
+                    Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
+                }
+
+                window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
+                window.GetComponentInChildren<DialogueUIManager>().ClearUI();
+
+
             }
             currentSessionDialogueHistory.Clear();
         }
