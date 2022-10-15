@@ -155,7 +155,7 @@ namespace com.argentgames.visualnoveltemplate
             else
 
             {
-                ClearText();
+                // ClearText();
                     waitingForPlayerContinueStory = false;
                     DialogueSystemManager.Instance.waitingToContinueStory = false;
             }
