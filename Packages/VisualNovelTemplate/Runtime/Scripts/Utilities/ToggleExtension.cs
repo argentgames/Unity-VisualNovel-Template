@@ -27,6 +27,7 @@ public class ToggleExtension : MonoBehaviour
     Color graphicDefaultColor = Color.white, graphicSelectedColor = Color.blue;
     [SerializeField]
     TMP_Text textField;
+    [SerializeField]
     Toggle toggle;
 
     [SerializeField]
@@ -87,6 +88,37 @@ public class ToggleExtension : MonoBehaviour
         }).AddTo(this);
 
 
+    }
+    public void UpdateToggleStyles()
+    {
+        if (toggle == null)
+        {
+            return;
+        }
+        var val = toggle.isOn;
+        if (doSpriteSwapWhenSelected)
+            {
+                SpriteSwapOnSelect(val);
+            }
+
+            if (doTextSwapWhenSelected)
+            {
+                TextSwapOnSelect(val);
+            }
+            if (doTextColorChangeWhenSelected)
+            {
+                TextColorSwapOnSelect(val);
+            }
+            if (doImageColorChangeWhenSelected)
+            {
+                ImageColorSwapOnSelect(val);
+            }
+            InputExtensions.DeselectClickedButton(toggle.gameObject);
+
+            if (GameObjectToToggleOn != null)
+            {
+               GameObjectToToggleOn.SetActive(val); 
+            }
     }
 
     public void ImageColorSwapOnSelect(bool val)
