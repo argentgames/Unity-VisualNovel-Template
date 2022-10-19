@@ -72,12 +72,16 @@ namespace com.argentgames.visualnoveltemplate
             }
             if (skipAllText != null)
             {
-                skipAllText.isOn = GameManager.Instance.Settings.skipAllText;
+                skipAllText.SetIsOnWithoutNotify(GameManager.Instance.Settings.skipAllText);
             }
-/*             if (fullscreen != null)
+             if (fullscreen != null)
             {
-                fullscreen.isOn = Screen.fullScreen;
-            } */
+                fullscreen.SetIsOnWithoutNotify(Screen.fullScreen);
+            } 
+            foreach (var toggleExt in GetComponentsInChildren<ToggleExtension>())
+            {
+                toggleExt.UpdateToggleStyles();
+            }
         }
         private void Start()
         {
@@ -110,18 +114,22 @@ namespace com.argentgames.visualnoveltemplate
             }
             if (skipAllText != null)
             {
-                skipAllText.isOn = GameManager.Instance.Settings.skipAllText;
+                skipAllText.SetIsOnWithoutNotify(GameManager.Instance.Settings.skipAllText);
+
             }
-/*             if (fullscreen != null)
+             if (fullscreen != null)
             {
-                fullscreen.isOn = Screen.fullScreen;
-            } */
+                fullscreen.SetIsOnWithoutNotify(Screen.fullScreen);
+            } 
 
             // if resolutions isn't null, then set current resolutions value
             if (resolutionsDropdown != null)
             {
+                // THIS IS A LIE AND DOESN'T GET THE ACTUAL RESOLUTIONS
+                // TECHDEBT: we use 1080p as default fallback resolution
                 var currentResolution = Screen.currentResolution;
-                var res = string.Format("{0}x{1}",currentResolution.width,currentResolution.height);
+                var res = string.Format("{0}x{1}",PlayerPrefs.GetInt("screenWidth", 1920),PlayerPrefs.GetInt("screenHeight", 1280));
+                Debug.LogFormat("the res we want to set our dropdown to at start is: {0}", res);
                 try
                 {
                     SetResolutionDropdown(resolutionsMap[res]);
@@ -131,6 +139,11 @@ namespace com.argentgames.visualnoveltemplate
                     Debug.LogWarningFormat("trying to set an unsupportred resolution~! {0}",res);
                 }
                 
+            }
+
+            foreach (var toggleExt in GetComponentsInChildren<ToggleExtension>())
+            {
+                toggleExt.UpdateToggleStyles();
             }
         }
         public void UpdateMusicVolume(System.Single val)
@@ -200,6 +213,8 @@ namespace com.argentgames.visualnoveltemplate
                     PlayerPrefs.SetInt("screenWidth", res.Item1);
                     PlayerPrefs.SetInt("screenHeight", res.Item2);
                     
+                    resolutionsDropdown.SetValueWithoutNotify(index);
+                    
                 }
                 else
                 {
@@ -222,22 +237,6 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
             GameManager.Instance.Settings.skipAllText = false;
-        }
-        public void Set1080p(System.Boolean val)
-        {
-            if (!val)
-            {
-                return;
-            }
-            Screen.SetResolution(1920, 1080, Screen.fullScreenMode);
-        }
-        public void Set720p(System.Boolean val)
-        {
-            if (!val)
-            {
-                return;
-            }
-            Screen.SetResolution(1280, 720, Screen.fullScreenMode);
         }
 
 
