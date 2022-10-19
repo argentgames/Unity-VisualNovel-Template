@@ -100,10 +100,20 @@ namespace com.argentgames.visualnoveltemplate
                 // win.GetComponentInChildren<DialogueUIManager>().ResetUI();
             }
             dialogueWindows.Clear();
+            SpawnAllUIWindows().Forget();
+            currentSessionDialogueHistory.Clear();
+        }
+        async UniTaskVoid SpawnAllUIWindows()
+        {
+            // Spawn all the dialogue windows we want to use ingame and deactivate them.
+            // Hold a reference to them so we can select the one to use through ink!
             GameObject window;
             foreach (var dialogueWindowMode in dialogueWindowModes)
             {
+                
                 window = Instantiate(dialogueWindowMode.prefab, this.transform);
+                var windowCanvas =  window.GetComponentInChildren<Canvas>();
+                windowCanvas.sortingOrder = -100;
                 dialogueWindows[dialogueWindowMode.internalName] = window;
                 // Set our default dialogue ui window 
                 if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
@@ -120,12 +130,20 @@ namespace com.argentgames.visualnoveltemplate
                     Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
                 }
 
+                await UniTask.Yield();
                 window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
                 window.GetComponentInChildren<DialogueUIManager>().ClearUI();
+                try
+                {
+                    windowCanvas.sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
+                }
+                catch
+                {
+                    Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
+                }
 
 
             }
-            currentSessionDialogueHistory.Clear();
         }
         async UniTaskVoid Awake()
         {
@@ -148,34 +166,7 @@ namespace com.argentgames.visualnoveltemplate
 
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
-            // Spawn all the dialogue windows we want to use ingame and deactivate them.
-            // Hold a reference to them so we can select the one to use through ink!
-            GameObject window;
-            foreach (var dialogueWindowMode in dialogueWindowModes)
-            {
-                window = Instantiate(dialogueWindowMode.prefab, this.transform);
-                dialogueWindows[dialogueWindowMode.internalName] = window;
-                // Set our default dialogue ui window 
-                if (dialogueWindowMode.internalName == GameManager.Instance.DefaultConfig.defaultDialogueWindow.internalName)
-                {
-                    dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
-                }
-
-                try
-                {
-                    window.GetComponentInChildren<Canvas>().sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
-                }
-                catch
-                {
-                    Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
-                }
-
-                await UniTask.Yield();
-                window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
-                window.GetComponentInChildren<DialogueUIManager>().ClearUI();
-
-
-            }
+            SpawnAllUIWindows().Forget();
             // Debug.Break();
             // RunCancellationToken();
 
@@ -270,7 +261,7 @@ namespace com.argentgames.visualnoveltemplate
             var log = new DialogueHistoryLine();
             log.speaker = "";
             log.line = choice;
-            
+
             currentSessionDialogueHistory.Add(log);
 
         }
@@ -520,9 +511,9 @@ namespace com.argentgames.visualnoveltemplate
                     {
                         if (GameManager.Instance.IsSkipping)
                         {
-                          GameManager.Instance.SetSkipping(false);  
+                            GameManager.Instance.SetSkipping(false);
                         }
-                        
+
                     }
                 }
 
@@ -544,7 +535,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
 
                 // finally add the line to our persistent seen text so we know when to stop skipping
-               AddCurrentStoryTextToPersistentHistory();
+                AddCurrentStoryTextToPersistentHistory();
             }
 
         }
@@ -636,18 +627,25 @@ namespace com.argentgames.visualnoveltemplate
         {
             waitingToContinueStory = true;
             CurrentProcessedDialogue = ProcessDialogue(story.currentText);
+
             await DisplayLine(); // ctc will end this by setting isdisplayling line to false
             await UniTask.Yield();
 
             if (story.currentChoices.Count > 0)
             {
+                if (GameManager.Instance.IsAuto)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
+                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
+                    // InkContinueStory();
+                }
                 await DisplayChoices();
             }
 
             if (GameManager.Instance.IsAuto)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
-                 (1 - GameManager.Instance.Settings.AutoSpeed.Value + .04)), cancellationToken: this.ct);
+               await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
+                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
                 // InkContinueStory();
             }
             else if (GameManager.Instance.IsSkipping)
@@ -740,11 +738,11 @@ namespace com.argentgames.visualnoveltemplate
                 else
                 {
                     var window = dialogueWindows[internalName];
-                currentDialogueWindow = internalName;
-                dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
-                dialogueUIManager.AddVNControlSubscriptions();
+                    currentDialogueWindow = internalName;
+                    dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
+                    dialogueUIManager.AddVNControlSubscriptions();
                 }
-                
+
             }
             catch
             {
@@ -777,7 +775,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogErrorFormat("dialogue window [{0}] is not registered.", internalName);
             }
         }
-        public async UniTask HideDialogueWindow(float duration=-1)
+        public async UniTask HideDialogueWindow(float duration = -1)
         {
             dialogueUIManager.PlayerAllowedToHideUI = false;
             if (duration == -1)
@@ -788,7 +786,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 await dialogueUIManager.HideUI(duration);
             }
-            
+
         }
         public async UniTask HideAllDialogueWindows()
         {
