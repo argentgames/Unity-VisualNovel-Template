@@ -60,9 +60,9 @@ namespace com.argentgames.visualnoveltemplate
         public bool IsDisplayingLine { get { return isDisplayingLine; } set { isDisplayingLine = value; } }
 
         private bool waitingForPlayerToSelectChoice = false;
-        public bool WaitingForPlayerToSelectChoice { get { return waitingForPlayerToSelectChoice;} set { waitingForPlayerToSelectChoice = value;} }
+        public bool WaitingForPlayerToSelectChoice { get { return waitingForPlayerToSelectChoice; } set { waitingForPlayerToSelectChoice = value; } }
         private bool waitingForPlayerContinueStory = false;
-        public bool WaitingForPlayerContinueStory  { get {return waitingForPlayerContinueStory;} set {waitingForPlayerContinueStory = value;} }
+        public bool WaitingForPlayerContinueStory { get { return waitingForPlayerContinueStory; } set { waitingForPlayerContinueStory = value; } }
 
         private bool playerHidUI = false;
         public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value; } }
@@ -85,7 +85,7 @@ namespace com.argentgames.visualnoveltemplate
             // prevent spam clicking too fast <_<
             if (isRunningCTCDelay)
             {
-                Debug.Log("please stop spam clicking"); 
+                Debug.Log("please stop spam clicking");
                 return;
             }
 
@@ -117,7 +117,7 @@ namespace com.argentgames.visualnoveltemplate
 
             isRunningCTCDelay = true;
             ctcDelay = StartCoroutine(RunCTCDelay());
-            
+
         }
         public virtual async UniTaskVoid CTCLogicForAutoOrSkip()
         {
@@ -134,10 +134,10 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
-                    // ClearText();
-                    waitingForPlayerContinueStory = false;
-                    DialogueSystemManager.Instance.waitingToContinueStory = false;
-                
+                // ClearText();
+                waitingForPlayerContinueStory = false;
+                DialogueSystemManager.Instance.waitingToContinueStory = false;
+
 
             }
         }
@@ -156,11 +156,11 @@ namespace com.argentgames.visualnoveltemplate
 
             {
                 // ClearText();
-                    waitingForPlayerContinueStory = false;
-                    DialogueSystemManager.Instance.waitingToContinueStory = false;
+                waitingForPlayerContinueStory = false;
+                DialogueSystemManager.Instance.waitingToContinueStory = false;
             }
 
-             
+
         }
         IEnumerator RunCTCDelay()
         {
@@ -293,29 +293,40 @@ namespace com.argentgames.visualnoveltemplate
         {
             DialogueSystemManager.Instance.SetPlayerOpenedQmenu(!DialogueSystemManager.Instance.PlayerOpenedQMenu);
         }
-        public virtual void OpenQMenu(float duration = -1)
+        public virtual void ToggleQMenu(float duration=-1)
         {
-            // don't open if it's already open...
-            if (!DialogueSystemManager.Instance.PlayerOpenedQMenu)
+            // qmenu is already open, so we need to close it
+            if (QMenu.activeSelf)
             {
-                var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
-                if (animator != null)
-                {
-                    if (duration == -1)
-                    {
-                        duration = animator.enableAnimationDuration;
-                    }
-                    animator.Enable(duration).Forget();
-                }
-                else
-                {
-                    QMenu.SetActive(true);
-                }
+                DialogueSystemManager.Instance.SetPlayerOpenedQmenu(false);
+                CloseQmenu(duration);
             }
             else
             {
-                CloseQmenu(duration);
+                DialogueSystemManager.Instance.SetPlayerOpenedQmenu(true);
+                OpenQMenu(duration);
             }
+        }
+        public virtual void OpenQMenu(float duration = -1)
+        {
+
+            Debug.Log("did player open qmenu?: " + DialogueSystemManager.Instance.PlayerOpenedQMenu.ToString());
+            // don't open if it's already open...
+
+            var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
+            if (animator != null)
+            {
+                if (duration == -1)
+                {
+                    duration = animator.enableAnimationDuration;
+                }
+                animator.Enable(duration).Forget();
+            }
+            else
+            {
+                QMenu.SetActive(true);
+            }
+
 
 
         }
@@ -423,8 +434,8 @@ namespace com.argentgames.visualnoveltemplate
         /// These are mostly for more compliex dialogue windows like Messenger chats if we want to recreate what chats
         /// and channels are visible when save/loaded, instead of just save/loading into a clean ui window.
         /// </summary>
-        public virtual void Save() {}
-        public virtual void Load() {}
+        public virtual void Save() { }
+        public virtual void Load() { }
 
 
 
