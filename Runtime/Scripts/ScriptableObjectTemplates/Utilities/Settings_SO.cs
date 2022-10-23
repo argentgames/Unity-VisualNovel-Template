@@ -9,6 +9,7 @@ namespace com.argentgames.visualnoveltemplate
 {
     public abstract class Settings_SO : SerializedScriptableObject
     {
+        public float defaultTextSpeed = 40f;
         public FloatReactiveProperty MasterVolume = new FloatReactiveProperty(.5f);
         public FloatReactiveProperty AmbientVolume = new FloatReactiveProperty(.5f);
         public FloatReactiveProperty MusicVolume = new FloatReactiveProperty(.5f);
@@ -29,7 +30,7 @@ namespace com.argentgames.visualnoveltemplate
             AmbientVolume.Value = .5f;
             MusicVolume.Value = .5f;
             SFXVolume.Value = .5f;
-            TextSpeed.Value = 250;
+            TextSpeed.Value = defaultTextSpeed;
             AutoSpeed.Value = .5f;
             useOpenDSFont.Value = false;
             fontSize.Value = 1;
