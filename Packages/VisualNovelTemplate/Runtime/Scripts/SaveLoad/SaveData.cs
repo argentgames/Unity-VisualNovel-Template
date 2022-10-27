@@ -25,7 +25,7 @@ namespace com.argentgames.visualnoveltemplate
         /// If we save with a choice displaying, we might also be displaying some accompanying text
         /// so we should load that up too.
         /// </summary>
-        public Dialogue currentDialogue;
+        public DialogueSaveData currentDialogue;
         public string currentShot = "black";
         [OdinSerialize]
 
