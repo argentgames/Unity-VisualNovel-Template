@@ -29,6 +29,12 @@ namespace com.argentgames.visualnoveltemplate
 
 
         // each saveFile is a json
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="string">base fileIndex name. Not full path!!!</typeparam>
+        /// <typeparam name="SaveData"></typeparam>
+        /// <returns></returns>
         [SerializeField]
         public Dictionary<string, SaveData> saveFiles = new Dictionary<string, SaveData>();
         [SerializeField]
@@ -40,7 +46,7 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         bool jsonFormat = true;
         [SerializeField]
-        DataFormat format = DataFormat.JSON;
+        public DataFormat format = DataFormat.JSON;
         public string extension = ".json";
 
         public bool DoneLoadingSaves = false;
@@ -185,11 +191,10 @@ namespace com.argentgames.visualnoveltemplate
             }
             
         }
-        public async UniTaskVoid LoadGame(string filePath)
+        public async UniTaskVoid LoadGame(string fileIndex)
         {
-            Debug.Log("loading game from: " + filePath);
-            filePath = SaveFilePath(filePath);
-            this.currentSave = GetSaveData(filePath);
+            Debug.Log("loading game from: " + fileIndex);
+            this.currentSave = GetSaveData(fileIndex);
 
             GameManager.Instance.SetSkipping(false);
             GameManager.Instance.SetAuto(false);
@@ -255,12 +260,16 @@ namespace com.argentgames.visualnoveltemplate
             save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
             save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
-            save.currentDialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
+            save.currentDialogue = new DialogueSaveData(DialogueSystemManager.Instance.CurrentProcessedDialogue.expression,
+            DialogueSystemManager.Instance.CurrentProcessedDialogue.speaker,
+            DialogueSystemManager.Instance.CurrentProcessedDialogue.text,
+            DialogueSystemManager.Instance.CurrentProcessedDialogue.npc.internalName,
+            DialogueSystemManager.Instance.CurrentProcessedDialogue.duration);
             save.currentDialogueWindowMode = DialogueSystemManager.Instance.CurrentDialogueWindow;
 
-            save.Save(CreateSavePath(saveDir + "/" + filePath),format);
+            save.Save(filePath,format);
 
-            saveFiles[filePath] = save;
+            saveFiles[fileName] = save;
 
         }
         /// <summary>
@@ -325,29 +334,23 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
 
-        public SaveData GetSaveData(string saveFileName)
+        public SaveData GetSaveData(string fileIndex)
         {
-            if (SaveExists(saveFileName))
+            if (SaveExists(fileIndex))
             {
-                string filePath = SaveFilePath(saveFileName);
-            return saveFiles[filePath];
+            return saveFiles[fileIndex];
             }
             else
 
             {
-                Debug.LogErrorFormat("save {0} doesn't exist in our loaded saves map!!",saveFileName);
+                Debug.LogErrorFormat("save {0} doesn't exist in our loaded saves map!!",fileIndex);
                 return null;
             }
             
         }
-        public bool SaveExists(string saveFileName)
+        public bool SaveExists(string fileIndex)
         {
-            string filePath = SaveFilePath(saveFileName);
-            if (saveFiles.ContainsKey(filePath))
-            {
-                return true;
-            }
-            return false;
+            return saveFiles.ContainsKey(fileIndex);
         }
         public string SaveFilePath(string saveFileName) 
         { 

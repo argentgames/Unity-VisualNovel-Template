@@ -31,7 +31,7 @@ namespace com.argentgames.visualnoveltemplate
         private DialogueUIManager dialogueUIManager;
         public DialogueUIManager DialogueUIManager { get { return dialogueUIManager; } }
         private string currentDialogueWindow = "";
-        public string CurrentDialogueWindow => currentDialogueWindow;
+        public string CurrentDialogueWindow { get { return currentDialogueWindow; } set { currentDialogueWindow = value;}}
 
         [SerializeField]
         [PropertyTooltip("The different types of dialogue textbox UIs we want to use, such as ADV and NVL.")]
@@ -94,17 +94,20 @@ namespace com.argentgames.visualnoveltemplate
             story = new Story(_story.text);
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
+            
+            SpawnAllUIWindows().Forget();
+            currentSessionDialogueHistory.Clear();
+        }
+        public async UniTask SpawnAllUIWindows()
+        {
+            // make sure there don't exist windows already before we spawn everything
             foreach (var win in dialogueWindows.Values)
             {
                 Destroy(win);
                 // win.GetComponentInChildren<DialogueUIManager>().ResetUI();
             }
             dialogueWindows.Clear();
-            SpawnAllUIWindows().Forget();
-            currentSessionDialogueHistory.Clear();
-        }
-        async UniTaskVoid SpawnAllUIWindows()
-        {
+
             // Spawn all the dialogue windows we want to use ingame and deactivate them.
             // Hold a reference to them so we can select the one to use through ink!
             GameObject window;
@@ -187,20 +190,29 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => !SceneTransitionManager.Instance.IsLoading);
             Debug.Log("scene transition manager has finished loading");
             MenuManager.Instance.EnableSettingsUIControls();
+            SetDialogueWindow(currentDialogueWindow);
 
             if (SaveLoadManager.Instance.currentSave != null)
             {
                 if (DialogueSystemManager.Instance.NeedToDisplayChoices())
                 {
+                     await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
+                    if (!dialogueUIManager.DisplayLineBeforeChoiceOnLoad)
+                    { 
+                        await RunDisplayChoicesOnlyForSaveLoad();
 
-                    DialogueSystemManager.Instance.DisplayChoices().Forget();
+                    }
+                  
+                   RunContinueStory().Forget();
 
-                    await dialogueUIManager.ShowUI();
-                    await dialogueUIManager.DisplayLine(ct);
+                    // DialogueSystemManager.Instance.DisplayChoices().Forget();
 
-                    dialogueUIManager.PlayerAllowedToHideUI = true;
-                    dialogueUIManager.HideCTC();
-                    SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
+                    // await dialogueUIManager.ShowUI();
+                    // // await dialogueUIManager.DisplayLine(ct);
+
+                    // dialogueUIManager.PlayerAllowedToHideUI = true;
+                    // dialogueUIManager.HideCTC();
+                    // SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
 
                 }
                 else if (DialogueSystemManager.Instance.NeedToRunActionFunction())
@@ -213,7 +225,7 @@ namespace com.argentgames.visualnoveltemplate
                 else
                 {
                     await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-                    DialogueSystemManager.Instance.RunRegularLine().Forget();
+                   RunContinueStory().Forget();
                 }
                 Debug.Log("fading in ds from a save");
             }
@@ -658,6 +670,36 @@ namespace com.argentgames.visualnoveltemplate
                 await UniTask.WaitWhile(() => waitingToContinueStory, cancellationToken: this.ct);
             }
         }
+        public async UniTask RunDisplayChoicesOnlyForSaveLoad()
+        {
+            dialogueUIManager.ShowUI();
+            if (story.currentChoices.Count > 0)
+            {
+                if (GameManager.Instance.IsAuto)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
+                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
+                    // InkContinueStory();
+                }
+                await DisplayChoices();
+            }
+
+            if (GameManager.Instance.IsAuto)
+            {
+               await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
+                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
+                // InkContinueStory();
+            }
+            else if (GameManager.Instance.IsSkipping)
+            {
+
+                // InkContinueStory();
+            }
+            else
+            {
+                await UniTask.WaitWhile(() => waitingToContinueStory, cancellationToken: this.ct);
+            }
+        }
 
         public async UniTask RunActionFunction()
         {
@@ -796,6 +838,25 @@ namespace com.argentgames.visualnoveltemplate
                 windowHiding.Add(window.transform.GetComponentInChildren<DialogueUIManager>().HideUI(0));
             }
             await UniTask.WhenAll(windowHiding);
+        }
+        public async UniTask LoadDialogueWindowStates(string saveIndex)
+        {
+            List<UniTask> windowLoading = new List<UniTask>();
+            foreach (var window in dialogueWindows.Values)
+            {
+                windowLoading.Add(window.GetComponentInChildren<DialogueUIManager>()
+                .Load(saveIndex));
+                Debug.Log("loading dialogue window: " + window.name);
+            }
+            await UniTask.WhenAll(windowLoading);
+        }
+        public void SaveDialogueWindowStates(string saveIndex)
+        {
+            foreach (var window in dialogueWindows.Values)
+            {
+                window.GetComponentInChildren<DialogueUIManager>()
+                .Save(saveIndex);
+            }
         }
         public async UniTask ShowNVLWindow(string internalName)
         {
