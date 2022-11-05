@@ -44,7 +44,7 @@ namespace com.argentgames.visualnoveltemplate
             // TECHDEBT
             // if someone finished the game and in the same session they start a new game,
             // we dont want the ingamebrain to try to load up old save
-            SaveLoadManager.Instance.currentSave = null;
+            SaveLoadManager.Instance.currentSave = new SaveData();
             SceneTransitionManager.Instance.LoadScene(newGameLoadScene, fadeToBlackDuration, fadeOutOfBlackDuration, doStopSound:stopSoundOnLoad, delayBeforeFadeIn: delayBeforeFadeOut);
             DialogueSystemManager.Instance.RestartGame();
 
