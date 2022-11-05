@@ -21,11 +21,13 @@ namespace com.argentgames.visualnoveltemplate
         public Dictionary<string, SpriteSaveData> spriteSaveDatas = new Dictionary<string, SpriteSaveData>();
         public string currentMusic = "";
         public List<Tuple<string, int>> currentAmbients = new List<Tuple<string, int>>();
+        [NonSerialized]
+        public Dialogue? currentDialogue = null;
         /// <summary>
         /// If we save with a choice displaying, we might also be displaying some accompanying text
         /// so we should load that up too.
         /// </summary>
-        public DialogueSaveData currentDialogue;
+        public DialogueSaveData currentDialogueSaveData;
         public string currentShot = "black";
         [OdinSerialize]
 
@@ -48,6 +50,13 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void Save(string filePath,DataFormat format)
         {
+            var dialogue = (Dialogue)DialogueSystemManager.Instance.CurrentProcessedDialogue;
+            currentDialogueSaveData = new DialogueSaveData(dialogue.expression,
+            dialogue.speaker,
+            dialogue.text,
+            dialogue.npc.internalName,
+            dialogue.duration);
+
             byte[] bytes = SerializationUtility.SerializeValue(this,format);
             File.WriteAllBytes(filePath, bytes);
 
@@ -56,16 +65,41 @@ namespace com.argentgames.visualnoveltemplate
 
             Debug.Log("done saving to: " + filePath);
         }
-        public SaveData Load(string filePath,DataFormat format)
+        public void Load(string filePath,DataFormat format)
         {
             byte[] bytes = File.ReadAllBytes(filePath);
 
             var save = SerializationUtility.DeserializeValue<SaveData>(bytes, format);
+
+            var npcName = save.currentDialogueSaveData.npcName == null ||
+            save.currentDialogueSaveData.npcName == "" ? "narrator" : save.currentDialogueSaveData.npcName;
+            this.currentDialogue = new Dialogue(save.currentDialogueSaveData.expression,
+            save.currentDialogueSaveData.speaker,
+            save.currentDialogueSaveData.text,
+            GameManager.Instance.GetNPC(npcName),
+            save.currentDialogueSaveData.duration
+            );
+
+            this.inkData = save.inkData;
+            this.dateTime = save.dateTime;
+            this.spriteSaveDatas = save.spriteSaveDatas;
+            this.currentMusic = save.currentMusic;
+            this.currentAmbients = save.currentAmbients;
+            this.currentDialogueSaveData = save.currentDialogueSaveData;
+            this.currentShot = save.currentShot;
+            this.currentBGCameraPosition = save.currentBGCameraPosition;
+            this.currentBGCameraRotation = save.currentBGCameraRotation;
+            this.currentBGSize = save.currentBGSize;
+            this.dialogueHistory = save.dialogueHistory;
+            this.isTinted = save.isTinted;
+            this.currentDialogueWindowMode = save.currentDialogueWindowMode;
+            
+
             var ss = File.ReadAllBytes(filePath + ".PNG");
             Texture2D loadTexture = new Texture2D(2, 2);
             loadTexture.LoadImage(ss);
-            save.screenshot = loadTexture;
-            return save;
+            this.screenshot = loadTexture;
+            // return save;
         }
 
     }

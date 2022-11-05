@@ -82,8 +82,7 @@ namespace com.argentgames.visualnoveltemplate
              var btn = saveSlot.button;
             // slot text > screenshot > date time
             string filePath = SaveLoadManager.Instance.saveFileNamePrefix + i.ToString() + SaveLoadManager.Instance.extension;
-            Debug.Log(filePath);
-            Debug.LogFormat("saveloadmanager contains save file {0}: {1}", filePath, SaveLoadManager.Instance.SaveExists(i.ToString()));
+            Debug.LogFormat("saveloadmanager contains save file {0}: {1}", filePath, SaveLoadManager.Instance.SaveExists(filePath));
             // if a save file already exists, when we click it we want to ask if they want to overwrite
             if (SaveLoadManager.Instance.SaveExists(i.ToString()))
             {

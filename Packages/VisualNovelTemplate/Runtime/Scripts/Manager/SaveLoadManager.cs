@@ -32,7 +32,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="string">base fileIndex name. Not full path!!!</typeparam>
+        /// <typeparam name="string">base fileIndex name without any extensions or prefixes. Not full path!!!</typeparam>
         /// <typeparam name="SaveData"></typeparam>
         /// <returns></returns>
         [SerializeField]
@@ -78,6 +78,12 @@ namespace com.argentgames.visualnoveltemplate
         // auto save game if we are ingame, every 5? minutes
         InvokeRepeating("AutoSave", 3f,30f);
 #endif
+
+        currentSave = new SaveData();
+        Debug.LogFormat("current state of curretnSave is... {0}",currentSave);
+        saveFiles = new Dictionary<string, SaveData>();
+        await UniTask.WaitWhile(() => GameManager.Instance == null);
+        LoadSaveFiles().Forget();
         }
 
         async UniTask AutoSave()
@@ -110,7 +116,7 @@ namespace com.argentgames.visualnoveltemplate
                 // save.isTinted = ImageManager.Instance.darkTintOn;
                 var filePath = autoSaveNamePrefix + extension;
                 SaveGame(SaveLoadManager.Instance.CreateSavePath("Saves/" + filePath), save);
-                this.saveFiles[filePath] = save;
+                this.saveFiles[autoSaveNamePrefix] = save;
                 Debug.Log("auto saving now...");
             }
             // }    
@@ -143,7 +149,7 @@ namespace com.argentgames.visualnoveltemplate
                 for (int i = 0; i < fileArray.Length; i++)
                 {
                     Debug.Log(fileArray[i]);
-                    taskList.Add(LoadSaveFile(fileArray[i]));
+                    taskList.Add(LoadSaveFile(SaveFilePath( Path.GetFileName(fileArray[i]).Split('_')[1].Split('.')[0])));
 
 
                 }
@@ -167,13 +173,14 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public async UniTask LoadSaveFile(string filePath)
         {
-            try
-            {
+            // try
+            // {
                 Debug.Log("reading save file..." + filePath);
 
             // byte[] bytes = File.ReadAllBytes(filePath);
 
-            var save = new SaveData().Load(filePath,format);// SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
+            var save = new SaveData();
+            save.Load(filePath,format);// SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
 
             Debug.LogFormat("our loaded save object has date: {0}",save.dateTime);
 
@@ -183,12 +190,12 @@ namespace com.argentgames.visualnoveltemplate
             // var saveData = File.ReadAllText(fileArray[i]);
             // SaveData save = JsonUtility.FromJson<SaveData>(saveData);
             Debug.LogFormat("we have added this save to savefiles with name: {0}",Path.GetFileName(filePath));
-            saveFiles[Path.GetFileName(filePath)] = save;
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogErrorFormat("failed to load save from: {0}, {1}",filePath, e);
-            }
+            saveFiles[Path.GetFileName(filePath).Split('_')[1].Split('.')[0]] = save;
+            // }
+            // catch (System.Exception e)
+            // {
+            //     Debug.LogErrorFormat("failed to load save from: {0}, {1}",filePath, e);
+            // }
             
         }
         public async UniTaskVoid LoadGame(string fileIndex)
@@ -238,7 +245,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <summary>
         /// This is the actually used function.
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">name used as key in our saveFiles map</param>
         public void SaveGame(string fileName = "autosave")
         {
             Debug.Log("run save game from slm please");
@@ -260,11 +267,7 @@ namespace com.argentgames.visualnoveltemplate
             save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
             save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
-            save.currentDialogue = new DialogueSaveData(DialogueSystemManager.Instance.CurrentProcessedDialogue.expression,
-            DialogueSystemManager.Instance.CurrentProcessedDialogue.speaker,
-            DialogueSystemManager.Instance.CurrentProcessedDialogue.text,
-            DialogueSystemManager.Instance.CurrentProcessedDialogue.npc.internalName,
-            DialogueSystemManager.Instance.CurrentProcessedDialogue.duration);
+            save.currentDialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
             save.currentDialogueWindowMode = DialogueSystemManager.Instance.CurrentDialogueWindow;
 
             save.Save(filePath,format);
@@ -326,6 +329,8 @@ namespace com.argentgames.visualnoveltemplate
         {
             try {
                 currentSave = GetSaveData(saveName);
+
+                DialogueSystemManager.Instance.currentSessionDialogueHistory = currentSave.dialogueHistory;
             
             }
             catch
@@ -336,6 +341,7 @@ namespace com.argentgames.visualnoveltemplate
 
         public SaveData GetSaveData(string fileIndex)
         {
+            fileIndex = fileIndex.Trim();
             if (SaveExists(fileIndex))
             {
             return saveFiles[fileIndex];
@@ -350,7 +356,12 @@ namespace com.argentgames.visualnoveltemplate
         }
         public bool SaveExists(string fileIndex)
         {
-            return saveFiles.ContainsKey(fileIndex);
+            fileIndex = fileIndex.Trim();
+            foreach (var key in saveFiles.Keys)
+            {
+                Debug.Log(key);
+            }
+            return saveFiles.ContainsKey(fileIndex.Trim());
         }
         public string SaveFilePath(string saveFileName) 
         { 

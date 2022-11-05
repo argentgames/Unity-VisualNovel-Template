@@ -306,14 +306,14 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
 
-        public override async UniTask DisplayLine(CancellationToken ct)
+        public override async UniTask DisplayLine(Dialogue dialogue,CancellationToken ct)
         {
             ClearText();
             IsDisplayingLine = true;
             bool needToShowSpeakerName = false;
             HideCTC();
             // Debug.Log(text);
-            var dialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
+            // var dialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
             Debug.LogFormat("dialogue line: {0}",dialogue);
 
             await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText), cancellationToken: this.GetCancellationTokenOnDestroy());
