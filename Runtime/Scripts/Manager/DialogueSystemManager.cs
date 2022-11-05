@@ -31,7 +31,7 @@ namespace com.argentgames.visualnoveltemplate
         private DialogueUIManager dialogueUIManager;
         public DialogueUIManager DialogueUIManager { get { return dialogueUIManager; } }
         private string currentDialogueWindow = "";
-        public string CurrentDialogueWindow { get { return currentDialogueWindow; } set { currentDialogueWindow = value;}}
+        public string CurrentDialogueWindow { get { return currentDialogueWindow; } set { currentDialogueWindow = value; } }
 
         [SerializeField]
         [PropertyTooltip("The different types of dialogue textbox UIs we want to use, such as ADV and NVL.")]
@@ -66,7 +66,7 @@ namespace com.argentgames.visualnoveltemplate
         /// The Dialogue that we have already parsed for any characters, sprites, and extracted out the actual dialogue text line.
         /// TODO: turn this into a list of dialogue so we can process inline waits? or have some external function processors for that...
         /// </summary>
-        public Dialogue CurrentProcessedDialogue;
+        public Dialogue? CurrentProcessedDialogue;
         /// <summary>
         /// Any custom functions that we can't use ink functions for.
         /// </summary>
@@ -82,6 +82,15 @@ namespace com.argentgames.visualnoveltemplate
         {
             playerOpenedQmenu = val;
         }
+        /// <summary>
+        /// Used when we load a save and need to run the RunContinueGame for the first time
+        /// </summary>
+        bool isLoadedGame = false;
+        public bool IsLoadedGame => isLoadedGame;
+        public void SetIsLoadedGame(bool val)
+        {
+            isLoadedGame = val;
+        }
 
         /* Utilities */
         CancellationTokenSource cts;
@@ -94,7 +103,7 @@ namespace com.argentgames.visualnoveltemplate
             story = new Story(_story.text);
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
-            
+
             SpawnAllUIWindows().Forget();
             currentSessionDialogueHistory.Clear();
         }
@@ -113,9 +122,9 @@ namespace com.argentgames.visualnoveltemplate
             GameObject window;
             foreach (var dialogueWindowMode in dialogueWindowModes)
             {
-                
+
                 window = Instantiate(dialogueWindowMode.prefab, this.transform);
-                var windowCanvas =  window.GetComponentInChildren<Canvas>();
+                var windowCanvas = window.GetComponentInChildren<Canvas>();
                 windowCanvas.sortingOrder = -100;
                 dialogueWindows[dialogueWindowMode.internalName] = window;
                 // Set our default dialogue ui window 
@@ -196,14 +205,14 @@ namespace com.argentgames.visualnoveltemplate
             {
                 if (DialogueSystemManager.Instance.NeedToDisplayChoices())
                 {
-                     await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
+                    await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
                     if (!dialogueUIManager.DisplayLineBeforeChoiceOnLoad)
-                    { 
+                    {
                         await RunDisplayChoicesOnlyForSaveLoad();
 
                     }
-                  
-                   RunContinueStory().Forget();
+
+                    RunContinueStory().Forget();
 
                     // DialogueSystemManager.Instance.DisplayChoices().Forget();
 
@@ -225,7 +234,7 @@ namespace com.argentgames.visualnoveltemplate
                 else
                 {
                     await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-                   RunContinueStory().Forget();
+                    RunContinueStory().Forget();
                 }
                 Debug.Log("fading in ds from a save");
             }
@@ -415,7 +424,9 @@ namespace com.argentgames.visualnoveltemplate
                     // Debug.Log("actually runnnig a regular line now");
                     stopwatch.Restart();
                     dialogueUIManager.EnableCTC();
-                    await RunRegularLine();
+
+                    CurrentProcessedDialogue = ProcessDialogue(story.currentText);
+                    await RunRegularLine(CurrentProcessedDialogue);
                     Debug.Log("done running regular line");
                     // Debug.Log("time to run regular line: " + stopwatch.ElapsedMilliseconds.ToString());
 
@@ -482,7 +493,9 @@ namespace com.argentgames.visualnoveltemplate
                     else
                     {
                         Debug.Log("display line that got lumped together wit hchoices collection?");
-                        await DisplayLine();
+
+                        CurrentProcessedDialogue = ProcessDialogue(story.currentText);
+                        await DisplayLine((Dialogue)CurrentProcessedDialogue);
                     }
 
                 }
@@ -542,7 +555,27 @@ namespace com.argentgames.visualnoveltemplate
                 else
                 {
                     Debug.Log("actually runnnig a regular line now");
-                    await RunRegularLine();
+                    Debug.LogFormat("do wes need to display current saved line: {0}", 
+                    dialogueUIManager.DisplayLineBeforeChoiceOnLoad || !NeedToDisplayChoices());
+
+                    if (IsLoadedGame)
+                    {
+                        if (dialogueUIManager.DisplayLineBeforeChoiceOnLoad || !NeedToDisplayChoices())
+                        {
+                            CurrentProcessedDialogue = (Dialogue)SaveLoadManager.Instance.currentSave.currentDialogue;
+                        }
+                        else
+                        {
+                            CurrentProcessedDialogue = null;
+                        }
+                        SetIsLoadedGame(false);
+                    }
+                    else
+                    {
+                        CurrentProcessedDialogue = ProcessDialogue(story.currentText);
+                    }
+
+                    await RunRegularLine(CurrentProcessedDialogue);
                     Debug.Log("done running regular line");
                 }
 
@@ -609,7 +642,7 @@ namespace com.argentgames.visualnoveltemplate
             hash128.Append(s);
             return hash128.ToString();
         }
-        public async UniTask DisplayLine()
+        public async UniTask DisplayLine(Dialogue dialogue)
         {
             Debug.LogFormat("Seen text before: {0}; {1} ", CurrentTextSeenBefore(),
             ((GameManager.Instance.IsSkipping && GameManager.Instance.Settings.skipAllText) ||
@@ -627,7 +660,7 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             // Debug.Log("please display line now");
-            await dialogueUIManager.DisplayLine(ct);
+            await dialogueUIManager.DisplayLine(dialogue, ct);
             // Debug.Log("done displaing line");
             // Debug.Log("now wait until dialogue is not displaying line still");
             await UniTask.WaitUntil(() => !dialogueUIManager.WaitingForPlayerContinueStory, cancellationToken: this.ct);
@@ -635,20 +668,23 @@ namespace com.argentgames.visualnoveltemplate
 
         }
         public bool waitingToContinueStory = false;
-        public async UniTask RunRegularLine()
+        public async UniTask RunRegularLine(Dialogue? dialogue)
         {
             waitingToContinueStory = true;
-            CurrentProcessedDialogue = ProcessDialogue(story.currentText);
 
-            await DisplayLine(); // ctc will end this by setting isdisplayling line to false
-            await UniTask.Yield();
+            if (dialogue != null)
+            {
+                await DisplayLine((Dialogue)dialogue); // ctc will end this by setting isdisplayling line to false
+                await UniTask.Yield();
+            }
+
 
             if (story.currentChoices.Count > 0)
             {
                 if (GameManager.Instance.IsAuto)
                 {
                     await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
-                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
+                     (1 - GameManager.Instance.Settings.AutoSpeed.Value)), cancellationToken: this.ct);
                     // InkContinueStory();
                 }
                 await DisplayChoices();
@@ -656,8 +692,8 @@ namespace com.argentgames.visualnoveltemplate
 
             if (GameManager.Instance.IsAuto)
             {
-               await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
-                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
+                      (1 - GameManager.Instance.Settings.AutoSpeed.Value)), cancellationToken: this.ct);
                 // InkContinueStory();
             }
             else if (GameManager.Instance.IsSkipping)
@@ -678,7 +714,7 @@ namespace com.argentgames.visualnoveltemplate
                 if (GameManager.Instance.IsAuto)
                 {
                     await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
-                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
+                     (1 - GameManager.Instance.Settings.AutoSpeed.Value)), cancellationToken: this.ct);
                     // InkContinueStory();
                 }
                 await DisplayChoices();
@@ -686,8 +722,8 @@ namespace com.argentgames.visualnoveltemplate
 
             if (GameManager.Instance.IsAuto)
             {
-               await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
-                     (1 - GameManager.Instance.Settings.AutoSpeed.Value) ), cancellationToken: this.ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeAutoNextLine *
+                      (1 - GameManager.Instance.Settings.AutoSpeed.Value)), cancellationToken: this.ct);
                 // InkContinueStory();
             }
             else if (GameManager.Instance.IsSkipping)

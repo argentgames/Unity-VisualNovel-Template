@@ -100,6 +100,7 @@ namespace com.argentgames.visualnoveltemplate
         /// TODO: We might want to return an object that contains soundName, eventInstanceVolume, and other information.
         /// </summary>
         /// <returns></returns>
+        [Button]
         public string GetCurrentPlayingMusic()
         {
             if (eventInstanceMap["music"].IsPlaying)

@@ -16,6 +16,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Text.RegularExpressions;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 namespace com.argentgames.visualnoveltemplate
 {
 
@@ -24,7 +25,7 @@ namespace com.argentgames.visualnoveltemplate
     /// to display the ink line, a choices parent to hold choices, and a choice prefab to 
     /// instantiate choices.
     /// </summary>
-    public abstract class DialogueUIManager : MonoBehaviour
+    public abstract class DialogueUIManager : SerializedMonoBehaviour
     {
         [SerializeField]
         [PropertyTooltip("Prefab of choice to spawn when the player needs to make a choice.")]
@@ -72,6 +73,8 @@ namespace com.argentgames.visualnoveltemplate
         Coroutine ctcDelay;
         public float delayBeforeAllowCTCLogic = .1f;
         bool isRunningCTCDelay = false;
+        [Tooltip("When we load a save at a choice, do we want to display the previous dialogue line alongside the choice?")]
+        public bool DisplayLineBeforeChoiceOnLoad = false;
 
         #region Click to continue
         public virtual async UniTaskVoid CTCLogic()
@@ -373,10 +376,13 @@ namespace com.argentgames.visualnoveltemplate
 
         /// <summary>
         /// How we display a line of ink text.
+        /// Takes a line so we know what to display
+        /// Usually ends up being current processed line, but
+        /// it could be the loaded line
         /// </summary>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public abstract UniTask DisplayLine(CancellationToken ct);
+        public abstract UniTask DisplayLine(Dialogue dialogue, CancellationToken ct);
 
         /// <summary>
         /// Clear the dialogue box of any visible text.
@@ -434,10 +440,13 @@ namespace com.argentgames.visualnoveltemplate
         /// These are mostly for more compliex dialogue windows like Messenger chats if we want to recreate what chats
         /// and channels are visible when save/loaded, instead of just save/loading into a clean ui window.
         /// </summary>
-        public virtual void Save() { }
-        public virtual void Load() { }
+        public virtual void Save(string saveIndex) { }
+        public virtual async UniTask Load(string saveIndex) { }
 
-
+        void OnDestroy()
+        {
+            RemoveVNControlSubscriptions();
+        }
 
     }
 

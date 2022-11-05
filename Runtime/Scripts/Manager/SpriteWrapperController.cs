@@ -46,6 +46,8 @@ namespace com.argentgames.visualnoveltemplate
         private Dictionary<string, ColorTint> colorTintsMap = new Dictionary<string, ColorTint>();
 
         public char prefixDelimiter = '_';
+        [SerializeField]
+        bool doSelfRegister = true;
 
         SkipTokenSource skipTokenSource = new SkipTokenSource();
         SkipToken skipToken;
@@ -70,23 +72,7 @@ namespace com.argentgames.visualnoveltemplate
         }
 
         bool animationComplete = false;
-        /// <summary>
-        /// Gets the current displayed expression of character for saving purposes
-        /// </summary>
-        /// <value></value>
-        public string CurrentExpression
-        {
-            get
-            {
-                var s = "";
-                foreach (var sr in transform.GetComponentsInChildren<SpriteRenderer>())
-                {
-                    s += " " + sr.sprite.name;
-                }
-                return s;
 
-            }
-        }
 
         void Awake()
         {
@@ -107,7 +93,11 @@ namespace com.argentgames.visualnoveltemplate
             GenerateExpressionsMapForHead();
             SetNewExpression();
             CreateSkipToken();
-            ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject);
+            if (doSelfRegister)
+            {
+               ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject); 
+            }
+            
         }
 
         /// <summary>
@@ -354,11 +344,11 @@ Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
             s.expressionImageName = "";
             foreach (var kv in currentExpression)
             {
-                s.expressionImageName += string.Format("{0}{1}{2}",kv.Key,prefixDelimiter,kv.Value);
+                s.expressionImageName += string.Format("{0} ",kv.Value);
             }
 
             
-            s.position = transform.position;
+            s.position = transform.localPosition;
             
             // TODO: add in tint color
 
