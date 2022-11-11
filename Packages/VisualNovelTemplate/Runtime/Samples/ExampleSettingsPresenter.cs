@@ -10,14 +10,7 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class ExampleSettingsPresenter : MenuPresenter
     {
-        [SerializeField]
-        // [AllowNesting]
-        List<GameObject> pages = new List<GameObject>();
-        Dictionary<string, GameObject> pagesMap = new Dictionary<string, GameObject>();
-
-        [SerializeField]
-        [Tooltip("Menus usually have a navigation toolbar somewhere so we're going to grab that and open pages by selecting stuff in the nav")]
-        Navigation navigation;
+        
 
 
         void Awake()
