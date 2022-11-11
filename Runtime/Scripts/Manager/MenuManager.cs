@@ -37,7 +37,7 @@ namespace com.argentgames.visualnoveltemplate
         Dictionary<string, GameObject> openMenus = new Dictionary<string, GameObject>();
         GameObject currentMenu;
 
-        public bool IsMenuOpen { get { return currentMenu != null; }}
+        public bool IsMenuOpen { get { return currentMenu != null; } }
         async UniTaskVoid Awake()
         {
             Instance = this;
@@ -47,7 +47,7 @@ namespace com.argentgames.visualnoveltemplate
             foreach (var menu in menuPrefabs)
             {
                 menuMap[menu.internalName] = menu;
-                
+
             }
             await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
             SpawnAllMenus();
@@ -61,17 +61,25 @@ namespace com.argentgames.visualnoveltemplate
             cts = new CancellationTokenSource();
             ct = cts.Token;
         }
+        // HACK: open every page and spawn every menu because otherwise sometimes pages don't open the first time??
         public void SpawnAllMenus()
         {
             foreach (var kv in menuMap)
             {
                 var menuName = kv.Key;
                 var go = Instantiate(menuMap[menuName].prefab, this.transform);
-                    openMenus[menuName] = go;
-                    OpenPage(menuName);
+                openMenus[menuName] = go;
+                OpenPage(menuName);
+                // OpenEveryPage(menuName);
             }
             CloseAllMenus();
-            
+
+        }
+        void OpenEveryPage(string menuName)
+        {
+            var menuPresenter = openMenus[menuName].GetComponentInChildren<MenuPresenter>();
+
+            menuPresenter.OpenEveryPage();
         }
 
         /// <summary>
@@ -123,10 +131,12 @@ namespace com.argentgames.visualnoveltemplate
 
             // if we don't have any menus open right now, then we need to instantiate one
             // otherwise find the open menu and bring it forward and make it the focused menu
+            Debug.LogFormat("currentMenu: {0}", currentMenu);
             if (currentMenu == null)
             {
                 if (openMenus.Count == 0 || !openMenus.ContainsKey(menuName))
                 {
+
                     // NO ADDRESSABLES SUPPORTED RIGHT NOW
                     // TODO
                     var go = Instantiate(menuMap[menuName].prefab, this.transform);
@@ -139,11 +149,29 @@ namespace com.argentgames.visualnoveltemplate
                     currentMenu = openMenus[menuName];
                     // move the menu order to the top, which means making it the last child of menumanager
                     currentMenu.transform.SetSiblingIndex(this.transform.childCount - 1);
+                    Debug.LogFormat("NO SPAWN NEW MENU currentMenu: {0}", currentMenu);
                 }
             }
-            var menuPresenter = currentMenu.GetComponent<MenuPresenter>();
-
+            else
+            {
+                currentMenu = openMenus[menuName];
+                // move the menu order to the top, which means making it the last child of menumanager
+                currentMenu.transform.SetSiblingIndex(this.transform.childCount - 1);
+                Debug.LogFormat("NO SPAWN NEW MENU currentMenu: {0}", currentMenu);
+            }
+            Debug.LogFormat("currentMenu: {0}", currentMenu);
+            // Debug.Break();
+            try
+            {
+                var menuPresenter = currentMenu.GetComponent<MenuPresenter>();
+            Debug.Log("PLEASE OPEN THE PAGE WITH NAME: " + pageName);
             menuPresenter.OpenPage(pageName);
+            }
+            catch
+            {
+                Debug.LogErrorFormat("unable to open menu?? {0}, {1}, {2}", menuName, pageName, currentMenu);
+            }
+            
         }
 
         public void CloseAllMenus()

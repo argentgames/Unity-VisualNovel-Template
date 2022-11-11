@@ -15,16 +15,40 @@ using Sirenix.OdinInspector;
 /// finding components on disabled objects...
 /// </summary>
 
-namespace com.argentgames.visualnoveltemplate {
-    public abstract class MenuPresenter : SerializedMonoBehaviour {
+namespace com.argentgames.visualnoveltemplate
+{
+    public abstract class MenuPresenter : SerializedMonoBehaviour
+    {
         [Tooltip("The page we open to if we just call generic OpenPage()")]
         public string defaultPage;
         [Tooltip("The parent that we show/hide when opening/closing the menu.")]
         public GameObject menuContainer;
-        public abstract UniTask OpenPage(string pageName="");
+
+        [SerializeField]
+        // [AllowNesting]
+        public List<GameObject> pages = new List<GameObject>();
+        public Dictionary<string, GameObject> pagesMap = new Dictionary<string, GameObject>();
+
+        [SerializeField]
+        [Tooltip("Menus usually have a navigation toolbar somewhere so we're going to grab that and open pages by selecting stuff in the nav")]
+        public Navigation navigation;
+
+        public abstract UniTask OpenPage(string pageName = "");
         public virtual void CloseMenu()
         {
             menuContainer.SetActive(false);
-                    }
+        }
+        public void OpenEveryPage()
+        {
+            foreach (var page in pages)
+            {
+                page.SetActive(true);
+            }
+            // TECHDEBT: need to yield a frame maybe?
+            // foreach (var page in pages)
+            // {
+            //     page.SetActive(false);
+            // }
+        }
     }
 }

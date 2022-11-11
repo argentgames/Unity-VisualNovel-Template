@@ -543,7 +543,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
 
                 // is it an action function and thus we want to automatically evaluate it without any user input?
-                if (NeedToRunActionFunction())
+                if (!IsLoadedGame && NeedToRunActionFunction())
                 {
                     Debug.Log("actually running an action function now");
                     IsRunningActionFunction = true;
@@ -554,12 +554,14 @@ namespace com.argentgames.visualnoveltemplate
                 // otherwise it's going to be a regular line that may or may not include choices
                 else
                 {
-                    Debug.Log("actually runnnig a regular line now");
-                    Debug.LogFormat("do wes need to display current saved line: {0}", 
-                    dialogueUIManager.DisplayLineBeforeChoiceOnLoad || !NeedToDisplayChoices());
 
+                    Debug.Log("actually runnnig a regular line now");
                     if (IsLoadedGame)
                     {
+
+                        Debug.LogFormat("do wes need to display current saved line: {0}",
+                        dialogueUIManager.DisplayLineBeforeChoiceOnLoad || !NeedToDisplayChoices());
+
                         if (dialogueUIManager.DisplayLineBeforeChoiceOnLoad || !NeedToDisplayChoices())
                         {
                             CurrentProcessedDialogue = (Dialogue)SaveLoadManager.Instance.currentSave.currentDialogue;
