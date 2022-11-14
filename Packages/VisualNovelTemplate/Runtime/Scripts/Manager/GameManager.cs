@@ -153,47 +153,64 @@ namespace com.argentgames.visualnoveltemplate
         }
 
 
+        // TECHDEBT: clear out the currentScreenshot so it's not always held in memory the entire game
         public async UniTask TakeScreenshot()
         {
-            currentScreenshot = null;
+// byte[] bytes = tex.EncodeToPNG();
+// Object.Destroy(tex);
+
             try
             {
-                string sspath = "";
-#if PLATFORM_ANDROID
-            sspath = "current.PNG";
-#else
-                SaveLoadManager.Instance.CreateSavePath("current.PNG");
-#endif
+//                 string sspath = "";
+// #if PLATFORM_ANDROID
+//             sspath = "current.PNG";
+// #else
+//                 SaveLoadManager.Instance.CreateSavePath("current.PNG");
+// #endif
 
-                var actualSavedFP = SaveLoadManager.Instance.CreateSavePath("current.PNG");
+//                 var actualSavedFP = SaveLoadManager.Instance.CreateSavePath("current.PNG");
 
-                Debug.Log("trying to save screenshot to " + actualSavedFP);
-                // if (File.Exists(actualSavedFP))
-                // {
-                //     File.Delete(actualSavedFP);
-                //     Console.WriteLine("The file exists.");
-                // }
-                ScreenCapture.CaptureScreenshot(actualSavedFP);
-                await UniTask.WaitUntil(() => File.Exists(actualSavedFP));
+//                 Debug.Log("trying to save screenshot to " + actualSavedFP);
+//                 // if (File.Exists(actualSavedFP))
+//                 // {
+//                 //     File.Delete(actualSavedFP);
+//                 //     Console.WriteLine("The file exists.");
+//                 // }
+//                 ScreenCapture.CaptureScreenshot(actualSavedFP);
+//                 await UniTask.WaitUntil(() => File.Exists(actualSavedFP));
                 //Read
-#if PLATFORM_ANDROID
-            actualSavedFP = "file://" + actualSavedFP;
-#endif
-                var bytes = (await UnityWebRequest.Get(actualSavedFP).SendWebRequest()).downloadHandler.data;
-                // byte[] bytes = File.ReadAllBytes(sspath);
-                //Convert image to texture
-                Texture2D loadTexture = new Texture2D(2, 2);
-                loadTexture.LoadImage(bytes);
-                // resize texture because we only need a tiny screenshot 
-                currentScreenshot = loadTexture;
+// #if PLATFORM_ANDROID
+//             actualSavedFP = "file://" + actualSavedFP;
+// #endif
+                // var bytes = (await UnityWebRequest.Get(actualSavedFP).SendWebRequest()).downloadHandler.data;
+                // // byte[] bytes = File.ReadAllBytes(sspath);
+                // //Convert image to texture
+                // Texture2D loadTexture = new Texture2D(2, 2);
+                // loadTexture.LoadImage(bytes);
+                // // resize texture because we only need a tiny screenshot 
+                // currentScreenshot = loadTexture;
 
 
-                int width = Screen.currentResolution.width;
-                int height = Screen.currentResolution.height;
-                var scaleFactorWidth = width / (float)419;
-                var scalefactorHeight = height / (float)213;
-                var scaleFactor = scaleFactorWidth > scalefactorHeight ? scaleFactorWidth : scalefactorHeight;
-                currentScreenshot = Resize(currentScreenshot, 419, 213);
+                // int width = Screen.currentResolution.width;
+                // int height = Screen.currentResolution.height;
+                // var scaleFactorWidth = width / (float)419;
+                // var scalefactorHeight = height / (float)213;
+                // var scaleFactor = scaleFactorWidth > scalefactorHeight ? scaleFactorWidth : scalefactorHeight;
+                // currentScreenshot = Resize(currentScreenshot, 419, 213);
+
+
+await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+                currentScreenshot = new Texture2D(Screen.width, Screen.height,TextureFormat.RGB24, true);
+
+await UniTask.WaitForEndOfFrame(this);
+
+currentScreenshot.ReadPixels(new Rect(0,0,Screen.width,Screen.height),0,0);
+currentScreenshot.LoadRawTextureData(currentScreenshot.GetRawTextureData());
+currentScreenshot.Apply();
+currentScreenshot = Resize(currentScreenshot, 419, 213);
+// byte[] bytes = tex.EncodeToPNG();
+// Object.Destroy(tex);
+
             }
             catch (Exception e)
             {
@@ -201,9 +218,9 @@ namespace com.argentgames.visualnoveltemplate
                 currentScreenshot = DefaultConfig.defaultNullTexture;
             }
 
-#if PLATFORM_ANDROID
-        await UniTask.WaitWhile(() => currentScreenshot == null);
-#endif
+// #if PLATFORM_ANDROID
+//         await UniTask.WaitWhile(() => currentScreenshot == null);
+// #endif
 
         }
 
