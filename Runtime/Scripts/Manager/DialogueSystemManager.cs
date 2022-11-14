@@ -201,53 +201,66 @@ namespace com.argentgames.visualnoveltemplate
             MenuManager.Instance.EnableSettingsUIControls();
             SetDialogueWindow(currentDialogueWindow);
 
-            if (SaveLoadManager.Instance.currentSave != null)
-            {
-                if (DialogueSystemManager.Instance.NeedToDisplayChoices())
-                {
-                    await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-                    if (!dialogueUIManager.DisplayLineBeforeChoiceOnLoad)
-                    {
-                        await RunDisplayChoicesOnlyForSaveLoad();
+            // if (SaveLoadManager.Instance.currentSave != null)
+            // {
+            //     // if (DialogueSystemManager.Instance.NeedToDisplayChoices())
+            //     // {
+            //     //     await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
+            //     //     if (!dialogueUIManager.DisplayLineBeforeChoiceOnLoad)
+            //     //     {
+            //     //         await RunDisplayChoicesOnlyForSaveLoad();
 
-                    }
+            //     //     }
 
-                    RunContinueStory().Forget();
+            //     //     RunContinueStory().Forget();
 
-                    // DialogueSystemManager.Instance.DisplayChoices().Forget();
+            //     //     // DialogueSystemManager.Instance.DisplayChoices().Forget();
 
-                    // await dialogueUIManager.ShowUI();
-                    // // await dialogueUIManager.DisplayLine(ct);
+            //     //     // await dialogueUIManager.ShowUI();
+            //     //     // // await dialogueUIManager.DisplayLine(ct);
 
-                    // dialogueUIManager.PlayerAllowedToHideUI = true;
-                    // dialogueUIManager.HideCTC();
-                    // SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
+            //     //     // dialogueUIManager.PlayerAllowedToHideUI = true;
+            //     //     // dialogueUIManager.HideCTC();
+            //     //     // SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
 
-                }
-                else if (DialogueSystemManager.Instance.NeedToRunActionFunction())
-                {
-                    await DialogueSystemManager.Instance.RunActionFunction();
-                    await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-
-
-                }
-                else
-                {
-                    await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-                    RunContinueStory().Forget();
-                }
-                Debug.Log("fading in ds from a save");
-            }
-            else
-            {
-                Debug.Log("fading in from ds no save");
+            //     // }
+            //     // else 
+            //     if (DialogueSystemManager.Instance.NeedToRunActionFunction())
+            //     {
+            //         await DialogueSystemManager.Instance.RunActionFunction();
+            //         await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
 
 
-                Debug.Log("done fading in with 0");
-                Debug.Log("running node: " + story.state.currentPathString);
-                RunContinueStory().Forget();
-                await SceneTransitionManager.Instance.FadeIn(0f);
-            }
+            //     }
+            //     else
+            //     {
+            //         await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
+            //         RunContinueStory().Forget();
+            //     }
+            //     Debug.Log("fading in ds from a save");
+            // }
+            // else
+            // {
+            //     Debug.Log("fading in from ds no save");
+
+
+            //     Debug.Log("done fading in with 0");
+            //     Debug.Log("running node: " + story.state.currentPathString);
+            //     RunContinueStory().Forget();
+            //     await SceneTransitionManager.Instance.FadeIn(0f);
+            // }
+
+            // if (DialogueSystemManager.Instance.NeedToDisplayChoices())
+            //     {
+            //         if (!dialogueUIManager.DisplayLineBeforeChoiceOnLoad)
+            //         {
+            //             await RunDisplayChoicesOnlyForSaveLoad();
+
+            //         }
+            //     }
+
+            RunContinueStory().Forget();
+                
         }
 
 
@@ -571,6 +584,25 @@ namespace com.argentgames.visualnoveltemplate
                             CurrentProcessedDialogue = null;
                         }
                         SetIsLoadedGame(false);
+
+                        ShowDialogueWindow(currentDialogueWindow);
+                        
+                        // Debug.Break();
+
+                        Debug.LogFormat("our courrent duimanger is: {0}, isShowingUI value: {1}",dialogueUIManager.name, dialogueUIManager.IsShowingUI);
+                        // display ui?
+                        if (!dialogueUIManager.IsShowingUI)
+                        {
+                            Debug.Log("are we stuck waiting to show ui?");
+
+                            await dialogueUIManager.ShowUI();
+                            Debug.Log("done showing ui");
+                        }
+                        else
+                        {
+                            Debug.Log("FORCE DIALOGUE UI SHOW");
+                            await dialogueUIManager.ShowUI();
+                        }
                     }
                     else
                     {
@@ -652,14 +684,14 @@ namespace com.argentgames.visualnoveltemplate
             // Debug.Log(story.currentText);
             dialogueUIManager.CurrentTags = story.currentTags;
             // TODO: Turn this into an await for animation to show UI
-            if (!dialogueUIManager.IsShowingUI)
-            {
-                // Debug.Log("are we stuck waiting to show ui?");
+            // if (!dialogueUIManager.IsShowingUI)
+            // {
+            //     // Debug.Log("are we stuck waiting to show ui?");
 
-                dialogueUIManager.PlayerAllowedToHideUI = true;
-                await dialogueUIManager.ShowUI();
-                // Debug.Log("done showing ui");
-            }
+            //     dialogueUIManager.PlayerAllowedToHideUI = true;
+            //     await dialogueUIManager.ShowUI();
+            //     // Debug.Log("done showing ui");
+            // }
 
             // Debug.Log("please display line now");
             await dialogueUIManager.DisplayLine(dialogue, ct);
@@ -800,6 +832,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="internalName"></param>
         public void SetDialogueWindow(string internalName)
         {
+            Debug.Log("setting dialogue window to: " + internalName);
             try
             {
                 // unregister vngameplaymap from all windows and then enable it in the appropriate window
@@ -887,6 +920,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("loading dialogue window: " + window.name);
             }
             await UniTask.WhenAll(windowLoading);
+            // Debug.Break();
         }
         public void SaveDialogueWindowStates(string saveIndex)
         {
