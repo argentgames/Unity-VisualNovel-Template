@@ -330,7 +330,7 @@ namespace com.argentgames.visualnoveltemplate
             try {
                 currentSave = GetSaveData(saveName);
 
-                DialogueSystemManager.Instance.currentSessionDialogueHistory = currentSave.dialogueHistory;
+                
             
             }
             catch
