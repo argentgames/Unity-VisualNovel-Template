@@ -74,7 +74,7 @@ Material:
     - GaussianBlurOffset: 0
     - NoiseAmount: 0
     - NoiseOpacity: 0.378
-    - TransitionAmount: 0
+    - TransitionAmount: 0.941
     - Vector1_0df79675aee640a588761587acd0507f: 0
     - _Cutoff: 0.2
     - _DoAlpha: 0
