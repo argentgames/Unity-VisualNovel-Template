@@ -5,6 +5,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
 using AnimeTask;
+using ElRaccoone.Tweens;
 namespace com.argentgames.visualnoveltemplate
 {
     public struct BodyPart
@@ -73,11 +74,21 @@ namespace com.argentgames.visualnoveltemplate
 
         bool animationComplete = false;
 
-
-        void Awake()
+        bool initComplete = false;
+        public bool InitComplete => initComplete;
+        async UniTaskVoid Awake()
         {
             bodyPartsMap.Clear();
             currentExpression.Clear();
+            // Debug.Break();
+        
+            if (doSelfRegister)
+            {
+                await UniTask.WaitUntil(() => ImageManager.Instance != null);
+               ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject); 
+            }
+            // set our initial/default expression
+
             foreach (var part in bodyParts)
             {
                 bodyPartsMap[part.prefix] = part.gameObject.GetComponentInChildren<SpriteRenderer>();
@@ -89,15 +100,19 @@ namespace com.argentgames.visualnoveltemplate
             {
                 colorTintsMap[tint.internalName] = tint;
             }
-            // set our initial/default expression
+
+
             GenerateExpressionsMapForHead();
-            SetNewExpression();
-            CreateSkipToken();
-            if (doSelfRegister)
-            {
-               ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject); 
-            }
             
+            CreateSkipToken();
+            
+            initComplete = true;
+            
+        }
+
+        void Start()
+        {
+            // SetNewExpression();
         }
 
         /// <summary>
@@ -157,6 +172,7 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         /// <param name="expression">list of expressions in a string format with space delimiting. E.g. 
         /// head_1 eyes_angry_1 mouth_sad2</param>
+        [Button]
         void SetNewExpression(string expression = "")
         {
             if (expression == "")
@@ -205,9 +221,10 @@ namespace com.argentgames.visualnoveltemplate
 
                     currentExpression[_prefix] = part;
                 }
-                catch
+                catch (Exception e)
                 {
-                    Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}", part, _prefix);
+                    Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}", 
+                        part, _prefix,e);
                 }
 
             }
@@ -239,12 +256,20 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
                     {
-                        Debug.Log("running animation for SR: " + sr.gameObject.name);
+                        Debug.Log("running animation for SR: " + sr.gameObject.name +
+                         " with oldTex "+ sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
+                        
+                        
+                        sr.TweenValueFloat (1f, transitionDuration, (v) => {
+                            sr.material.SetFloat("_TransitionAmount",v);
+                            Debug.Log("setting material value");
+                        }).SetFrom(0) ;
+                        
                         // TECHDEBT: hardcoding the ease =.=
-                        animationTasks.Add(
-Easing.Create<InCubic>(start: 0f, end: 1f, duration: transitionDuration)
-                    .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
-                        );
+//                         animationTasks.Add(
+// Easing.Create<Linear>(start: 0f, end: 1f, duration: transitionDuration)
+//                     .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
+//                         );
 
                         // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
                         // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)

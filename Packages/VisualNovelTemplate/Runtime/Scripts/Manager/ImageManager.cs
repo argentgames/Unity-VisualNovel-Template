@@ -206,6 +206,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void RegisterCharacter(string charName, GameObject go)
         {
+            Debug.Log("registering character " + charName);
             charactersOnScreen[charName] = go;
         }
         public void ClearCharactersOnScreen()
@@ -352,6 +353,8 @@ namespace com.argentgames.visualnoveltemplate
             {
                 newBGGO = GameObject.Instantiate(shot.bgPrefab, newBGContainer.transform);
             }
+
+            // Debug.Break();
 
 
             Wipe_SO transitionWipe;
@@ -693,6 +696,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             // Debug.Break();
             var spriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
+            await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
             spriteWrapperController.ExpressionChange(expression, 0).Forget();
 
             if (location == null)
@@ -893,7 +897,6 @@ namespace com.argentgames.visualnoveltemplate
             // if it's a portrait char, then get the portrait one, otherwise get the main big sprite
             // GameObject char_;
             bool needToShowPortrait = false;
-            // Debug.Log(charactersOnScreen.Count);
             if (charactersOnScreen.ContainsKey(charName))
             {
                 char_ = charactersOnScreen[charName];
