@@ -405,6 +405,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public abstract UniTaskVoid SelectChoice();
 
+        // TECHDEBT: What's difference between this and ClearText?
         public virtual void ClearUI() { }
         public virtual void KillTypewriter() { }
         public virtual void PauseTypewriter() { }
