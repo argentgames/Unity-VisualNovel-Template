@@ -104,9 +104,11 @@ namespace com.argentgames.visualnoveltemplate
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
 
-            SpawnAllUIWindows().Forget();
+            // SpawnAllUIWindows().Forget();
+            HideAllDialogueWindows();
             currentSessionDialogueHistory.Clear();
         }
+
         public async UniTask SpawnAllUIWindows()
         {
             // make sure there don't exist windows already before we spawn everything
@@ -117,13 +119,16 @@ namespace com.argentgames.visualnoveltemplate
             }
             dialogueWindows.Clear();
 
+            // Debug.Break();
+
             // Spawn all the dialogue windows we want to use ingame and deactivate them.
             // Hold a reference to them so we can select the one to use through ink!
             GameObject window;
             foreach (var dialogueWindowMode in dialogueWindowModes)
             {
-
+// Debug.Break();
                 window = Instantiate(dialogueWindowMode.prefab, this.transform);
+                var debugName = window.gameObject.name;
                 var windowCanvas = window.GetComponentInChildren<Canvas>();
                 windowCanvas.sortingOrder = -100;
                 dialogueWindows[dialogueWindowMode.internalName] = window;
@@ -143,7 +148,9 @@ namespace com.argentgames.visualnoveltemplate
                 }
 
                 await UniTask.Yield();
-                window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
+                try
+                {
+                    window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
                 window.GetComponentInChildren<DialogueUIManager>().ClearUI();
                 try
                 {
@@ -153,6 +160,12 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
                 }
+                }
+                catch (MissingReferenceException)
+                {
+                    Debug.LogErrorFormat("window {0} was destroyed asynchronously...",debugName);
+                }
+                
 
 
             }
