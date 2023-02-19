@@ -93,6 +93,20 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         private Dictionary<string, GameObject> charactersOnScreen = new Dictionary<string, GameObject>();
 
+        public GameObject GetCharacterOnScreen(string charName) {
+          
+                if (charactersOnScreen.ContainsKey(charName))
+                {
+                    return charactersOnScreen[charName];
+                }
+                else
+
+                {
+                    Debug.LogErrorFormat("can't get characger on screen with name {0} because it is not on screen",charName);
+                    return null;
+                }
+            
+        }
         /// <summary>
         /// Keep track of which characters have what tints currently active. Mainly a save/load thing.
         /// If a character has activeTint="", then no tint is being applied.

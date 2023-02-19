@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4289789524364528434}
   - component: {fileID: 3818579460325111330}
   - component: {fileID: 7004106453349311913}
+  - component: {fileID: 3869758443579532459}
   m_Layer: 0
   m_Name: DialogueSystemManager
   m_TagString: Untagged
@@ -28,6 +29,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -45,11 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _story: {fileID: 0}
-  inkStoryFiles: []
-  dialogueUIManager: {fileID: 0}
-  currentDialogue: 
-  playerCanContinue: 1
-  endGame: 0
+  dialogueWindowModes: []
   IsProcessingLine: 1
   IsRunningActionFunction: 0
   IsContinueStoryRunning: 0
@@ -66,4 +64,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e759eecb5e7e954da0e1f9bc0000b72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueUIManager: {fileID: 0}
+--- !u!114 &3869758443579532459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7491111350458785122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 300a353939e7e3242a44ce13916ba012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  registeredFunctions: 0

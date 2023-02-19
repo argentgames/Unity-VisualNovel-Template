@@ -210,10 +210,19 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public virtual async UniTask HideUI(float duration = .3f)
         {
+            
             var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
-                await animator.Disable(duration);
+                try
+                {
+                    await animator.Disable(duration);
+                }
+                catch (NullReferenceException)
+                {
+                    Debug.LogErrorFormat("unable to hide UI, GO {0} was destroyed",this.gameObject.name);
+                }
+                
             }
             else
             {
