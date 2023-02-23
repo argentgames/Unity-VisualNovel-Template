@@ -206,8 +206,10 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void UnregisterCharacter(string charName)
         {
+            Debug.Log("trying to unregister char " + charName);
             if (charactersOnScreen.ContainsKey(charName))
             {
+                Debug.Log("unregister character " + charName + "success!");
                 charactersOnScreen.Remove(charName);
             }
         }
@@ -230,7 +232,10 @@ namespace com.argentgames.visualnoveltemplate
                 AssetRefLoader.Instance.ReleaseAsset(MidgroundCharacterContainer.transform.GetChild(i).gameObject);
                 // Destroy(CharacterLayer.transform.GetChild(i).gameObject);
             }
-            charactersOnScreen.Clear();
+            foreach (var key in charactersOnScreen.Keys)
+            {
+                UnregisterCharacter(key);
+            }
         }
         public Dictionary<string, SpriteSaveData> GetAllCharacterOnScreenSaveData()
         {
@@ -918,7 +923,7 @@ namespace com.argentgames.visualnoveltemplate
             else
 
             {
-                Debug.Log(charactersOnScreen.Count);
+                Debug.LogFormat("num chars on screen: {0}",charactersOnScreen.Count);
                 foreach (var k in charactersOnScreen.Keys)
                 {
                     Debug.LogFormat("char on screen: {0}", k);
@@ -936,9 +941,23 @@ namespace com.argentgames.visualnoveltemplate
                 return needToShowPortrait;
             }
 
+            if (char_ == null)
+            {
+                Debug.LogFormat("char_ is null...needtoshowportrait: {0}",needToShowPortrait);
+                return needToShowPortrait;
+            }
+
             if (expression.TrimStart(null).TrimEnd(null) != "")
             {
-                await char_.GetComponentInChildren<SpriteWrapperController>().ExpressionChange(expression);
+                var swc = char_.GetComponentInChildren<SpriteWrapperController>();
+                if (swc != null)
+                {
+                    await swc.ExpressionChange(expression);
+                }
+                else
+                {
+                    Debug.LogErrorFormat("could not get sprite wrapper controller for char {0}",char_.name);
+                }
             }
 
             if (!GameManager.Instance.IsSkipping)
