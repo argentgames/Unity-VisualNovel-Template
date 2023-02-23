@@ -388,7 +388,11 @@ namespace com.argentgames.visualnoveltemplate
         
         void OnDestroy()
         {
+            if (doSelfRegister)
+            {
             ImageManager.Instance.UnregisterCharacter(selfRegisteredName);
+ 
+            }
         }
     }
 }
