@@ -59,7 +59,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="string"></typeparam>
         /// <typeparam name="string"></typeparam>
         /// <returns></returns>
-        Dictionary<string,string> currentExpression = new Dictionary<string, string>();
+        Dictionary<string, string> currentExpression = new Dictionary<string, string>();
 
         public void CreateSkipToken()
         {
@@ -81,11 +81,11 @@ namespace com.argentgames.visualnoveltemplate
             bodyPartsMap.Clear();
             currentExpression.Clear();
             // Debug.Break();
-        
+
             if (doSelfRegister)
             {
                 await UniTask.WaitUntil(() => ImageManager.Instance != null);
-               ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject); 
+                ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject);
             }
             // set our initial/default expression
 
@@ -103,11 +103,11 @@ namespace com.argentgames.visualnoveltemplate
 
 
             GenerateExpressionsMapForHead();
-            
+
             CreateSkipToken();
-            
+
             initComplete = true;
-            
+
         }
 
         void Start()
@@ -223,8 +223,8 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 catch (Exception e)
                 {
-                    Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}", 
-                        part, _prefix,e);
+                    Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}",
+                        part, _prefix, e);
                 }
 
             }
@@ -252,34 +252,43 @@ namespace com.argentgames.visualnoveltemplate
             animationComplete = false;
             foreach (var sr in bodyPartsMap.Values)
             {
-                if (sr.material.GetTexture("NewTex") != null)
+                try
                 {
-                    if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                    if (sr.material.GetTexture("NewTex") != null)
                     {
-                        Debug.Log("running animation for SR: " + sr.gameObject.name +
-                         " with oldTex "+ sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
-                        
-                        
-                        sr.TweenValueFloat (1f, transitionDuration, (v) => {
-                            sr.material.SetFloat("_TransitionAmount",v);
-                            Debug.Log("setting material value");
-                        }).SetFrom(0) ;
-                        
-                        // TECHDEBT: hardcoding the ease =.=
-//                         animationTasks.Add(
-// Easing.Create<Linear>(start: 0f, end: 1f, duration: transitionDuration)
-//                     .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
-//                         );
+                        if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                        {
+                            // Debug.Log("running animation for SR: " + sr.gameObject.name +
+                            //  " with oldTex "+ sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
 
-                        // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
-                        // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
-                        // .From(0));
-                    }
-                    else
-                    {
-                        Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
+
+                            sr.TweenValueFloat(1f, transitionDuration, (v) =>
+                            {
+                                sr.material.SetFloat("_TransitionAmount", v);
+                                // Debug.Log("setting material value");
+                            }).SetFrom(0);
+
+                            // TECHDEBT: hardcoding the ease =.=
+                            //                         animationTasks.Add(
+                            // Easing.Create<Linear>(start: 0f, end: 1f, duration: transitionDuration)
+                            //                     .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
+                            //                         );
+
+                            // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
+                            // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
+                            // .From(0));
+                        }
+                        else
+                        {
+                            Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
+                        }
                     }
                 }
+                catch (Exception e)
+                {
+                    Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
+                }
+
             }
 
 
@@ -369,12 +378,12 @@ namespace com.argentgames.visualnoveltemplate
             s.expressionImageName = "";
             foreach (var kv in currentExpression)
             {
-                s.expressionImageName += string.Format("{0} ",kv.Value);
+                s.expressionImageName += string.Format("{0} ", kv.Value);
             }
 
-            
+
             s.position = transform.localPosition;
-            
+
             // TODO: add in tint color
 
             // Debug.Log("expression: " + CurrentExpression)
@@ -385,13 +394,13 @@ namespace com.argentgames.visualnoveltemplate
             transform.position = saveData.position;
             SetNewExpression(saveData.expressionImageName);
         }
-        
+
         void OnDestroy()
         {
             if (doSelfRegister)
             {
-            ImageManager.Instance.UnregisterCharacter(selfRegisteredName);
- 
+                ImageManager.Instance.UnregisterCharacter(selfRegisteredName);
+
             }
         }
     }
