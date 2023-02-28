@@ -363,6 +363,10 @@ namespace com.argentgames.visualnoveltemplate
         public bool IsRunningActionFunction = false;
         public bool IsContinueStoryRunning = false;
         bool firstTimeSeeingChoices = false;
+        /// <summary>
+        /// LEGACY NEED TO DELETE
+        /// </summary>
+        /// <returns></returns>
         public async UniTaskVoid ContinueStory()
         {
 
@@ -415,37 +419,39 @@ namespace com.argentgames.visualnoveltemplate
 
                 // }
                 // Debug.Break();
-                if (NeedToRunActionFunction())
-                {
-                    stopwatch.Restart();
-                    Debug.Log("actually running an action function now");
-                    IsRunningActionFunction = true;
-                    await RunActionFunction();
-                    IsRunningActionFunction = false;
-                    // Debug.Log("time to run action function: " + stopwatch.ElapsedMilliseconds.ToString());
-                }
-                else if (needToDisplayChoices)
-                {
-                    // if (firstTimeSeeingChoices)
-                    // {
-                    //     continue;
-                    // }
-                    dialogueUIManager.EnableCTC();
-                    // Debug.Log("actually displaying choices now");
-                    stopwatch.Restart();
-                    // TECHDEBT: something wrong with choice collection above.
-                    // why does the line before choices section get combined into 
-                    // current choices collection?
-                    // await DisplayLine();
-                    Debug.Log("is this display choices running? line 364");
-                    await DisplayChoices();
-                    // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
+                // if (NeedToRunActionFunction())
+                // {
+                //     stopwatch.Restart();
+                //     Debug.Log("actually running an action function now");
+                //     IsRunningActionFunction = true;
+                //     await RunActionFunction();
+                //     IsRunningActionFunction = false;
+                //     Debug.Log("time to run action function: " + stopwatch.ElapsedMilliseconds.ToString());
+                // }
+                
+                // else if (needToDisplayChoices)
+                // {
+                //     // if (firstTimeSeeingChoices)
+                //     // {
+                //     //     continue;
+                //     // }
+                //     dialogueUIManager.EnableCTC();
+                //     // Debug.Log("actually displaying choices now");
+                //     stopwatch.Restart();
+                //     // TECHDEBT: something wrong with choice collection above.
+                //     // why does the line before choices section get combined into 
+                //     // current choices collection?
+                //     // await DisplayLine();
+                //     Debug.Log("is this display choices running? line 364");
+                //     await DisplayChoices();
+                //     // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
 
-                    // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
-                    // errors when spam clicking
-                    // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
-                }
-                else
+                //     // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
+                //     // errors when spam clicking
+                //     // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
+                // }
+
+                // else
                 {
                     // Debug.Log("actually runnnig a regular line now");
                     stopwatch.Restart();
@@ -466,72 +472,76 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
 
+        /// <summary>
+        /// LEGACY NEED TO DELETE
+        /// </summary>
+        /// <returns></returns>
         public async UniTaskVoid InkContinueStory()
         {
-            Debug.Log("running inkcontinuestory");
-            waitingToContinueStory = false;
-            if (cts.IsCancellationRequested)
-            {
-                Debug.Log("ctc requested for dsm");
-                cts = new CancellationTokenSource();
-                ct = cts.Token;
-            }
-            // if (VideoPlayerManager.Instance.IsVideoPlaying)
+            // Debug.Log("running inkcontinuestory");
+            // waitingToContinueStory = false;
+            // if (cts.IsCancellationRequested)
             // {
-            //     Debug.Log("not conitnuing ink story yet; video is playing!");
+            //     Debug.Log("ctc requested for dsm");
+            //     cts = new CancellationTokenSource();
+            //     ct = cts.Token;
+            // }
+            // // if (VideoPlayerManager.Instance.IsVideoPlaying)
+            // // {
+            // //     Debug.Log("not conitnuing ink story yet; video is playing!");
+            // //     return;
+            // // }
+            // if (EndGame)
+            // {
+            //     Debug.Log("time to end the game");
+            //     IsContinueStoryRunning = false;
             //     return;
             // }
-            if (EndGame)
-            {
-                Debug.Log("time to end the game");
-                IsContinueStoryRunning = false;
-                return;
-            }
-            if (IsContinueStoryRunning)
-            {
-                Debug.Log("continue the ink story");
-                if (story.canContinue)
-                {
-                    story.Continue();
-                    Debug.Log("run story.Continue()");
-                }
-                else
-                {
-                    Debug.LogError("why can't i continue story? try to display choices?");
+            // if (IsContinueStoryRunning)
+            // {
+            //     Debug.Log("continue the ink story");
+            //     if (story.canContinue)
+            //     {
+            //         story.Continue();
+            //         Debug.Log("run story.Continue()");
+            //     }
+            //     else
+            //     {
+            //         Debug.LogError("why can't i continue story? try to display choices?");
 
-                    if (NeedToDisplayChoices() && !dialogueUIManager.WaitingForPlayerToSelectChoice)
-                    {
-                        // Debug.Log("displaying some weird choice stuff");
-                        dialogueUIManager.EnableCTC();
-                        Debug.Log("actually displaying choices now");
-                        stopwatch.Restart();
-                        // TECHDEBT: something wrong with choice collection above.
-                        // why does the line before choices section get combined into 
-                        // current choices collection?
-                        // await DisplayLine();
-                        await DisplayChoices();
-                        // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
+            //         if (NeedToDisplayChoices() && !dialogueUIManager.WaitingForPlayerToSelectChoice)
+                    // {
+                    //     // Debug.Log("displaying some weird choice stuff");
+                    //     dialogueUIManager.EnableCTC();
+                    //     Debug.Log("actually displaying choices now");
+                    //     stopwatch.Restart();
+                    //     // TECHDEBT: something wrong with choice collection above.
+                    //     // why does the line before choices section get combined into 
+                    //     // current choices collection?
+                    //     // await DisplayLine();
+                    //     await DisplayChoices();
+                    //     // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
 
-                        // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
-                        // errors when spam clicking
-                        // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
-                    }
-                    else
-                    {
-                        Debug.Log("display line that got lumped together wit hchoices collection?");
+                    //     // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
+                    //     // errors when spam clicking
+                    //     // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
+                    // }
+            //         else
+            //         {
+            //             Debug.Log("display line that got lumped together wit hchoices collection?");
 
-                        CurrentProcessedDialogue = ProcessDialogue(story.currentText);
-                        await DisplayLine((Dialogue)CurrentProcessedDialogue);
-                    }
+            //             CurrentProcessedDialogue = ProcessDialogue(story.currentText);
+            //             await DisplayLine((Dialogue)CurrentProcessedDialogue);
+            //         }
 
-                }
+            //     }
 
-            }
-            else
-            {
-                ContinueStory();
-                Debug.Log("continue the async story");
-            }
+            // }
+            // else
+            // {
+            //     ContinueStory();
+            //     Debug.Log("continue the async story");
+            // }
 
         }
 
@@ -576,6 +586,16 @@ namespace com.argentgames.visualnoveltemplate
                     await RunActionFunction();
                     IsRunningActionFunction = false;
                     Debug.Log("done running action function");
+
+                    // force see if there are any choices to run?
+                    // without this the game hangs on the while(true) loop because
+                    // you get stuck trying to run ink node <null>
+                    // this is because of weird bug where choices are collected one line early
+                    if (story.currentChoices.Count > 0)
+                    {
+                        await RunRegularLine(null);
+                    }
+                    
                 }
                 // otherwise it's going to be a regular line that may or may not include choices
                 else
