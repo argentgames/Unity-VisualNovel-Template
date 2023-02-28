@@ -102,7 +102,7 @@ namespace com.argentgames.visualnoveltemplate
                 else
 
                 {
-                    Debug.LogErrorFormat("can't get characger on screen with name {0} because it is not on screen",charName);
+                    Debug.LogWarningFormat("can't get characger on screen with name {0} because it is not on screen",charName);
                     return null;
                 }
             
@@ -715,13 +715,17 @@ namespace com.argentgames.visualnoveltemplate
             }
             // Debug.Break();
             var spriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
-            await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
+            if (spriteWrapperController != null)
+            {
+                await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
             spriteWrapperController.ExpressionChange(expression, 0).Forget();
 
             if (location == null)
             {
                 location = spriteWrapperController.defaultSpawnPosition;
             }
+            }
+            
             // move char to location
             charSprite.transform.localPosition = (Vector3)location;
 
