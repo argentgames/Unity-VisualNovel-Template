@@ -226,7 +226,7 @@ namespace com.argentgames.visualnoveltemplate
                     Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}",
                         part, _prefix, e);
                 }
-
+                // Debug.Break();
             }
         }
         /// <summary>
@@ -292,7 +292,8 @@ namespace com.argentgames.visualnoveltemplate
             }
 
 
-            await UniTask.WhenAll(animationTasks);
+            // await UniTask.WhenAll(animationTasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
 
 
 
