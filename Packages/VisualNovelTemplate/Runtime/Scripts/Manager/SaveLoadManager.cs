@@ -268,7 +268,7 @@ namespace com.argentgames.visualnoveltemplate
 
             save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
             save.currentDialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
-            save.currentDialogueWindowMode = DialogueSystemManager.Instance.CurrentDialogueWindow;
+            save.currentDialogueWindowMode = DialogueSystemManager.Instance.CurrentDialogueWindow.Value;
 
             save.Save(filePath,format);
 

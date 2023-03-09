@@ -193,7 +193,8 @@ namespace com.argentgames.visualnoveltemplate
             actualCTC.gameObject.SetActive(false);
         }
         /// <summary>
-        /// If we have a CTC for the player to select, then show it.
+        /// The click to continue button that advances text. Usually invisible and activated separately from
+        /// any visible click to continue indicators.
         /// </summary>
         public virtual void ShowCTC()
         {

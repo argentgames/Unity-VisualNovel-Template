@@ -8,6 +8,7 @@ using Sirenix.Serialization;
 using Cysharp.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Threading;
+using UniRx;
 
 /// <summary>
 /// Manages dialogue system and all ink interfacing.
@@ -30,8 +31,9 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         private DialogueUIManager dialogueUIManager;
         public DialogueUIManager DialogueUIManager { get { return dialogueUIManager; } }
-        private string currentDialogueWindow = "";
-        public string CurrentDialogueWindow { get { return currentDialogueWindow; } set { currentDialogueWindow = value; } }
+        private StringReactiveProperty currentDialogueWindow = new StringReactiveProperty("");
+        public StringReactiveProperty CurrentDialogueWindow { get { return currentDialogueWindow; } set { currentDialogueWindow = value; } }
+   
 
         [SerializeField]
         [PropertyTooltip("The different types of dialogue textbox UIs we want to use, such as ADV and NVL.")]
@@ -212,7 +214,7 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => !SceneTransitionManager.Instance.IsLoading);
             Debug.Log("scene transition manager has finished loading");
             MenuManager.Instance.EnableSettingsUIControls();
-            SetDialogueWindow(currentDialogueWindow);
+            SetDialogueWindow(currentDialogueWindow.Value);
 
             // if (SaveLoadManager.Instance.currentSave != null)
             // {
@@ -618,7 +620,7 @@ namespace com.argentgames.visualnoveltemplate
                         }
                         SetIsLoadedGame(false);
 
-                        ShowDialogueWindow(currentDialogueWindow);
+                        ShowDialogueWindow(currentDialogueWindow.Value);
                         
                         // Debug.Break();
 
@@ -879,12 +881,12 @@ namespace com.argentgames.visualnoveltemplate
                     {
                         win.GetComponentInChildren<DialogueUIManager>().HideUI(0);
                     }
-                    currentDialogueWindow = null;
+                    currentDialogueWindow.Value = null;
                 }
                 else
                 {
                     var window = dialogueWindows[internalName];
-                    currentDialogueWindow = internalName;
+                    currentDialogueWindow.Value = internalName;
                     dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
                     dialogueUIManager.AddVNControlSubscriptions();
                 }
@@ -971,7 +973,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     var window = dialogueWindows[internalName];
                     dialogueUIManager = window.GetComponentInChildren<DialogueUIManager>();
-                    currentDialogueWindow = internalName;
+                    currentDialogueWindow.Value = internalName;
                 }
                 float duration = -1f;
                 if (GameManager.Instance.IsSkipping)
