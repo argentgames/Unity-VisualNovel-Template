@@ -79,6 +79,11 @@ namespace com.argentgames.visualnoveltemplate
         SkipTokenSource skipTokenSource = new SkipTokenSource();
         SkipToken skipToken;
         public SkipToken SkipToken => skipToken;
+        /// <summary>
+        /// This assumes there is one qmenu in the game, usually only found in the Ingame scene.
+        /// Does not have to be used!!! You can have individual qmenus attached to dialogue windows.
+        /// </summary>
+        public QMenu globalQmenu;
         public void CreateSkipToken()
         {
             this.skipTokenSource = new SkipTokenSource();
