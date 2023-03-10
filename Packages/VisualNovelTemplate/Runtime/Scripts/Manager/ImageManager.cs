@@ -888,6 +888,11 @@ namespace com.argentgames.visualnoveltemplate
         {
             FireHideChar(charName, transition, duration).Forget();
         }
+        public void DestroyChar(string charName)
+        {
+            Destroy(charactersOnScreen[charName].gameObject);
+            charactersOnScreen.Remove(charName);
+        }
         // [Button]
         public async UniTask HideAllChar(float? duration = null)
         {
