@@ -98,12 +98,12 @@ namespace com.argentgames.visualnoveltemplate
 
         public void SetSkipping(bool val)
         {
-            Debug.Log("someone set skipping to: " + val.ToString());
+            // Debug.Log("someone set skipping to: " + val.ToString());
             isSkipping.Value = val;
         }
         public void SetAuto(bool val)
         {
-            Debug.Log("someone set auto to: " + val.ToString());
+            // Debug.Log("someone set auto to: " + val.ToString());
             isAuto.Value = val;
 
         }
