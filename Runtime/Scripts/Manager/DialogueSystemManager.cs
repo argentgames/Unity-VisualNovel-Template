@@ -108,6 +108,7 @@ namespace com.argentgames.visualnoveltemplate
 
             // SpawnAllUIWindows().Forget();
             HideAllDialogueWindows();
+            // TODO, URGENT: need to add a ResetAllUIWindows 
             currentSessionDialogueHistory.Clear();
         }
 
