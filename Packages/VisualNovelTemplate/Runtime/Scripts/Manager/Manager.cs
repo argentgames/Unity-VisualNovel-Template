@@ -11,6 +11,7 @@ namespace com.argentgames.visualnoveltemplate
         
         async UniTaskVoid Awake()
         {
+            // TODO: add in bools for managers to say they are done loading, not just for them to have an instance!!!
             await UniTask.WaitUntil(() =>
             
                 AudioManager.Instance != null &&

@@ -7,22 +7,27 @@ namespace com.argentgames.visualnoveltemplate
     {
         [SerializeField]
         bool multiply = false;
+        
 SpriteRenderer image;
         private MaterialPropertyBlock _propBlock;
+        
         void Awake()
         {
             image = GetComponent<SpriteRenderer>();
             _propBlock = new MaterialPropertyBlock();
-            if (multiply)
+            SetMultiply(multiply);
+        }
+        [Sirenix.OdinInspector.Button]
+        public void SetMultiply(bool val)
+        {
+            multiply = val;
+
+             if (multiply)
             {
                 image.GetPropertyBlock(_propBlock);
             _propBlock.SetFloat("_NeedsMultiply",1);
             image.SetPropertyBlock(_propBlock);
             }
-        }
-        public void SetMultiply(bool val)
-        {
-            multiply = val;
         }
     }
 }
