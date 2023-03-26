@@ -110,6 +110,9 @@ namespace com.argentgames.visualnoveltemplate
             HideAllDialogueWindows();
             // TODO, URGENT: need to add a ResetAllUIWindows 
             currentSessionDialogueHistory.Clear();
+
+            SaveLoadManager.Instance.currentSave.inkData = story.state.ToJson();
+
         }
 
         public async UniTask SpawnAllUIWindows()
@@ -173,6 +176,7 @@ namespace com.argentgames.visualnoveltemplate
 
             }
         }
+        public static event Action<Story> OnCreateStory;
         async UniTaskVoid Awake()
         {
             if (Instance != null && Instance != this)
@@ -188,6 +192,9 @@ namespace com.argentgames.visualnoveltemplate
             ct = cts.Token;
 
             story = new Story(_story.text);
+
+if(OnCreateStory != null) OnCreateStory(story);
+
             currentSessionDialogueHistory.Clear();
 
             customActionFunctions = GetComponent<CustomActionFunctions>();
@@ -195,6 +202,7 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
             SpawnAllUIWindows().Forget();
+
             // Debug.Break();
             // RunCancellationToken();
 
