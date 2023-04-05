@@ -193,7 +193,8 @@ namespace com.argentgames.visualnoveltemplate
 
             story = new Story(_story.text);
 
-if(OnCreateStory != null) OnCreateStory(story);
+// this auto attaches the ink inspector window which is annoying
+// if(OnCreateStory != null) OnCreateStory(story);
 
             currentSessionDialogueHistory.Clear();
 
