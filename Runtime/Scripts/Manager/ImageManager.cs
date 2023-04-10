@@ -93,19 +93,20 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         private Dictionary<string, GameObject> charactersOnScreen = new Dictionary<string, GameObject>();
 
-        public GameObject GetCharacterOnScreen(string charName) {
-          
-                if (charactersOnScreen.ContainsKey(charName))
-                {
-                    return charactersOnScreen[charName];
-                }
-                else
+        public GameObject GetCharacterOnScreen(string charName)
+        {
 
-                {
-                    Debug.LogWarningFormat("can't get characger on screen with name {0} because it is not on screen",charName);
-                    return null;
-                }
-            
+            if (charactersOnScreen.ContainsKey(charName))
+            {
+                return charactersOnScreen[charName];
+            }
+            else
+
+            {
+                Debug.LogWarningFormat("can't get characger on screen with name {0} because it is not on screen", charName);
+                return null;
+            }
+
         }
         /// <summary>
         /// Keep track of which characters have what tints currently active. Mainly a save/load thing.
@@ -165,12 +166,12 @@ namespace com.argentgames.visualnoveltemplate
             _propBlock = new MaterialPropertyBlock();
             backgroundProjectedImageRenderer = BackgroundProjectedImage.GetComponentInChildren<Renderer>();
             backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
-            Debug.LogFormat("propblock {0}",_propBlock.GetFloat("TransitionAmount"));
+            Debug.LogFormat("propblock {0}", _propBlock.GetFloat("TransitionAmount"));
             _propBlock.SetFloat("TransitionAmount", 1);
-            Debug.LogFormat("propblock after set float to 1 {0}",_propBlock.GetFloat("TransitionAmount"));
+            Debug.LogFormat("propblock after set float to 1 {0}", _propBlock.GetFloat("TransitionAmount"));
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
             backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
-            Debug.LogFormat("propblock after assign mbp to renderer {0}",_propBlock.GetFloat("TransitionAmount"));
+            Debug.LogFormat("propblock after assign mbp to renderer {0}", _propBlock.GetFloat("TransitionAmount"));
             CreateCancellationToken();
             CreateSkipToken();
         }
@@ -185,13 +186,30 @@ namespace com.argentgames.visualnoveltemplate
             skipTokenSource.Skip();
             CreateSkipToken();
 
-            foreach (var character in charactersOnScreen.Values)
+            List<string> charsToRemove = new List<string>();
+
+            foreach (var kv in charactersOnScreen)
             {
-                var swc = character.GetComponentInChildren<SpriteWrapperController>();
-                if (swc != null)
+                var key = kv.Key;
+                var character = kv.Value;
+                if (character != null)
                 {
-                    swc.ThrowSkipToken();
+                    var swc = character.GetComponentInChildren<SpriteWrapperController>();
+                    if (swc != null)
+                    {
+                        swc.ThrowSkipToken();
+                    }
                 }
+                else
+                {
+                    Debug.LogWarningFormat("can't throw skipToken for {0} bc character is null", key);
+                    charsToRemove.Add(key);
+                }
+
+            }
+            foreach (var ctr in charsToRemove)
+            {
+                charactersOnScreen.Remove(ctr);
             }
         }
         public void CreateCancellationToken()
@@ -323,7 +341,7 @@ namespace com.argentgames.visualnoveltemplate
 
             if (duration == null)
             {
-                duration = (float) GameManager.Instance.DefaultConfig.bgTransitionDuration;
+                duration = (float)GameManager.Instance.DefaultConfig.bgTransitionDuration;
             }
 
             // CreateSkipToken();
@@ -438,10 +456,10 @@ namespace com.argentgames.visualnoveltemplate
 
             if (transition == "fade")
             {
-// 1 is true
+                // 1 is true
                 _propBlock.SetFloat("_DoAlpha", 1);
-                
-            backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
+
+                backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
                 await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
                 .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken);
 
@@ -452,7 +470,7 @@ namespace com.argentgames.visualnoveltemplate
                 _propBlock.SetFloat("_DoAlpha", 0);
                 Debug.Log("now doing a wipe animation");
 
-            backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
+                backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
                 await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
                 .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken)
                                 ;
@@ -509,7 +527,7 @@ namespace com.argentgames.visualnoveltemplate
             _propBlock.SetFloat("TransitionAmount", 0);
             _propBlock.SetTexture("_MainTex", newBGRT);
             // 1 is true
-                _propBlock.SetFloat("_DoAlpha", 0);
+            _propBlock.SetFloat("_DoAlpha", 0);
 
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 
@@ -674,6 +692,14 @@ namespace com.argentgames.visualnoveltemplate
             }
             GameObject charSprite;
             Debug.LogFormat("SpawnChar parmas: {0}, {1}, {2}", charName, expression, location);
+            if (charactersOnScreen.ContainsKey(charName.TrimStart(null).TrimEnd(null)))
+            {
+                Debug.LogWarningFormat("wanted to reuse char except the go was null. removing manually within spawnChar for char {0}", charName);
+                if (charactersOnScreen[charName.TrimStart(null).TrimEnd(null)] == null)
+                {
+                    charactersOnScreen.Remove(charName.TrimStart(null).TrimEnd(null));
+                }
+            }
             if (!charactersOnScreen.ContainsKey(charName.TrimStart(null).TrimEnd(null)))
             {
                 Debug.Log("need to spawn new char");
@@ -718,14 +744,14 @@ namespace com.argentgames.visualnoveltemplate
             if (spriteWrapperController != null)
             {
                 await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
-            spriteWrapperController.ExpressionChange(expression, 0).Forget();
+                spriteWrapperController.ExpressionChange(expression, 0).Forget();
 
-            if (location == null)
-            {
-                location = spriteWrapperController.defaultSpawnPosition;
+                if (location == null)
+                {
+                    location = spriteWrapperController.defaultSpawnPosition;
+                }
             }
-            }
-            
+
             // move char to location
             charSprite.transform.localPosition = (Vector3)location;
 
@@ -757,7 +783,7 @@ namespace com.argentgames.visualnoveltemplate
             if (location != null)
             {
                 await Easing.Create<InQuart>(to: (Vector3)location, duration: duration)
-                    .ToLocalPosition(go,skipToken:GameManager.Instance.SkipToken);
+                    .ToLocalPosition(go, skipToken: GameManager.Instance.SkipToken);
                 animationComplete = true;
             }
             else
@@ -781,7 +807,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     animationTasks.Add(
                     Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                    .ToMaterialPropertyFloat(sr, "Alpha",skipToken:GameManager.Instance.SkipToken)
+                    .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
                     );
 
 
@@ -812,7 +838,7 @@ namespace com.argentgames.visualnoveltemplate
             // TECHDEBT
             // if (!GameManager.Instance.IsSkipping)
             // {
-            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText),cancellationToken:ct);
+            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText), cancellationToken: ct);
             // }
             // else
             // {
@@ -842,7 +868,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 animationTasks.Add(
                     Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(sr, "Alpha",skipToken:GameManager.Instance.SkipToken)
+                    .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
                 );
             }
             if (GameManager.Instance.IsSkipping)
@@ -932,7 +958,7 @@ namespace com.argentgames.visualnoveltemplate
             else
 
             {
-                Debug.LogFormat("num chars on screen: {0}",charactersOnScreen.Count);
+                Debug.LogFormat("num chars on screen: {0}", charactersOnScreen.Count);
                 foreach (var k in charactersOnScreen.Keys)
                 {
                     Debug.LogFormat("char on screen: {0}", k);
@@ -952,7 +978,7 @@ namespace com.argentgames.visualnoveltemplate
 
             if (char_ == null)
             {
-                Debug.LogFormat("char_ is null...needtoshowportrait: {0}",needToShowPortrait);
+                Debug.LogFormat("char_ is null...needtoshowportrait: {0}", needToShowPortrait);
                 return needToShowPortrait;
             }
 
@@ -965,7 +991,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 else
                 {
-                    Debug.LogErrorFormat("could not get sprite wrapper controller for char {0}",char_.name);
+                    Debug.LogErrorFormat("could not get sprite wrapper controller for char {0}", char_.name);
                 }
             }
 
