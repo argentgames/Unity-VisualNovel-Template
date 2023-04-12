@@ -108,6 +108,7 @@ namespace com.argentgames.visualnoveltemplate
 
             // SpawnAllUIWindows().Forget();
             HideAllDialogueWindows();
+            ResetAllDialogueWindows();
             // TODO, URGENT: need to add a ResetAllUIWindows 
             currentSessionDialogueHistory.Clear();
 
@@ -954,6 +955,13 @@ namespace com.argentgames.visualnoveltemplate
                 windowHiding.Add(window.transform.GetComponentInChildren<DialogueUIManager>().HideUI(0));
             }
             await UniTask.WhenAll(windowHiding);
+        }
+        public void ResetAllDialogueWindows()
+        {
+            foreach (var window in dialogueWindows.Values)
+            {
+                window.GetComponentInChildren<DialogueUIManager>().ResetUI();
+            }
         }
         public async UniTask LoadDialogueWindowStates(string saveIndex)
         {

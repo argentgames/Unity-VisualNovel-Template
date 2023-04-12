@@ -109,6 +109,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             else
             {
+                Debug.Log("music not currently playing!");
                 return "";
             }
         }
@@ -178,6 +179,7 @@ namespace com.argentgames.visualnoveltemplate
                 StartCoroutine(FadeVolume(0, 1f, fadein, musicInstance));
                 musicInstance.start();
                 fmodEvent.EventInstance = musicInstance;
+                fmodEvent.soundName = _name;
                 eventInstanceMap["music"] = fmodEvent;
             }
             catch
@@ -224,6 +226,7 @@ namespace com.argentgames.visualnoveltemplate
                 ambientInstance.start();
 
                 fmodEvent.EventInstance = ambientInstance;
+                fmodEvent.soundName = _name;
                 eventInstanceMap["ambient" + channel.ToString()] = fmodEvent;
 
             }

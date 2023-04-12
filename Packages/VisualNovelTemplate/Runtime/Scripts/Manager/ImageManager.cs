@@ -929,6 +929,9 @@ namespace com.argentgames.visualnoveltemplate
                 FireHideChar(charsOnScreen[i], duration: duration).Forget();
             }
 
+            // do an extra destroy all chars JUST IN CASE OF BUGGIES??
+            Utilities.DestroyAllChildGameObjects(MidgroundCharacterContainer);
+
         }
         private GameObject char_;
         /// <summary>
