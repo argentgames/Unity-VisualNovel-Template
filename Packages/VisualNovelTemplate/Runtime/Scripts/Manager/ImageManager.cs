@@ -685,6 +685,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 duration = (float)GameManager.Instance.DefaultConfig.spawnCharacterDuration;
             }
+            if (GameManager.Instance.IsSkipping)
+            {
+                duration = 0;
+            }
             var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
             if (expression == "")
             {
