@@ -18,14 +18,12 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (toggleGroupObjects.Count == 0)
             {
-                for (int idx = 0; idx < gameObject.transform.childCount; idx++)
-                {
-                    toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
-                }
+                UpdateToggleObjectsList();
             }
         }
         public void UpdateToggleObjectsList()
         {
+            toggleGroupObjects.Clear();
             for (int idx = 0; idx < gameObject.transform.childCount; idx++)
             {
                 toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
