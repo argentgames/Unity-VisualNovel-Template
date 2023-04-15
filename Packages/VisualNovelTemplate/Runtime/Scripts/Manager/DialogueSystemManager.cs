@@ -19,6 +19,9 @@ namespace com.argentgames.visualnoveltemplate
 
     public class DialogueSystemManager : MonoBehaviour
     {
+        bool doneInit = false;
+        public bool DoneInit => doneInit;
+
         [SerializeField]
         [InfoBox("The master ink file. If you split your script across multiple files, make sure the one attached here is the main/starting/intro point of all your ink scripts!")]
         TextAsset _story;
@@ -116,6 +119,7 @@ namespace com.argentgames.visualnoveltemplate
 
         }
 
+        
         public async UniTask SpawnAllUIWindows()
         {
             // make sure there don't exist windows already before we spawn everything
@@ -203,7 +207,9 @@ namespace com.argentgames.visualnoveltemplate
 
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
-            SpawnAllUIWindows().Forget();
+            await SpawnAllUIWindows();
+
+            doneInit = true;
 
             // Debug.Break();
             // RunCancellationToken();

@@ -27,6 +27,12 @@ namespace com.argentgames.visualnoveltemplate
             #if UNITY_ANDROID || UNITY_IOS
             await UniTask.WaitUntil(() => AdManager.Instance != null);
             #endif
+
+            // now wait to make sure all the managers say they are done being loaded
+            await UniTask.WaitUntil(() =>
+            
+                DialogueSystemManager.Instance.DoneInit
+            );
             allManagersLoaded.Value = true;
         }
     }

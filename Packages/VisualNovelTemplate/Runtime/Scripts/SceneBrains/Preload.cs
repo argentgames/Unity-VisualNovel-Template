@@ -14,6 +14,8 @@ namespace com.argentgames.visualnoveltemplate
         // Start is called before the first frame update
         async UniTaskVoid Awake()
         {
+            await UniTask.WaitUntil(() => SceneTransitionManager.Instance != null);
+            SceneTransitionManager.Instance.FadeToBlack(0);
             await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
             SceneTransitionManager.Instance.FadeToBlack(0);
         }
