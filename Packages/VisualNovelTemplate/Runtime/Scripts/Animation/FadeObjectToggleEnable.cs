@@ -23,9 +23,9 @@ namespace com.argentgames.visualnoveltemplate
 
         void Awake()
         {
-            sprite = GetComponentInChildren<SpriteRenderer>();
-            image = GetComponentInChildren<Image>();
-            Debug.Log("current alpha a value: " + image.color.a.ToString());
+            // sprite = GetComponentInChildren<SpriteRenderer>();
+            // image = GetComponentInChildren<Image>();
+            // Debug.Log("current alpha a value: " + image.color.a.ToString());
             if (image != null)
             {
                 if (image.color.a != 1 && image.color.a != 0)
@@ -33,7 +33,7 @@ namespace com.argentgames.visualnoveltemplate
                     endAlpha = image.color.a;
                 }
             }
-            canvasGroup = GetComponentInChildren<CanvasGroup>();
+            // canvasGroup = GetComponentInChildren<CanvasGroup>();
         }
         public override void CompleteAnimation()
         {
@@ -62,6 +62,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     duration = disableAnimationDuration;
                 }
+                Debug.LogFormat("disable duration: {0}",duration);
                 if (canvasGroup != null)
                 {
 
@@ -96,9 +97,9 @@ namespace com.argentgames.visualnoveltemplate
 
                 // await UniTask.WaitUntil(() => AnimationComplete);
             }
-            catch
+            catch (System.Exception e)
             {
-                Debug.LogWarningFormat("failed to run fade object toggle enable's DISABLE function from gameObject: {0}", gameObject.name);
+                Debug.LogWarningFormat("failed to run fade object toggle enable's DISABLE function from gameObject: {0}, {1}", gameObject.name,e);
             }
 
         }
@@ -111,7 +112,7 @@ namespace com.argentgames.visualnoveltemplate
                 // Debug.Log(canvasGroup == null);
                 AnimationComplete = false;
                 IsRunningEnableAnimation = true;
-                Debug.Log("current alpha a value: " + image.color.a.ToString());
+                // Debug.Log("current alpha a value: " + image.color.a.ToString());
                 if (image != null)
                 {
                     if (image.color.a != 1 && image.color.a != 0)
@@ -157,9 +158,9 @@ namespace com.argentgames.visualnoveltemplate
 
                 // await UniTask.WaitUntil(() => AnimationComplete);
             }
-            catch
+            catch (System.Exception e)
             {
-                Debug.LogWarningFormat("failed to run fade object toggle enable's ENABLE function from gameObject: {0}", gameObject.name);
+                Debug.LogWarningFormat("failed to run fade object toggle enable's ENABLE function from gameObject: {0}, {1}", gameObject.name,e);
             }
 
         }

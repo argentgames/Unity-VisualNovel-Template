@@ -65,6 +65,9 @@ namespace com.argentgames.visualnoveltemplate
         [BoxGroup("UI")]
         public string selectableEnterSfx = "";
 
+        [BoxGroup("UI")]
+        public float textNotificationShownDuration = 1.5f;
+
         [PropertySpace(SpaceBefore =15f)]
         [InfoBox("Do we use addressable loading mechanism? If so, for which objects?")]
         [BoxGroup("Addressables")]
