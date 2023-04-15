@@ -245,13 +245,15 @@ namespace com.argentgames.visualnoveltemplate
         }
         public void ClearCharactersOnScreen()
         {
-            for (int i = 0; i < MidgroundCharacterContainer.transform.childCount; i++)
-            {
-                AssetRefLoader.Instance.ReleaseAsset(MidgroundCharacterContainer.transform.GetChild(i).gameObject);
-                // Destroy(CharacterLayer.transform.GetChild(i).gameObject);
-            }
+            // for (int i = 0; i < MidgroundCharacterContainer.transform.childCount; i++)
+            // {
+            //     AssetRefLoader.Instance.ReleaseAsset(MidgroundCharacterContainer.transform.GetChild(i).gameObject);
+            //     // Destroy(CharacterLayer.transform.GetChild(i).gameObject);
+            // }
+            HideAllChar();
             foreach (var key in charactersOnScreen.Keys)
             {
+
                 UnregisterCharacter(key);
             }
         }
@@ -754,6 +756,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     location = spriteWrapperController.defaultSpawnPosition;
                 }
+
             }
 
             // move char to location
@@ -868,13 +871,23 @@ namespace com.argentgames.visualnoveltemplate
             if (GameManager.Instance.IsSkipping)
             { duration = 0; }
             // TECHDEBT:  this skip Token is not going to work as expected.
-            foreach (var sr in go.GetComponentsInChildren<SpriteRenderer>())
+            
+            try
+            {
+                var spriteRenderers = go.GetComponentsInChildren<SpriteRenderer>();
+                foreach (var sr in go.GetComponentsInChildren<SpriteRenderer>())
             {
                 animationTasks.Add(
                     Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
                     .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
                 );
             }
+            }
+            catch
+            {
+                Debug.LogWarningFormat("unable to fire hide char for {0} because SRs are null!",charName);
+            }
+            
             if (GameManager.Instance.IsSkipping)
             {
                 ThrowSkipToken();
@@ -902,8 +915,17 @@ namespace com.argentgames.visualnoveltemplate
             //     // }
             //     // #endif
             // });
-            await UniTask.WhenAll(animationTasks);
+            try
+            {
+                await UniTask.WhenAll(animationTasks);
+            }
+            catch
+            {
+                Debug.LogWarningFormat("animationTasks was null");
+            }
+            
             go.SetActive(false);
+            
             charactersOnScreen.Remove(charName);
 
             // TODO: add in asset ref loader removal
