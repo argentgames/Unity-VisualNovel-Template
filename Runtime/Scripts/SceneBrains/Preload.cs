@@ -15,7 +15,7 @@ namespace com.argentgames.visualnoveltemplate
         async UniTaskVoid Awake()
         {
             await UniTask.WaitUntil(() => SceneTransitionManager.Instance != null);
-            SceneTransitionManager.Instance.FadeToBlack(0);
+            // SceneTransitionManager.Instance.FadeToBlack(0);
             await UniTask.WaitUntil(() => Manager.allManagersLoaded.Value);
             SceneTransitionManager.Instance.FadeToBlack(0);
         }

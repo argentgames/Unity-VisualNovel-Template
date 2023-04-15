@@ -20,7 +20,6 @@ namespace com.argentgames.visualnoveltemplate
         public float disableAnimationDuration = .5f, enableAnimationDuration = .5f;
         public bool IsRunningEnableAnimation = false;
         public bool IsRunningDisableAnimation = false;
-
         CancellationTokenSource cts;
         CancellationToken ct;
         void Start()
