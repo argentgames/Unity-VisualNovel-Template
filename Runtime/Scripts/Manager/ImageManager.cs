@@ -862,8 +862,15 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogWarningFormat("Character {0} isn't on screen to hide", charName);
                 return;
             }
+            
             animationTasks.Clear();
             var go = charactersOnScreen[charName];
+            if (go == null)
+            {
+                Debug.LogWarningFormat("Character {0} go doesn't exist, can't hide. Removing from charactersOnScreenMap!",charName);
+                UnregisterCharacter(charName);
+                return;
+            }
             if (duration == null)
             {
                 duration = GameManager.Instance.DefaultConfig.hideCharacterDuration;
@@ -926,7 +933,7 @@ namespace com.argentgames.visualnoveltemplate
             
             go.SetActive(false);
             
-            charactersOnScreen.Remove(charName);
+            UnregisterCharacter(charName);
 
             // TODO: add in asset ref loader removal
             // AssetRefLoader.Instance.ReleaseAsset(go);
@@ -955,6 +962,7 @@ namespace com.argentgames.visualnoveltemplate
                 FireHideChar(charsOnScreen[i], duration: duration).Forget();
             }
 
+            await UniTask.WaitUntil(() => charactersOnScreen.Count == 0);
             // do an extra destroy all chars JUST IN CASE OF BUGGIES??
             Utilities.DestroyAllChildGameObjects(MidgroundCharacterContainer);
 
