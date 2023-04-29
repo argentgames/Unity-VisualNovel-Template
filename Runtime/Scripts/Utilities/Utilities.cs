@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -9,6 +10,29 @@ namespace com.argentgames.visualnoveltemplate
 {
     public class Utilities : MonoBehaviour
     {
+        public static  GameObject GetRootParent(GameObject go)
+        {
+            if (go.transform.parent == null)
+            {
+                return go;
+            }
+            List<string> hierarchyNames = new List<string>();
+            GameObject parent = go.transform.parent.gameObject;
+            while (parent.transform.parent != null)
+            {
+                parent = parent.transform.parent.gameObject;
+                hierarchyNames.Add(parent.name);
+            }
+            hierarchyNames.Reverse();
+            string s="";
+            for (int i = 0; i < hierarchyNames.Count; i++)
+            {
+
+                s += new string('-',(i+1)*2)  + hierarchyNames[i]+"\n";
+            }
+            Debug.Log(s);
+            return parent;
+        }
         public static void DestroyAllChildGameObjects(GameObject parent)
         {
             // for (int i=parent.transform.childCount; i > 0; i--)

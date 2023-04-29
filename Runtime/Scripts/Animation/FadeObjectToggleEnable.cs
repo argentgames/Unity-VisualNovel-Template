@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using AnimeTask;
+using UnityEngine.Events;
 namespace com.argentgames.visualnoveltemplate
 {
 
@@ -21,6 +22,10 @@ namespace com.argentgames.visualnoveltemplate
         SpriteRenderer sprite;
         float endAlpha = 1;
 
+        [SerializeField]
+        AnimationCurve transitionInCurve = AnimationCurve.Linear(0,0,1,1), transitionOutCurve = AnimationCurve.Linear(0,0,1,1);
+        Coroutine animate;
+        public UnityEvent OnAnimationStart, OnAnimationComplete;
         void Awake()
         {
             // sprite = GetComponentInChildren<SpriteRenderer>();
@@ -37,12 +42,123 @@ namespace com.argentgames.visualnoveltemplate
         }
         public override void CompleteAnimation()
         {
-            if (IsRunningDisableAnimation)
-            {
-
-            }
             base.CompleteAnimation();
+            if (animate != null)
+            {
+                // TECHDEBT: SAFETY??? sometiems the coroutine just dies before completing animation?
+                if (IsRunningEnableAnimation)
+                {
+                    SkipEnableAnimation();
+                }
+                else if (IsRunningDisableAnimation)
+                {
+                    SkipDisableAnimation();
+                }
+                // StopCoroutine(animate);
+                // animate = null;
+            }
         }
+        public override void SkipDisableAnimation()
+        {
+            if (canvasGroup != null)
+            {
+                Debug.Log("skipping disable animation through canvas group");
+                canvasGroup.alpha = 0;
+            }
+            if (image != null)
+            {
+                Debug.Log("skipping disable animation through image alpha");
+                image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
+            }
+
+        }
+        public override void SkipEnableAnimation()
+        {
+            if (canvasGroup != null)
+            {
+                Debug.Log("skipping enable animation through canvas group");
+                canvasGroup.alpha = endAlpha;
+            }
+            if (image != null)
+            {
+                Debug.Log("skipping enable animation through image alpha");
+                image.color = new Color(image.color.r, image.color.g, image.color.b, endAlpha);
+            }
+        }
+        IEnumerator I_FadeInCanvasGroup()
+        {
+            float elapsedTime = 0;
+            while (elapsedTime < enableAnimationDuration &&
+            canvasGroup.alpha != endAlpha)
+            {
+                elapsedTime += Time.deltaTime;
+                // Debug.Log("fading in");
+                float percent = Mathf.Clamp01(canvasGroup.alpha / enableAnimationDuration);
+
+
+                float curvePercent = transitionInCurve.Evaluate(elapsedTime / enableAnimationDuration);
+                canvasGroup.alpha = curvePercent * endAlpha;
+                Debug.LogFormat("fading in canvas group: {0}", curvePercent);
+                 yield return null;
+            }
+        }
+        IEnumerator I_FadeInImage()
+        {
+            float elapsedTime = 0;
+            Color targetColor = new Color(image.color.r, image.color.g, image.color.b, endAlpha);
+            while (elapsedTime < enableAnimationDuration &&
+            image.color != targetColor)
+            {
+                elapsedTime += Time.deltaTime;
+                // Debug.Log("fading in");
+                float percent = Mathf.Clamp01(image.color.a / enableAnimationDuration);
+
+
+                float curvePercent = transitionInCurve.Evaluate(elapsedTime / enableAnimationDuration);
+                
+                image.color = Color.LerpUnclamped(image.color, targetColor, curvePercent);
+                Debug.LogFormat("targetColor {0} curvePercent {1}",targetColor,curvePercent);
+                yield return null;
+            }
+        }
+        IEnumerator I_FadeOutCanvasGroup()
+        {
+            float elapsedTime = 0;
+            var startAlpha = canvasGroup.alpha;
+            while (elapsedTime < disableAnimationDuration &&
+            canvasGroup.alpha > 0)
+            {
+                elapsedTime += Time.deltaTime;
+                // Debug.Log("fading in");
+                float percent = Mathf.Clamp01(canvasGroup.alpha / disableAnimationDuration);
+
+
+                float curvePercent = transitionInCurve.Evaluate(elapsedTime / disableAnimationDuration);
+                canvasGroup.alpha -= startAlpha * curvePercent;
+                Debug.LogFormat("fading out canvas group: {0}", curvePercent);
+                yield return null;
+            }
+        }
+        IEnumerator I_FadeOutImage()
+        {
+            float elapsedTime = 0;
+            Color targetColor = new Color(image.color.r, image.color.g, image.color.b, 0);
+            while (elapsedTime < disableAnimationDuration &&
+            image.color != targetColor )
+            {
+                elapsedTime += Time.deltaTime;
+                // Debug.Log("fading in");
+                float percent = Mathf.Clamp01(image.color.a / disableAnimationDuration);
+
+
+                float curvePercent = transitionInCurve.Evaluate(elapsedTime / disableAnimationDuration);
+                
+                image.color = Color.LerpUnclamped(image.color, targetColor, curvePercent);
+                Debug.LogFormat("targetColor {0} curvePercent {1}",targetColor,curvePercent);
+                yield return null;
+            }
+        }
+
         public async override UniTask Disable(float duration = -1, bool destroyOnDisable = false)
         {
             try
@@ -62,20 +178,42 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     duration = disableAnimationDuration;
                 }
-                Debug.LogFormat("disable duration: {0}",duration);
+                Debug.LogFormat("disable duration: {0}", duration);
+
                 if (canvasGroup != null)
                 {
 
-                    await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
-                    OnCompleteDisableAnimation(destroyOnDisable);
+                    // Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
+                    if (this.gameObject.activeSelf)
+                    {
+                        animate = StartCoroutine(I_FadeOutCanvasGroup());
+                    }
+                    else
+                    {
+                        canvasGroup.alpha = 0;
+                    }
+
+                    await UniTask.WaitUntil(() => canvasGroup.alpha == 0);
+                    // CompleteAnimation();
+                    // OnCompleteDisableAnimation(destroyOnDisable);
 
                 }
 
                 else if (image != null)
                 {
-                    await Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
-                    CompleteAnimation();
-                    OnCompleteDisableAnimation(destroyOnDisable);
+                    // Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
+                    if (this.gameObject.activeSelf)
+                    {
+                        animate = StartCoroutine(I_FadeOutImage());
+                    }
+                    else
+                    {
+                        image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
+                    }
+
+                    await UniTask.WaitUntil(() => image.color.a == 0);
+                    // CompleteAnimation();
+                    // OnCompleteDisableAnimation(destroyOnDisable);
                 }
                 // else if (sprite != null)
                 // {
@@ -99,8 +237,11 @@ namespace com.argentgames.visualnoveltemplate
             }
             catch (System.Exception e)
             {
-                Debug.LogWarningFormat("failed to run fade object toggle enable's DISABLE function from gameObject: {0}, {1}", gameObject.name,e);
+                Debug.LogWarningFormat("failed to run fade object toggle enable's DISABLE function from gameObject: {0}, {1}", gameObject.name, e);
             }
+
+            CompleteAnimation();
+                    OnCompleteDisableAnimation(destroyOnDisable);
 
         }
         public async override UniTask Enable(float duration = -1)
@@ -126,17 +267,37 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 if (canvasGroup != null)
                 {
+                    // Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
+                    if (this.gameObject.activeSelf)
+                    {
+                        animate = StartCoroutine(I_FadeInCanvasGroup());
+                    }
+                    else
+                    {
+                        canvasGroup.alpha = endAlpha;
+                    }
 
-                    await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
-                    CompleteAnimation();
-                    OnCompleteEnableAnimation();
+                    await UniTask.WaitUntil(() => canvasGroup.alpha == endAlpha);
+                    // CompleteAnimation();
+                    // OnCompleteEnableAnimation();
 
                 }
 
                 else if (image != null)
                 {
-                    await Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
-                    OnCompleteEnableAnimation();
+                    // Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
+                    if (this.gameObject.activeSelf)
+                    {
+                        animate = StartCoroutine(I_FadeInImage());
+                    }
+                    else
+                    {
+                        image.color = new Color(image.color.r, image.color.g, image.color.b, endAlpha);
+                    }
+
+                    await UniTask.WaitUntil(() => image.color.a == endAlpha);
+                    // CompleteAnimation();
+                    // OnCompleteEnableAnimation();
                 }
                 // else if (sprite != null)
                 // {
@@ -160,8 +321,11 @@ namespace com.argentgames.visualnoveltemplate
             }
             catch (System.Exception e)
             {
-                Debug.LogWarningFormat("failed to run fade object toggle enable's ENABLE function from gameObject: {0}, {1}", gameObject.name,e);
+                Debug.LogWarningFormat("failed to run fade object toggle enable's ENABLE function from gameObject: {0}, {1}", gameObject.name, e);
             }
+
+             CompleteAnimation();
+                    OnCompleteEnableAnimation();
 
         }
 
@@ -179,7 +343,6 @@ namespace com.argentgames.visualnoveltemplate
         {
             AnimationComplete = true;
         }
-
 
     }
 

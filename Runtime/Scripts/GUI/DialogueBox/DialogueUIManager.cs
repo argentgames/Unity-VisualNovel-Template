@@ -92,28 +92,98 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
 
+            // see if we need to skip through any dialogue window animations.
+            var animateObjects = GetComponentsInChildren<AnimateObjectsToggleEnable>(includeInactive: false);
+
+
             if (DialogueSystemManager.Instance.IsRunningActionFunction)
             {
                 Debug.Log("running action function, do nothing except turn off skipping");
                 ImageManager.Instance.ThrowSkipToken();
                 GameManager.Instance.ThrowSkipToken();
                 DialogueSystemManager.Instance.RunCancellationToken();
+
+                if (animateObjects != null)
+                {
+                    if (animateObjects.Length > 0)
+                    {
+                        Debug.Log("trying to skip animations");
+                        foreach (var ao in animateObjects)
+                        {
+                            if (ao.IsRunningEnableAnimation)
+                            {
+                                ao.SkipEnableAnimation();
+                            }
+                            else if (ao.IsRunningDisableAnimation)
+                            {
+                                ao.SkipDisableAnimation();
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        Debug.Log("no animate objects to skip animation on. due to 0 length");
+                    }
+                }
+                else
+                {
+                    Debug.Log("no animate objects to skip animation on.");
+                }
+
+
             }
             else if (WaitingForPlayerToSelectChoice)
             {
                 Debug.Log("do nothing, waiting for player to select choice");
             }
+
             else
             {
                 if (!wasSkipping)
                 {
-                    // DialogueSystemManager.Instance.InkContinueStory().Forget();
-                    // HideCTC();
-                    // DisableCTC();
-                    // ClearText();
-                    waitingForPlayerContinueStory = false;
-                    DialogueSystemManager.Instance.waitingToContinueStory = false;
-                    Debug.Log("not was skipping, please continue the story as normal");
+                    bool neededToSkipAnimations = false;
+                    if (animateObjects != null)
+                    {
+                        if (animateObjects.Length > 0)
+                        {
+                            Debug.Log("trying to skip animations");
+                            foreach (var ao in animateObjects)
+                            {
+                                if (ao.IsRunningEnableAnimation)
+                                {
+                                    Debug.LogFormat("skipping enable animation for {0} with parent {1}", 
+                                    ao.gameObject.name,Utilities.GetRootParent(ao.gameObject).name);
+                                    ao.SkipEnableAnimation();
+                                    neededToSkipAnimations = true;
+                                }
+                                else if (ao.IsRunningDisableAnimation)
+                                {
+                                    Debug.LogFormat("skipping disable animation for {0}", ao.gameObject.name);
+
+                                    neededToSkipAnimations = true;
+                                    ao.SkipDisableAnimation();
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            Debug.Log("no animate objects to skip animation on. due to 0 length");
+                        }
+                    }
+
+                    if (!neededToSkipAnimations)
+                    {
+                        // DialogueSystemManager.Instance.InkContinueStory().Forget();
+                        // HideCTC();
+                        // DisableCTC();
+                        // ClearText();
+                        waitingForPlayerContinueStory = false;
+                        DialogueSystemManager.Instance.waitingToContinueStory = false;
+                        Debug.Log("not was skipping, please continue the story as normal");
+                    }
+
                 }
 
             }
@@ -211,19 +281,20 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public virtual async UniTask HideUI(float duration = .3f)
         {
-            
+
             var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
                 try
                 {
+                    Debug.Log("running disable with animate controller in hide ui");
                     await animator.Disable(duration);
                 }
                 catch (NullReferenceException)
                 {
-                    Debug.LogErrorFormat("unable to hide UI, GO {0} was destroyed",this.gameObject.name);
+                    Debug.LogErrorFormat("unable to hide UI, GO {0} was destroyed", this.gameObject.name);
                 }
-                
+
             }
             else
             {
@@ -306,7 +377,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             DialogueSystemManager.Instance.SetPlayerOpenedQmenu(!DialogueSystemManager.Instance.PlayerOpenedQMenu);
         }
-        public virtual void ToggleQMenu(float duration=-1)
+        public virtual void ToggleQMenu(float duration = -1)
         {
             // qmenu is already open, so we need to close it
             if (QMenu.activeSelf)

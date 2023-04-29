@@ -6,6 +6,7 @@ using Sirenix.OdinInspector;
 using Cysharp.Threading.Tasks;
 using AnimeTask;
 using ElRaccoone.Tweens;
+using UnityEngine.Events;
 namespace com.argentgames.visualnoveltemplate
 {
     public struct BodyPart
@@ -70,6 +71,46 @@ namespace com.argentgames.visualnoveltemplate
         {
             skipTokenSource.Skip();
             CreateSkipToken();
+
+            // TECHDEBT: adding in a force set the transition value directly skip <_< until we get rid of all these animation libraries.
+            SkipAnimation();
+
+        }
+
+        void SkipAnimation()
+        {
+            foreach (var sr in bodyPartsMap.Values)
+            {
+                try
+                {
+                    if (sr.material.GetTexture("NewTex") != null)
+                    {
+                        if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                        {
+                            sr.material.SetFloat("_TransitionAmount", 1);
+                        }
+                        else
+                        {
+                            Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
+                }
+
+            }
+
+            foreach (var animate in animates)
+            {
+                if (animate != null)
+                {
+                    StopCoroutine(animate);
+                }
+            }
+            animates.Clear();
+
         }
 
         bool animationComplete = false;
@@ -103,6 +144,8 @@ namespace com.argentgames.visualnoveltemplate
 
 
             GenerateExpressionsMapForHead();
+
+            
 
             CreateSkipToken();
 
@@ -229,6 +272,25 @@ namespace com.argentgames.visualnoveltemplate
                 // Debug.Break();
             }
         }
+        [SerializeField]
+        AnimationCurve transitionInCurve = AnimationCurve.Linear(0,0,1,1);
+        List<Coroutine> animates;
+        public UnityEvent OnAnimationStart, OnAnimationComplete;
+        IEnumerator I_TransitionMaterial(SpriteRenderer sr, float transitionDuration = 1f)
+        {
+            float elaspedTime = 0;
+            // make sure transition starts from 0
+            sr.material.SetFloat("_TransitionAmount", 0);
+            while (elaspedTime < transitionDuration &&
+            sr.material.GetFloat("_TransitionAmount") != 1)
+            {
+                elaspedTime += Time.deltaTime;
+                float curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
+                sr.material.SetFloat("_TransitionAmount", curvePercent);
+                yield return null;
+            }
+        }
+
         /// <summary>
         /// Updates the visible expression. In theory we might support other transition types,
         /// but for now we only do image interpolation...............
@@ -261,12 +323,13 @@ namespace com.argentgames.visualnoveltemplate
                             // Debug.Log("running animation for SR: " + sr.gameObject.name +
                             //  " with oldTex "+ sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
 
+                            animates.Add(StartCoroutine(I_TransitionMaterial(sr, transitionDuration)));
 
-                            sr.TweenValueFloat(1f, transitionDuration, (v) =>
-                            {
-                                sr.material.SetFloat("_TransitionAmount", v);
-                                // Debug.Log("setting material value");
-                            }).SetFrom(0);
+                            // sr.TweenValueFloat(1f, transitionDuration, (v) =>
+                            // {
+                            //     sr.material.SetFloat("_TransitionAmount", v);
+                            //     // Debug.Log("setting material value");
+                            // }).SetFrom(0);
 
                             // TECHDEBT: hardcoding the ease =.=
                             //                         animationTasks.Add(
@@ -293,11 +356,45 @@ namespace com.argentgames.visualnoveltemplate
 
 
             // await UniTask.WhenAll(animationTasks);
-            await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
+            // await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
+            await UniTask.WaitUntil(() => IsTransitionComplete());
 
 
 
+        }
+        bool IsTransitionComplete()
+        {
+            foreach (var sr in bodyPartsMap.Values)
+            {
+                try
+                {
+                    if (sr.material.GetTexture("NewTex") != null)
+                    {
+                        if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                        {
+                            // Debug.Log("running animation for SR: " + sr.gameObject.name +
+                            //  " with oldTex "+ sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
 
+                            if (sr.material.GetFloat("_TransitionAmount") != 1)
+                            {
+                                return false;
+                            }
+
+                        }
+                        else
+                        {
+                            Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
+                }
+
+            }
+
+            return true;
         }
         void ResetMainExpression(string expression)
         {

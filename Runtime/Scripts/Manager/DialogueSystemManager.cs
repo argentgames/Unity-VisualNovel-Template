@@ -36,7 +36,7 @@ namespace com.argentgames.visualnoveltemplate
         public DialogueUIManager DialogueUIManager { get { return dialogueUIManager; } }
         private StringReactiveProperty currentDialogueWindow = new StringReactiveProperty("");
         public StringReactiveProperty CurrentDialogueWindow { get { return currentDialogueWindow; } set { currentDialogueWindow = value; } }
-   
+
 
         [SerializeField]
         [PropertyTooltip("The different types of dialogue textbox UIs we want to use, such as ADV and NVL.")]
@@ -119,7 +119,7 @@ namespace com.argentgames.visualnoveltemplate
 
         }
 
-        
+
         public async UniTask SpawnAllUIWindows()
         {
             // make sure there don't exist windows already before we spawn everything
@@ -137,7 +137,7 @@ namespace com.argentgames.visualnoveltemplate
             GameObject window;
             foreach (var dialogueWindowMode in dialogueWindowModes)
             {
-// Debug.Break();
+                // Debug.Break();
                 window = Instantiate(dialogueWindowMode.prefab, this.transform);
                 var debugName = window.gameObject.name;
                 var windowCanvas = window.GetComponentInChildren<Canvas>();
@@ -161,22 +161,22 @@ namespace com.argentgames.visualnoveltemplate
                 await UniTask.Yield();
                 try
                 {
-                    window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
-                window.GetComponentInChildren<DialogueUIManager>().ClearUI();
-                try
-                {
-                    windowCanvas.sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
-                }
-                catch
-                {
-                    Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
-                }
+                    // window.GetComponentInChildren<DialogueUIManager>().HideUI(0f);
+                    // window.GetComponentInChildren<DialogueUIManager>().ClearUI();
+                    try
+                    {
+                        windowCanvas.sortingOrder = GameManager.Instance.DefaultConfig.dialogueUISortOrder;
+                    }
+                    catch
+                    {
+                        Debug.LogErrorFormat("window {0} doesn't have a canvas?", window.name);
+                    }
                 }
                 catch (MissingReferenceException)
                 {
-                    Debug.LogErrorFormat("window {0} was destroyed asynchronously...",debugName);
+                    Debug.LogErrorFormat("window {0} was destroyed asynchronously...", debugName);
                 }
-                
+
 
 
             }
@@ -198,8 +198,8 @@ namespace com.argentgames.visualnoveltemplate
 
             story = new Story(_story.text);
 
-// this auto attaches the ink inspector window which is annoying
-// if(OnCreateStory != null) OnCreateStory(story);
+            // this auto attaches the ink inspector window which is annoying
+            // if(OnCreateStory != null) OnCreateStory(story);
 
             currentSessionDialogueHistory.Clear();
 
@@ -292,7 +292,7 @@ namespace com.argentgames.visualnoveltemplate
             //     }
 
             RunContinueStory().Forget();
-                
+
         }
 
 
@@ -447,7 +447,7 @@ namespace com.argentgames.visualnoveltemplate
                 //     IsRunningActionFunction = false;
                 //     Debug.Log("time to run action function: " + stopwatch.ElapsedMilliseconds.ToString());
                 // }
-                
+
                 // else if (needToDisplayChoices)
                 // {
                 //     // if (firstTimeSeeingChoices)
@@ -529,22 +529,22 @@ namespace com.argentgames.visualnoveltemplate
             //         Debug.LogError("why can't i continue story? try to display choices?");
 
             //         if (NeedToDisplayChoices() && !dialogueUIManager.WaitingForPlayerToSelectChoice)
-                    // {
-                    //     // Debug.Log("displaying some weird choice stuff");
-                    //     dialogueUIManager.EnableCTC();
-                    //     Debug.Log("actually displaying choices now");
-                    //     stopwatch.Restart();
-                    //     // TECHDEBT: something wrong with choice collection above.
-                    //     // why does the line before choices section get combined into 
-                    //     // current choices collection?
-                    //     // await DisplayLine();
-                    //     await DisplayChoices();
-                    //     // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
+            // {
+            //     // Debug.Log("displaying some weird choice stuff");
+            //     dialogueUIManager.EnableCTC();
+            //     Debug.Log("actually displaying choices now");
+            //     stopwatch.Restart();
+            //     // TECHDEBT: something wrong with choice collection above.
+            //     // why does the line before choices section get combined into 
+            //     // current choices collection?
+            //     // await DisplayLine();
+            //     await DisplayChoices();
+            //     // Debug.Log("time to run display choices: " + stopwatch.ElapsedMilliseconds.ToString());
 
-                    //     // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
-                    //     // errors when spam clicking
-                    //     // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
-                    // }
+            //     // if we just made a choice, we need to wait for the choicebox to go away so that we don't have
+            //     // errors when spam clicking
+            //     // await UniTask.WaitWhile(() => dialogueUIManager.ChoicesStillExist());
+            // }
             //         else
             //         {
             //             Debug.Log("display line that got lumped together wit hchoices collection?");
@@ -614,7 +614,7 @@ namespace com.argentgames.visualnoveltemplate
                     {
                         await RunRegularLine(null);
                     }
-                    
+
                 }
                 // otherwise it's going to be a regular line that may or may not include choices
                 else
@@ -638,10 +638,10 @@ namespace com.argentgames.visualnoveltemplate
                         SetIsLoadedGame(false);
 
                         ShowDialogueWindow(currentDialogueWindow.Value);
-                        
+
                         // Debug.Break();
 
-                        Debug.LogFormat("our courrent duimanger is: {0}, isShowingUI value: {1}",dialogueUIManager.name, dialogueUIManager.IsShowingUI);
+                        Debug.LogFormat("our courrent duimanger is: {0}, isShowingUI value: {1}", dialogueUIManager.name, dialogueUIManager.IsShowingUI);
                         // display ui?
                         if (!dialogueUIManager.IsShowingUI)
                         {
@@ -1042,6 +1042,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
             Debug.Log("location of colon: " + colonIDX.ToString());
+            Debug.Log(text);
             // Debug.Break();
             if (colonIDX > -1) // TECHDEBT: hard coding max number of params for colon split <_<
             {
