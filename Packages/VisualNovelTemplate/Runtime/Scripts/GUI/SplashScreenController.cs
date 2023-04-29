@@ -11,11 +11,11 @@ public class SplashScreenController : MonoBehaviour
     
     async UniTaskVoid Start()
     {
-        
-        await UniTask.Delay(TimeSpan.FromSeconds(2.5f));
-        SceneTransitionManager.Instance.LoadScene("MainMenu",1.5f,1.5f);
         SaveLoadManager.Instance.LoadSaveFiles().Forget();
         AudioManager.Instance.GetFMODBuses();
+        await UniTask.Delay(TimeSpan.FromSeconds(2.5f));
+        SceneTransitionManager.Instance.LoadScene("MainMenu",1.5f,1.5f);
+        
     }
 }
 }

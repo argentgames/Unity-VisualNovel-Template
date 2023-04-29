@@ -54,6 +54,8 @@ namespace com.argentgames.visualnoveltemplate
         public abstract UniTask Disable(float duration, bool destroyOnDisable=false);
         public abstract void OnCompleteEnableAnimation();
         public abstract void OnCompleteDisableAnimation(bool destroyOnDisable=false);
+        public abstract void SkipEnableAnimation();
+        public abstract void SkipDisableAnimation();
         public virtual void CompleteAnimation()
         {
             AnimationComplete = true;

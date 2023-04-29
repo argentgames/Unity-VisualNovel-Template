@@ -16,6 +16,14 @@ public class SlideObjectToggleEnable : AnimateObjectsToggleEnable
     // Start is called before the first frame update
 
 
+    public override void SkipEnableAnimation()
+    {
+
+    }
+    public override void SkipDisableAnimation()
+    {
+        
+    }
 
     [Button]
     public async override UniTask Disable(float duration=-1,bool destroyOnDisable=false)
