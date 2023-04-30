@@ -93,6 +93,7 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         private Dictionary<string, GameObject> charactersOnScreen = new Dictionary<string, GameObject>();
 
+        [Button]
         public GameObject GetCharacterOnScreen(string charName)
         {
 
@@ -849,14 +850,14 @@ namespace com.argentgames.visualnoveltemplate
 
                 // await UniTask.WhenAll(animationTasks);
 
-                await animator.Enable(10);
+                await animator.Enable(duration);
 
                 // animationComplete = true;
 
-                foreach (var sr in spriteRenderers)
-                {
-                    Debug.LogFormat("alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
-                }
+                // foreach (var sr in spriteRenderers)
+                // {
+                //     Debug.LogFormat("alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
+                // }
             }
             await UniTask.WaitWhile(() => animator.IsRunningEnableAnimation);
             // move the gameobject to Location
@@ -881,6 +882,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogWarningFormat("Character {0} isn't on screen to hide", charName);
                 return;
             }
+
 
             animationTasks.Clear();
             var go = charactersOnScreen[charName];
@@ -917,7 +919,7 @@ namespace com.argentgames.visualnoveltemplate
             //     Debug.LogWarningFormat("unable to fire hide char for {0} because SRs are null!", charName);
             // }
 
-            animator.Disable((float)10f);
+            animator.Disable((float)duration);
             if (GameManager.Instance.IsSkipping)
             {
                 ThrowSkipToken();
@@ -954,10 +956,10 @@ namespace com.argentgames.visualnoveltemplate
             // {
             //     Debug.LogWarningFormat("animationTasks was null");
             // }
-Debug.Break();
+// Debug.Break();
             await UniTask.WaitWhile(() => animator.IsRunningDisableAnimation);
 
-            Debug.Break();
+            // Debug.Break();
             go.SetActive(false);
 
             UnregisterCharacter(charName);
@@ -966,7 +968,7 @@ Debug.Break();
             // AssetRefLoader.Instance.ReleaseAsset(go);
             // Destroy(go);
 
-            Debug.Break();
+            // Debug.Break();
 
             Destroy(go);
 

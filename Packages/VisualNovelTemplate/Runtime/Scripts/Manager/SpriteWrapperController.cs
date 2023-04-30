@@ -77,7 +77,7 @@ namespace com.argentgames.visualnoveltemplate
             CreateSkipToken();
 
             // TECHDEBT: adding in a force set the transition value directly skip <_< until we get rid of all these animation libraries.
-            SkipAnimation();
+            // SkipAnimation();
             ThrowCancellationToken();
 
         }
@@ -329,7 +329,7 @@ namespace com.argentgames.visualnoveltemplate
 
             propBlock.SetFloat("_TransitionAmount", 0);
             sr.SetPropertyBlock(propBlock, 0);
-            transitionDuration = 10;
+            // transitionDuration = 10;
             while (elaspedTime < transitionDuration &&
             propBlock.GetFloat("_TransitionAmount") != 1 &&
             animationsRunning[animateIDX] != false)
@@ -360,7 +360,7 @@ namespace com.argentgames.visualnoveltemplate
 
             propBlock.SetFloat("_TransitionAmount", 0);
             sr.SetPropertyBlock(propBlock, 0);
-            transitionDuration = 10;
+            // transitionDuration = 10;
             while (elaspedTime < transitionDuration &&
             propBlock.GetFloat("_TransitionAmount") != 1 &&
             animationsRunning[animateIDX] != false)
@@ -391,7 +391,7 @@ namespace com.argentgames.visualnoveltemplate
 
             propBlock.SetFloat("_TransitionAmount", 0);
             sr.SetPropertyBlock(propBlock, 0);
-            transitionDuration = 10;
+            // transitionDuration = 10;
             while (elaspedTime < transitionDuration &&
             propBlock.GetFloat("_TransitionAmount") != 1 && !ct.IsCancellationRequested)
             {
@@ -439,33 +439,36 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     if (sr.material.GetTexture("NewTex") != null)
                     {
-                        animationsRunning[animateIDX] = true;
-                        // if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                        // TODO: THIS IS THE COROUTINE VERSION.
+                        // NEED IT INSTEAD OF THE ANIMATION LIBRARY TWEEN.
+
+                        // animationsRunning[animateIDX] = true;
+                        // // if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                        // // {
+                        // Debug.Log("running animation for SR: " + sr.gameObject.name +
+                        //  " with oldTex " + sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
+
+                        // if (transitionDuration != 0)
                         // {
-                        Debug.Log("running animation for SR: " + sr.gameObject.name +
-                         " with oldTex " + sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
+                        //     StartCoroutine(I_TransitionMaterial(sr, animateIDX, transitionDuration));
 
-                        if (transitionDuration != 0)
-                        {
-                            StartCoroutine(I_TransitionMaterial(sr, animateIDX, transitionDuration));
-
-                        }
-                        else
-                        {
-                            Debug.Log("no transition needed for exp change");
-                            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
-                            sr.GetPropertyBlock(propBlock, 0);
-
-                            propBlock.SetFloat("_TransitionAmount", 1);
-                            sr.SetPropertyBlock(propBlock, 0);
-                            animationsRunning[animateIDX] = false;
-                        }
-                        // StartCoroutine(I_TransitionMaterial(sr, transitionDuration));
-                        // sr.TweenValueFloat(1f, transitionDuration, (v) =>
+                        // }
+                        // else
                         // {
-                        //     sr.material.SetFloat("_TransitionAmount", v);
-                        //     // Debug.Log("setting material value");
-                        // }).SetFrom(0);
+                        //     Debug.Log("no transition needed for exp change");
+                        //     MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+                        //     sr.GetPropertyBlock(propBlock, 0);
+
+                        //     propBlock.SetFloat("_TransitionAmount", 1);
+                        //     sr.SetPropertyBlock(propBlock, 0);
+                        //     animationsRunning[animateIDX] = false;
+                        // }
+
+                        sr.TweenValueFloat(1f, transitionDuration, (v) =>
+                        {
+                            sr.material.SetFloat("_TransitionAmount", v);
+                            // Debug.Log("setting material value");
+                        }).SetFrom(0);
 
                         // TECHDEBT: hardcoding the ease =.=
                         //                         animationTasks.Add(
@@ -498,10 +501,10 @@ namespace com.argentgames.visualnoveltemplate
 
 
             // await UniTask.WhenAll(animationTasks);
-            // await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
+            await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
 
 
-            await UniTask.WaitUntil(() => IsTransitionComplete() == true);
+            // await UniTask.WaitUntil(() => IsTransitionComplete() == true);
 
             foreach (var animate in animates)
             {
