@@ -313,6 +313,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 IsRunningActionFunction = false;
             }
+            customActionFunctions.CancelDelay();
             Debug.LogFormat("is cts cancellation requested after creating new cts {0}", cts.IsCancellationRequested);
         }
 
