@@ -85,36 +85,44 @@ namespace com.argentgames.visualnoveltemplate
                 image.color = new Color(image.color.r, image.color.g, image.color.b, endAlpha);
             }
         }
-        IEnumerator I_FadeInCanvasGroup()
+        IEnumerator I_FadeInCanvasGroup(float duration=-1)
         {
+            if (duration == -1)
+                {
+                    duration = enableAnimationDuration;
+                }
             float elapsedTime = 0;
-            while (elapsedTime < enableAnimationDuration &&
+            while (elapsedTime < duration &&
             canvasGroup.alpha != endAlpha)
             {
                 elapsedTime += Time.deltaTime;
                 // Debug.Log("fading in");
-                float percent = Mathf.Clamp01(canvasGroup.alpha / enableAnimationDuration);
+                float percent = Mathf.Clamp01(canvasGroup.alpha / duration);
 
 
-                float curvePercent = transitionInCurve.Evaluate(elapsedTime / enableAnimationDuration);
+                float curvePercent = transitionInCurve.Evaluate(elapsedTime / duration);
                 canvasGroup.alpha = curvePercent * endAlpha;
                 Debug.LogFormat("fading in canvas group: {0}", curvePercent);
                  yield return null;
             }
         }
-        IEnumerator I_FadeInImage()
+        IEnumerator I_FadeInImage(float duration=-1)
         {
+            if (duration == -1)
+                {
+                    duration = enableAnimationDuration;
+                }
             float elapsedTime = 0;
             Color targetColor = new Color(image.color.r, image.color.g, image.color.b, endAlpha);
-            while (elapsedTime < enableAnimationDuration &&
+            while (elapsedTime < duration &&
             image.color != targetColor)
             {
                 elapsedTime += Time.deltaTime;
                 // Debug.Log("fading in");
-                float percent = Mathf.Clamp01(image.color.a / enableAnimationDuration);
+                float percent = Mathf.Clamp01(image.color.a / duration);
 
 
-                float curvePercent = transitionInCurve.Evaluate(elapsedTime / enableAnimationDuration);
+                float curvePercent = transitionInCurve.Evaluate(elapsedTime / duration);
                 
                 image.color = Color.LerpUnclamped(image.color, targetColor, curvePercent);
                 Debug.LogFormat("targetColor {0} curvePercent {1}",targetColor,curvePercent);
@@ -248,7 +256,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             try
             {
-                Debug.Log("running fade object toggle enable now");
+                Debug.LogFormat("running fade object toggle enable now with duration {0}",duration);
                 this.gameObject.SetActive(true);
                 // Debug.Log(canvasGroup == null);
                 AnimationComplete = false;
@@ -265,12 +273,13 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     duration = enableAnimationDuration;
                 }
+
                 if (canvasGroup != null)
                 {
                     // Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
                     if (this.gameObject.activeSelf)
                     {
-                        animate = StartCoroutine(I_FadeInCanvasGroup());
+                        animate = StartCoroutine(I_FadeInCanvasGroup(duration));
                     }
                     else
                     {
@@ -288,7 +297,7 @@ namespace com.argentgames.visualnoveltemplate
                     // Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
                     if (this.gameObject.activeSelf)
                     {
-                        animate = StartCoroutine(I_FadeInImage());
+                        animate = StartCoroutine(I_FadeInImage(duration));
                     }
                     else
                     {
