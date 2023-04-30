@@ -750,7 +750,8 @@ namespace com.argentgames.visualnoveltemplate
             if (spriteWrapperController != null)
             {
                 await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
-                spriteWrapperController.ExpressionChange(expression, 0).Forget();
+                // spriteWrapperController.SetInitialExpression(expression);
+                await spriteWrapperController.ExpressionChange(expression, 0);
 
                 if (location == null)
                 {
@@ -786,6 +787,8 @@ namespace com.argentgames.visualnoveltemplate
             // TECHDEBT: need to be able to show a character with an arbitrary transition!
             // Debug.Log("lol am i ever called");
             var go = charactersOnScreen[charName];
+                            AnimateObjectsToggleEnable animator = go.GetComponentInChildren<AnimateObjectsToggleEnable>();
+
             var animationComplete = false;
             if (location != null)
             {
@@ -810,36 +813,52 @@ namespace com.argentgames.visualnoveltemplate
                 var spriteRenderers = go.GetComponentsInChildren<SpriteRenderer>();
                 animationTasks.Clear();
 
+                // foreach (var sr in spriteRenderers)
+                // {
+                //     Debug.LogFormat("before transition alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
+
+                //     animationTasks.Add(
+                //     Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
+                //     .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
+                //     );
+
+
+                //     // if (sr.material.HasProperty("DoTint"))
+                //     // {
+                //     //     if (this.darkTintOn)
+                //     //     {
+                //     //         Debug.Log("turn tint on");
+                //     //         // 1 is true
+                //     //         sr.material.SetFloat("DoTint", 1);
+                //     //     }
+                //     //     else
+                //     //     {
+                //     //         Debug.Log("turn tint off");
+                //     //         sr.material.SetFloat("DoTint", 0);
+                //     //     }
+                //     // }
+
+
+                // }
+                // go.SetActive(true);
+                // await UniTask.Yield();
+                // foreach (var sr in spriteRenderers)
+                // {
+                //     Debug.LogFormat("after start transition alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
+                // }
+
+                // await UniTask.WhenAll(animationTasks);
+
+                await animator.Enable(10);
+
+                // animationComplete = true;
+
                 foreach (var sr in spriteRenderers)
                 {
-                    animationTasks.Add(
-                    Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                    .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
-                    );
-
-
-                    // if (sr.material.HasProperty("DoTint"))
-                    // {
-                    //     if (this.darkTintOn)
-                    //     {
-                    //         Debug.Log("turn tint on");
-                    //         // 1 is true
-                    //         sr.material.SetFloat("DoTint", 1);
-                    //     }
-                    //     else
-                    //     {
-                    //         Debug.Log("turn tint off");
-                    //         sr.material.SetFloat("DoTint", 0);
-                    //     }
-                    // }
-
-
+                    Debug.LogFormat("alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
                 }
-                go.SetActive(true);
-                await UniTask.WhenAll(animationTasks);
-                animationComplete = true;
             }
-            await UniTask.WaitUntil(() => animationComplete);
+            await UniTask.WaitWhile(() => animator.IsRunningEnableAnimation);
             // move the gameobject to Location
             // animate showing with transition and duration
             // TECHDEBT
@@ -862,12 +881,12 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogWarningFormat("Character {0} isn't on screen to hide", charName);
                 return;
             }
-            
+
             animationTasks.Clear();
             var go = charactersOnScreen[charName];
             if (go == null)
             {
-                Debug.LogWarningFormat("Character {0} go doesn't exist, can't hide. Removing from charactersOnScreenMap!",charName);
+                Debug.LogWarningFormat("Character {0} go doesn't exist, can't hide. Removing from charactersOnScreenMap!", charName);
                 UnregisterCharacter(charName);
                 return;
             }
@@ -878,26 +897,31 @@ namespace com.argentgames.visualnoveltemplate
             if (GameManager.Instance.IsSkipping)
             { duration = 0; }
             // TECHDEBT:  this skip Token is not going to work as expected.
-            
-            try
-            {
-                var spriteRenderers = go.GetComponentsInChildren<SpriteRenderer>();
-                foreach (var sr in go.GetComponentsInChildren<SpriteRenderer>())
-            {
-                animationTasks.Add(
-                    Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
-                    .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
-                );
-            }
-            }
-            catch
-            {
-                Debug.LogWarningFormat("unable to fire hide char for {0} because SRs are null!",charName);
-            }
-            
+
+            AnimateObjectsToggleEnable animator = go.GetComponentInChildren<AnimateObjectsToggleEnable>();
+
+
+            // try
+            // {
+            //     var spriteRenderers = go.GetComponentsInChildren<SpriteRenderer>();
+            //     foreach (var sr in go.GetComponentsInChildren<SpriteRenderer>())
+            //     {
+            //         animationTasks.Add(
+            //             Easing.Create<InCubic>(start: 1f, end: 0f, duration: (float)duration)
+            //             .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
+            //         );
+            //     }
+            // }
+            // catch
+            // {
+            //     Debug.LogWarningFormat("unable to fire hide char for {0} because SRs are null!", charName);
+            // }
+
+            animator.Disable((float)10f);
             if (GameManager.Instance.IsSkipping)
             {
                 ThrowSkipToken();
+                animator.SkipDisableAnimation();
             }
             // sequence.AppendCallback(() =>
             // {
@@ -922,21 +946,28 @@ namespace com.argentgames.visualnoveltemplate
             //     // }
             //     // #endif
             // });
-            try
-            {
-                await UniTask.WhenAll(animationTasks);
-            }
-            catch
-            {
-                Debug.LogWarningFormat("animationTasks was null");
-            }
-            
+            // try
+            // {
+            //     await UniTask.WhenAll(animationTasks);
+            // }
+            // catch
+            // {
+            //     Debug.LogWarningFormat("animationTasks was null");
+            // }
+Debug.Break();
+            await UniTask.WaitWhile(() => animator.IsRunningDisableAnimation);
+
+            Debug.Break();
             go.SetActive(false);
-            
+
             UnregisterCharacter(charName);
 
             // TODO: add in asset ref loader removal
             // AssetRefLoader.Instance.ReleaseAsset(go);
+            // Destroy(go);
+
+            Debug.Break();
+
             Destroy(go);
 
 
@@ -946,6 +977,10 @@ namespace com.argentgames.visualnoveltemplate
         public void HideChar(string charName, string transition = "fade", float? duration = null)
         {
             FireHideChar(charName, transition, duration).Forget();
+        }
+        public async UniTask AsyncHideChar(string charName, string transition = "fade", float? duration = null)
+        {
+            await FireHideChar(charName, transition, duration);
         }
         public void DestroyChar(string charName)
         {

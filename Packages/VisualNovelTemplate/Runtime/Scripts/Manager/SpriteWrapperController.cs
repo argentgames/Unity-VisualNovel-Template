@@ -7,6 +7,8 @@ using Cysharp.Threading.Tasks;
 using AnimeTask;
 using ElRaccoone.Tweens;
 using UnityEngine.Events;
+using System.Threading.Tasks;
+using System.Threading;
 namespace com.argentgames.visualnoveltemplate
 {
     public struct BodyPart
@@ -53,6 +55,8 @@ namespace com.argentgames.visualnoveltemplate
 
         SkipTokenSource skipTokenSource = new SkipTokenSource();
         SkipToken skipToken;
+        CancellationTokenSource cts = new CancellationTokenSource();
+        CancellationToken ct;
 
         /// <summary>
         /// Holds the current expression for each bodyparth that changes so that we can save/load it
@@ -61,7 +65,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="string"></typeparam>
         /// <returns></returns>
         Dictionary<string, string> currentExpression = new Dictionary<string, string>();
-
+        [SerializeField] List<bool> animationsRunning = new List<bool>();
         public void CreateSkipToken()
         {
             this.skipTokenSource = new SkipTokenSource();
@@ -74,32 +78,41 @@ namespace com.argentgames.visualnoveltemplate
 
             // TECHDEBT: adding in a force set the transition value directly skip <_< until we get rid of all these animation libraries.
             SkipAnimation();
+            ThrowCancellationToken();
 
+        }
+        void CreateCancellationToken()
+        {
+            this.cts = new CancellationTokenSource();
+            this.ct = cts.Token;
+        }
+        void ThrowCancellationToken()
+        {
+            cts.Cancel();
+            CreateCancellationToken();
         }
 
         void SkipAnimation()
         {
+            var animateIDX = 0;
             foreach (var sr in bodyPartsMap.Values)
             {
+                MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
                 try
                 {
-                    if (sr.material.GetTexture("NewTex") != null)
-                    {
-                        if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
-                        {
-                            sr.material.SetFloat("_TransitionAmount", 1);
-                        }
-                        else
-                        {
-                            Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
-                        }
-                    }
+
+                    sr.GetPropertyBlock(propBlock, 0);
+                    propBlock.SetFloat("_TransitionAmount", 1);
+                    sr.SetPropertyBlock(propBlock, 0);
+                    // sr.material.SetFloat("_TransitionAmount", 1);
+
                 }
                 catch (Exception e)
                 {
                     Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
                 }
-
+                animationsRunning[animateIDX] = false;
+                animateIDX += 1;
             }
 
             foreach (var animate in animates)
@@ -145,9 +158,20 @@ namespace com.argentgames.visualnoveltemplate
 
             GenerateExpressionsMapForHead();
 
-            
+            if (transitionInCurve.length == 0)
+            {
+                Debug.Log("setting trnasition curve manually??");
+                transitionInCurve = AnimationCurve.Linear(0, 0, 1, 1);
+
+            }
+
 
             CreateSkipToken();
+
+            for (int idx = 0; idx < bodyParts.Count; idx++)
+            {
+                animationsRunning.Add(false);
+            }
 
             initComplete = true;
 
@@ -226,8 +250,12 @@ namespace com.argentgames.visualnoveltemplate
             Sprite newExpSprite;
             SpriteRenderer bodyPartSpriteRenderer;
             string _depPart = "";
+            MaterialPropertyBlock block = new MaterialPropertyBlock();
+
+
             foreach (var part in parts)
             {
+
 
                 var _prefix = part.Split(prefixDelimiter)[0];
                 if (part == "" || _prefix == "")
@@ -237,6 +265,7 @@ namespace com.argentgames.visualnoveltemplate
                 try
                 {
                     var spriteExpression = expressionsMapForHead[_prefix];
+
                     if (spriteExpression.dependentParts != null)
                     {
                         foreach (var depPart in spriteExpression.dependentParts)
@@ -248,7 +277,13 @@ namespace com.argentgames.visualnoveltemplate
                                 Debug.LogFormat("depPart we are looking for: {0}", _depPart);
                                 bodyPartSpriteRenderer = bodyPartsMap[depPart];
                                 newExpSprite = GetExpressionImage(_depPart);
-                                bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
+
+                                block = new MaterialPropertyBlock();
+                                bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                                block.SetTexture("NewTex", newExpSprite.texture);
+                                bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
+
+
                             }
                             catch
                             {
@@ -260,7 +295,15 @@ namespace com.argentgames.visualnoveltemplate
                     // do we need to set dependent parts too?
                     bodyPartSpriteRenderer = bodyPartsMap[_prefix];
                     newExpSprite = GetExpressionImage(part);
+
+                    Debug.LogFormat("setting newTex to: {0}", newExpSprite.texture.name);
+
+                    block = new MaterialPropertyBlock();
+                    bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                    block.SetTexture("NewTex", newExpSprite.texture);
+                    bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
                     bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
+
 
                     currentExpression[_prefix] = part;
                 }
@@ -273,22 +316,98 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
         [SerializeField]
-        AnimationCurve transitionInCurve = AnimationCurve.Linear(0,0,1,1);
-        List<Coroutine> animates;
+        AnimationCurve transitionInCurve = AnimationCurve.Linear(0, 0, 1, 1);
+        List<Coroutine> animates = new List<Coroutine>();
         public UnityEvent OnAnimationStart, OnAnimationComplete;
-        IEnumerator I_TransitionMaterial(SpriteRenderer sr, float transitionDuration = 1f)
+        IEnumerator I_TransitionMaterial(SpriteRenderer sr, int animateIDX, float transitionDuration = 1f)
         {
             float elaspedTime = 0;
             // make sure transition starts from 0
-            sr.material.SetFloat("_TransitionAmount", 0);
+            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+            sr.GetPropertyBlock(propBlock, 0);
+            Debug.LogFormat("current value of _transition amount before transitioning is: {0}", propBlock.GetFloat("_TransitionAmount"));
+
+            propBlock.SetFloat("_TransitionAmount", 0);
+            sr.SetPropertyBlock(propBlock, 0);
+            transitionDuration = 10;
             while (elaspedTime < transitionDuration &&
-            sr.material.GetFloat("_TransitionAmount") != 1)
+            propBlock.GetFloat("_TransitionAmount") != 1 &&
+            animationsRunning[animateIDX] != false)
             {
+                sr.GetPropertyBlock(propBlock, 0);
                 elaspedTime += Time.deltaTime;
                 float curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
-                sr.material.SetFloat("_TransitionAmount", curvePercent);
+                propBlock.SetFloat("_TransitionAmount", curvePercent);
+
+                // Debug.LogFormat("elaspedTime {0} transitionDuration {1} curvePercent: {2}", elaspedTime, transitionDuration, curvePercent);
+
+                sr.SetPropertyBlock(propBlock, 0);
+
+                Debug.LogFormat("current value of _transition amount: {0} for sr {1}", propBlock.GetFloat("_TransitionAmount"), sr.name);
                 yield return null;
             }
+
+            animationsRunning[animateIDX] = false;
+
+        }
+        IEnumerator I_TransitionAlpha(SpriteRenderer sr, int animateIDX, float transitionDuration = 1f)
+        {
+            float elaspedTime = 0;
+            // make sure transition starts from 0
+            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+            sr.GetPropertyBlock(propBlock, 0);
+            Debug.LogFormat("current value of _transition amount before transitioning is: {0}", propBlock.GetFloat("_TransitionAmount"));
+
+            propBlock.SetFloat("_TransitionAmount", 0);
+            sr.SetPropertyBlock(propBlock, 0);
+            transitionDuration = 10;
+            while (elaspedTime < transitionDuration &&
+            propBlock.GetFloat("_TransitionAmount") != 1 &&
+            animationsRunning[animateIDX] != false)
+            {
+                sr.GetPropertyBlock(propBlock, 0);
+                elaspedTime += Time.deltaTime;
+                float curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
+                propBlock.SetFloat("_TransitionAmount", curvePercent);
+
+                // Debug.LogFormat("elaspedTime {0} transitionDuration {1} curvePercent: {2}", elaspedTime, transitionDuration, curvePercent);
+
+                sr.SetPropertyBlock(propBlock, 0);
+
+                Debug.LogFormat("current value of _transition amount: {0} for sr {1}", propBlock.GetFloat("_TransitionAmount"), sr.name);
+                yield return null;
+            }
+
+            animationsRunning[animateIDX] = false;
+
+        }
+        async UniTask U_TransitionMaterial(SpriteRenderer sr, float transitionDuration = 1f)
+        {
+            float elaspedTime = 0;
+            // make sure transition starts from 0
+            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+            sr.GetPropertyBlock(propBlock, 0);
+            Debug.LogFormat("current value of _transition amount before transitioning is: {0}", propBlock.GetFloat("_TransitionAmount"));
+
+            propBlock.SetFloat("_TransitionAmount", 0);
+            sr.SetPropertyBlock(propBlock, 0);
+            transitionDuration = 10;
+            while (elaspedTime < transitionDuration &&
+            propBlock.GetFloat("_TransitionAmount") != 1 && !ct.IsCancellationRequested)
+            {
+                sr.GetPropertyBlock(propBlock, 0);
+                elaspedTime += Time.deltaTime;
+                float curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
+                propBlock.SetFloat("_TransitionAmount", curvePercent);
+
+                // Debug.LogFormat("elaspedTime {0} transitionDuration {1} curvePercent: {2}", elaspedTime, transitionDuration, curvePercent);
+
+                sr.SetPropertyBlock(propBlock, 0);
+
+                Debug.LogFormat("current value of _transition amount: {0} for sr {1}", propBlock.GetFloat("_TransitionAmount"), sr.name);
+                await UniTask.Yield();
+            }
+
         }
 
         /// <summary>
@@ -312,89 +431,108 @@ namespace com.argentgames.visualnoveltemplate
 
             List<UniTask> animationTasks = new List<UniTask>();
             animationComplete = false;
+            int animateIDX = 0;
             foreach (var sr in bodyPartsMap.Values)
             {
+                Debug.LogFormat("sr in bodyPartsMap.Values: {0}", sr);
                 try
                 {
                     if (sr.material.GetTexture("NewTex") != null)
                     {
-                        if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                        animationsRunning[animateIDX] = true;
+                        // if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+                        // {
+                        Debug.Log("running animation for SR: " + sr.gameObject.name +
+                         " with oldTex " + sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
+
+                        if (transitionDuration != 0)
                         {
-                            // Debug.Log("running animation for SR: " + sr.gameObject.name +
-                            //  " with oldTex "+ sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
+                            StartCoroutine(I_TransitionMaterial(sr, animateIDX, transitionDuration));
 
-                            animates.Add(StartCoroutine(I_TransitionMaterial(sr, transitionDuration)));
-
-                            // sr.TweenValueFloat(1f, transitionDuration, (v) =>
-                            // {
-                            //     sr.material.SetFloat("_TransitionAmount", v);
-                            //     // Debug.Log("setting material value");
-                            // }).SetFrom(0);
-
-                            // TECHDEBT: hardcoding the ease =.=
-                            //                         animationTasks.Add(
-                            // Easing.Create<Linear>(start: 0f, end: 1f, duration: transitionDuration)
-                            //                     .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
-                            //                         );
-
-                            // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
-                            // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
-                            // .From(0));
                         }
                         else
                         {
-                            Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
+                            Debug.Log("no transition needed for exp change");
+                            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+                            sr.GetPropertyBlock(propBlock, 0);
+
+                            propBlock.SetFloat("_TransitionAmount", 1);
+                            sr.SetPropertyBlock(propBlock, 0);
+                            animationsRunning[animateIDX] = false;
                         }
+                        // StartCoroutine(I_TransitionMaterial(sr, transitionDuration));
+                        // sr.TweenValueFloat(1f, transitionDuration, (v) =>
+                        // {
+                        //     sr.material.SetFloat("_TransitionAmount", v);
+                        //     // Debug.Log("setting material value");
+                        // }).SetFrom(0);
+
+                        // TECHDEBT: hardcoding the ease =.=
+                        //                         animationTasks.Add(
+                        // Easing.Create<Linear>(start: 0f, end: 1f, duration: transitionDuration)
+                        //                     .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
+                        //                         );
+
+                        // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
+                        // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
+                        // .From(0));
+                        // }
+                        // else
+                        // {
+                        //     Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
+                        // }
+                        // animationTasks.Add(U_TransitionMaterial(sr, transitionDuration));
+                    }
+                    else
+                    {
+                        animationsRunning[animateIDX] = false;
                     }
                 }
                 catch (Exception e)
                 {
+                    animationsRunning[animateIDX] = false;
                     Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
                 }
-
+                animateIDX += 1;
             }
 
 
             // await UniTask.WhenAll(animationTasks);
             // await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
-            await UniTask.WaitUntil(() => IsTransitionComplete());
 
 
+            await UniTask.WaitUntil(() => IsTransitionComplete() == true);
+
+            foreach (var animate in animates)
+            {
+                if (animate != null)
+                {
+                    StopCoroutine(animate);
+                }
+            }
+            animates.Clear();
+            animationComplete = true;
 
         }
         bool IsTransitionComplete()
         {
-            foreach (var sr in bodyPartsMap.Values)
+            Debug.LogFormat("length of animations coroutine list: {0}", animates.Count);
+
+            for (int idx = 0; idx < animationsRunning.Count; idx++)
             {
-                try
+                if (animationsRunning[idx] == true)
                 {
-                    if (sr.material.GetTexture("NewTex") != null)
-                    {
-                        if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
-                        {
-                            // Debug.Log("running animation for SR: " + sr.gameObject.name +
-                            //  " with oldTex "+ sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
-
-                            if (sr.material.GetFloat("_TransitionAmount") != 1)
-                            {
-                                return false;
-                            }
-
-                        }
-                        else
-                        {
-                            Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
-                        }
-                    }
+                    Debug.LogFormat("sr {0} not done transitioing", idx);
+                    return false;
                 }
-                catch (Exception e)
+                else
                 {
-                    Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
-                }
 
+                }
             }
 
             return true;
+
         }
         void ResetMainExpression(string expression)
         {
@@ -408,6 +546,7 @@ namespace com.argentgames.visualnoveltemplate
             Sprite newExpSprite;
             SpriteRenderer bodyPartSpriteRenderer;
             string _depPart = "";
+            MaterialPropertyBlock block = new MaterialPropertyBlock();
             foreach (var part in parts)
             {
                 var _prefix = part.Split(prefixDelimiter)[0];
@@ -429,8 +568,13 @@ namespace com.argentgames.visualnoveltemplate
                                 Debug.LogFormat("depPart we are looking for: {0}", _depPart);
                                 bodyPartSpriteRenderer = bodyPartsMap[depPart];
                                 newExpSprite = GetExpressionImage(_depPart);
-                                bodyPartSpriteRenderer.sprite = newExpSprite;
-                                bodyPartSpriteRenderer.material.SetFloat("_TransitionAmount", 0);
+                                // bodyPartSpriteRenderer.sprite = newExpSprite;
+
+                                block = new MaterialPropertyBlock();
+                                bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                                block.SetFloat("_TransitionAmount", 0);
+                                block.SetTexture("_MainTex", newExpSprite.texture);
+                                bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
                             }
                             catch
                             {
@@ -443,8 +587,12 @@ namespace com.argentgames.visualnoveltemplate
                     bodyPartSpriteRenderer = bodyPartsMap[_prefix];
                     newExpSprite = GetExpressionImage(part);
 
-                    bodyPartSpriteRenderer.sprite = newExpSprite;
-                    bodyPartSpriteRenderer.material.SetFloat("_TransitionAmount", 0);
+                    // bodyPartSpriteRenderer.sprite = newExpSprite;
+                    block = new MaterialPropertyBlock();
+                    bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                    block.SetFloat("_TransitionAmount", 0);
+                    block.SetTexture("_MainTex", newExpSprite.texture);
+                    bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
                 }
                 catch
                 {
@@ -458,6 +606,43 @@ namespace com.argentgames.visualnoveltemplate
             SetNewExpression(expression);
             await RunExpressionTransition(transitionDuration, transition);
             ResetMainExpression(expression);
+        }
+        public void SetInitialExpression(string expression = "")
+        {
+            if (expression == "")
+            {
+                return;
+            }
+
+            SetNewExpression(expression);
+            ResetMainExpression(expression);
+
+            // make sure the transition is at 1......
+
+            Debug.Log("setting initial expression: " + expression);
+            foreach (var sr in bodyPartsMap.Values)
+            {
+                MaterialPropertyBlock block = new MaterialPropertyBlock();
+                sr.GetPropertyBlock(block, 0);
+                block.SetFloat("_TransitionAmount", 1);
+                block.SetFloat("Alpha", 0);
+                sr.SetPropertyBlock(block, 0);
+
+            }
+        }
+        public async UniTask ShowCharViaAlpha(float duration)
+        {
+            foreach (var sr in bodyPartsMap.Values)
+            {
+                MaterialPropertyBlock block = new MaterialPropertyBlock();
+                sr.GetPropertyBlock(block, 0);
+                block.SetFloat("_TransitionAmount", 1);
+                block.SetFloat("Alpha", 0);
+                sr.SetPropertyBlock(block, 0);
+
+            }
+
+            await UniTask.Yield();
         }
         public void ApplyTint(string tintName)
         {
