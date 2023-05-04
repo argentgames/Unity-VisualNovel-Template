@@ -127,13 +127,13 @@ namespace com.argentgames.visualnoveltemplate
         }
 
         bool animationComplete = false;
+        public bool AnimationComplete => animationComplete;
 
         bool initComplete = false;
         public bool InitComplete => initComplete;
+        [SerializeField] string defaultExpression = "brow_neut eyes_neut mouth_neut";
         async UniTaskVoid Awake()
         {
-            bodyPartsMap.Clear();
-            currentExpression.Clear();
             // Debug.Break();
 
             if (doSelfRegister)
@@ -141,14 +141,24 @@ namespace com.argentgames.visualnoveltemplate
                 await UniTask.WaitUntil(() => ImageManager.Instance != null);
                 ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject);
             }
-            // set our initial/default expression
+             await UniTask.Yield();
+             await UniTask.Yield();
 
+            // set our initial/default expression
+            bodyPartsMap.Clear();
+            currentExpression.Clear();
             foreach (var part in bodyParts)
             {
-                bodyPartsMap[part.prefix] = part.gameObject.GetComponentInChildren<SpriteRenderer>();
+                bodyPartsMap[part.prefix] = part.gameObject.GetComponentInChildren<SpriteRenderer>(true);
                 // init; set our currentExpression dict to hold all the relevant bodyparts
                 currentExpression[part.prefix] = "";
             }
+            GenerateExpressionsMapForHead();
+            await UniTask.Yield();
+            await UniTask.Yield();
+            SetNewExpression(defaultExpression);
+            ResetMainExpression(defaultExpression);
+
             colorTintsMap.Clear();
             foreach (var tint in colorTints)
             {
@@ -156,7 +166,7 @@ namespace com.argentgames.visualnoveltemplate
             }
 
 
-            GenerateExpressionsMapForHead();
+            
 
             if (transitionInCurve.length == 0)
             {
@@ -173,14 +183,68 @@ namespace com.argentgames.visualnoveltemplate
                 animationsRunning.Add(false);
             }
 
+
+            // set all alpha to 0 so the character isn't shown when spawned
+            //    Test_SetAlphaDirectly(0);
+
+            await UniTask.Yield();
             initComplete = true;
 
         }
-
-        void Start()
+void Start()
         {
+
+
             // SetNewExpression();
         }
+        public void Test_SetAlphaDirectly(float val)
+        {
+            foreach (var part in bodyPartsMap.Values)
+            {
+                MaterialPropertyBlock block = new MaterialPropertyBlock();
+                part.GetPropertyBlock(block, 0);
+                block.SetFloat("Alpha", val);
+                part.SetPropertyBlock(block, 0);
+                Debug.LogFormat("set alpha for sr {0} to val {1}", part.name, block.GetFloat("Alpha"));
+            }
+        }
+        public void SetMatFloatDirectly(string matRefName, float val)
+        {
+            foreach (var part in bodyPartsMap.Values)
+            {
+                MaterialPropertyBlock block = new MaterialPropertyBlock();
+                part.GetPropertyBlock(block, 0);
+                block.SetFloat(matRefName, val);
+                part.SetPropertyBlock(block, 0);
+                // Debug.LogFormat("set {2} for sr {0} to val {1}", part.name, block.GetFloat(matRefName),matRefName);
+            }
+        }
+
+
+        public async UniTask ShowChar(float duration = .35f)
+        {
+            if (duration != 0)
+            {
+              Test_SetAlphaDirectly(0);  
+            }
+            
+            gameObject.SetActive(true);
+            // StartCoroutine(I_TransitionAlpha(duration));
+            await U_TransitionAlpha(duration);
+            
+            animationComplete = true;
+            Debug.Log("done show char from swc" + AnimationComplete.ToString());
+        }
+        public async UniTask HideChar(float duration = .35f)
+        {
+            // StartCoroutine(I_TransitionAlpha(duration));
+            await U_TransitionAlpha(duration,fadein: false);
+            
+            animationComplete = true;
+            Debug.Log("done show char from swc" + AnimationComplete.ToString());
+        }
+
+        
 
         /// <summary>
         /// 
@@ -231,93 +295,115 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
 
-        /// <summary>
-        /// Sets the new expression that we want to update the character to.
-        /// This method DOES NOT MAKE VISIBLE the new expression. It only sets it
-        /// in newExp shader parameter! You need to run RunExpressionTransition to
-        /// update the visibility of this new expression.
-        /// </summary>
-        /// <param name="expression">list of expressions in a string format with space delimiting. E.g. 
-        /// head_1 eyes_angry_1 mouth_sad2</param>
-        [Button]
-        void SetNewExpression(string expression = "")
+        public void ShaderDebug()
         {
-            if (expression == "")
+            MaterialPropertyBlock block;
+            foreach (var part in bodyPartsMap.Values)
             {
-                return;
-            }
-            var parts = expression.Split(' ');
-            Sprite newExpSprite;
-            SpriteRenderer bodyPartSpriteRenderer;
-            string _depPart = "";
-            MaterialPropertyBlock block = new MaterialPropertyBlock();
-
-
-            foreach (var part in parts)
-            {
-
-
-                var _prefix = part.Split(prefixDelimiter)[0];
-                if (part == "" || _prefix == "")
-                {
-                    continue;
-                }
                 try
                 {
-                    var spriteExpression = expressionsMapForHead[_prefix];
-
-                    if (spriteExpression.dependentParts != null)
-                    {
-                        foreach (var depPart in spriteExpression.dependentParts)
-                        {
-                            try
-                            {
-                                var splitExpression = part.Split(prefixDelimiter);
-                                _depPart = string.Format("{0}{1}{2}", depPart, prefixDelimiter, StringExtensions.ArrayToString(splitExpression, 1, splitExpression.Length));
-                                Debug.LogFormat("depPart we are looking for: {0}", _depPart);
-                                bodyPartSpriteRenderer = bodyPartsMap[depPart];
-                                newExpSprite = GetExpressionImage(_depPart);
-
-                                block = new MaterialPropertyBlock();
-                                bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
-                                block.SetTexture("NewTex", newExpSprite.texture);
-                                bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
-
-
-                            }
-                            catch
-                            {
-                                Debug.LogErrorFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
-                            }
-
-                        }
-                    }
-                    // do we need to set dependent parts too?
-                    bodyPartSpriteRenderer = bodyPartsMap[_prefix];
-                    newExpSprite = GetExpressionImage(part);
-
-                    Debug.LogFormat("setting newTex to: {0}", newExpSprite.texture.name);
-
                     block = new MaterialPropertyBlock();
-                    bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
-                    block.SetTexture("NewTex", newExpSprite.texture);
-                    bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
-                    bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
-
-
-                    currentExpression[_prefix] = part;
+                    part.GetPropertyBlock(block, 0);
+                    Debug.LogFormat("bsr {0} has tex {1} and NewTex {2} and trans {3} and alpha {4}", part.name,
+                            block.GetTexture("_MainTex").name, block.GetTexture("NewTex").name,
+                             block.GetFloat("_TransitionAmount"), block.GetFloat("Alpha"));
                 }
                 catch (Exception e)
                 {
-                    Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}",
-                        part, _prefix, e);
+                    Debug.LogErrorFormat("couldnt debug part {0} with error {1}", part.name, e);
                 }
-                // Debug.Break();
+
+
+                
             }
         }
-        [SerializeField]
-        AnimationCurve transitionInCurve = AnimationCurve.Linear(0, 0, 1, 1);
-        List<Coroutine> animates = new List<Coroutine>();
+            /// <summary>
+            /// Sets the new expression that we want to update the character to.
+            /// This method DOES NOT MAKE VISIBLE the new expression. It only sets it
+            /// in newExp shader parameter! You need to run RunExpressionTransition to
+            /// update the visibility of this new expression.
+            /// </summary>
+            /// <param name="expression">list of expressions in a string format with space delimiting. E.g. 
+            /// head_1 eyes_angry_1 mouth_sad2</param>
+            [Button]
+            void SetNewExpression(string expression = "")
+            {
+                if (expression == "")
+                {
+                    return;
+                }
+                var parts = expression.Split(' ');
+                Sprite newExpSprite;
+                SpriteRenderer bodyPartSpriteRenderer;
+                string _depPart = "";
+                MaterialPropertyBlock block = new MaterialPropertyBlock();
+
+
+                foreach (var part in parts)
+                {
+
+
+                    var _prefix = part.Split(prefixDelimiter)[0];
+                    if (part == "" || _prefix == "")
+                    {
+                        continue;
+                    }
+                    try
+                    {
+                        var spriteExpression = expressionsMapForHead[_prefix];
+
+                        if (spriteExpression.dependentParts != null)
+                        {
+                            foreach (var depPart in spriteExpression.dependentParts)
+                            {
+                                try
+                                {
+                                    var splitExpression = part.Split(prefixDelimiter);
+                                    _depPart = string.Format("{0}{1}{2}", depPart, prefixDelimiter, StringExtensions.ArrayToString(splitExpression, 1, splitExpression.Length));
+                                    Debug.LogFormat("depPart we are looking for: {0}", _depPart);
+                                    bodyPartSpriteRenderer = bodyPartsMap[depPart];
+                                    newExpSprite = GetExpressionImage(_depPart);
+
+                                    block = new MaterialPropertyBlock();
+                                    bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                                    block.SetTexture("NewTex", newExpSprite.texture);
+                                    bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
+
+
+                                }
+                                catch
+                                {
+                                    Debug.LogErrorFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
+                                }
+
+                            }
+                        }
+                        // do we need to set dependent parts too?
+                        bodyPartSpriteRenderer = bodyPartsMap[_prefix];
+                        newExpSprite = GetExpressionImage(part);
+
+                        Debug.LogFormat("setting newTex to: {0}", newExpSprite.texture.name);
+
+                        block = new MaterialPropertyBlock();
+                        bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                        block.SetTexture("NewTex", newExpSprite.texture);
+                        bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
+                        // bodyPartSpriteRenderer.material.SetTexture("NewTex", newExpSprite.texture);
+
+
+                        currentExpression[_prefix] = part;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}",
+                            part, _prefix, e);
+                    }
+                    // Debug.Break();
+                }
+            }
+            [SerializeField]
+            AnimationCurve transitionInCurve = AnimationCurve.Linear(0, 0, 1, 1);
+            List<Coroutine> animates = new List<Coroutine>();
         public UnityEvent OnAnimationStart, OnAnimationComplete;
         IEnumerator I_TransitionMaterial(SpriteRenderer sr, int animateIDX, float transitionDuration = 1f)
         {
@@ -350,63 +436,75 @@ namespace com.argentgames.visualnoveltemplate
             animationsRunning[animateIDX] = false;
 
         }
-        IEnumerator I_TransitionAlpha(SpriteRenderer sr, int animateIDX, float transitionDuration = 1f)
+        IEnumerator I_TransitionAlpha(float transitionDuration = 1f)
         {
             float elaspedTime = 0;
+            float curvePercent = 0;
             // make sure transition starts from 0
-            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
-            sr.GetPropertyBlock(propBlock, 0);
-            Debug.LogFormat("current value of _transition amount before transitioning is: {0}", propBlock.GetFloat("_TransitionAmount"));
 
-            propBlock.SetFloat("_TransitionAmount", 0);
-            sr.SetPropertyBlock(propBlock, 0);
+            Test_SetAlphaDirectly(0);
             // transitionDuration = 10;
             while (elaspedTime < transitionDuration &&
-            propBlock.GetFloat("_TransitionAmount") != 1 &&
-            animationsRunning[animateIDX] != false)
+            curvePercent != 1 )
             {
-                sr.GetPropertyBlock(propBlock, 0);
                 elaspedTime += Time.deltaTime;
-                float curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
-                propBlock.SetFloat("_TransitionAmount", curvePercent);
+                 curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
 
-                // Debug.LogFormat("elaspedTime {0} transitionDuration {1} curvePercent: {2}", elaspedTime, transitionDuration, curvePercent);
+                Test_SetAlphaDirectly(curvePercent);
 
-                sr.SetPropertyBlock(propBlock, 0);
-
-                Debug.LogFormat("current value of _transition amount: {0} for sr {1}", propBlock.GetFloat("_TransitionAmount"), sr.name);
                 yield return null;
             }
 
-            animationsRunning[animateIDX] = false;
+            animationComplete = true;
+            Debug.Log("ANIMATION COMPLETE FOR TRANSITION ALPHA");
 
         }
-        async UniTask U_TransitionMaterial(SpriteRenderer sr, float transitionDuration = 1f)
+        async UniTask U_TransitionAlpha(float transitionDuration = 1f, bool fadein=true)
         {
             float elaspedTime = 0;
+            float curvePercent = 0;
             // make sure transition starts from 0
-            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
-            sr.GetPropertyBlock(propBlock, 0);
-            Debug.LogFormat("current value of _transition amount before transitioning is: {0}", propBlock.GetFloat("_TransitionAmount"));
-
-            propBlock.SetFloat("_TransitionAmount", 0);
-            sr.SetPropertyBlock(propBlock, 0);
-            // transitionDuration = 10;
+            animationComplete = false;
             while (elaspedTime < transitionDuration &&
-            propBlock.GetFloat("_TransitionAmount") != 1 && !ct.IsCancellationRequested)
+            curvePercent != 1 )
             {
-                sr.GetPropertyBlock(propBlock, 0);
                 elaspedTime += Time.deltaTime;
-                float curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
-                propBlock.SetFloat("_TransitionAmount", curvePercent);
+                 curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
 
-                // Debug.LogFormat("elaspedTime {0} transitionDuration {1} curvePercent: {2}", elaspedTime, transitionDuration, curvePercent);
+                if (fadein)
+                {
+                    Test_SetAlphaDirectly(curvePercent); 
+                }
+                else
+                {
+                    Test_SetAlphaDirectly(1-curvePercent);
+                }
+               
 
-                sr.SetPropertyBlock(propBlock, 0);
-
-                Debug.LogFormat("current value of _transition amount: {0} for sr {1}", propBlock.GetFloat("_TransitionAmount"), sr.name);
                 await UniTask.Yield();
             }
+
+            animationComplete = true;
+            Debug.Log("ANIMATION COMPLETE FOR TRANSITION ALPHA");
+
+        }
+        async UniTask U_TransitionMaterial(float transitionDuration = 1f)
+        {
+            float elaspedTime = 0;
+            float curvePercent = 0;
+            while (elaspedTime < transitionDuration &&
+            curvePercent <= 1 )
+            {
+                elaspedTime += Time.deltaTime;
+                 curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
+
+                SetMatFloatDirectly("_TransitionAmount",curvePercent);
+
+               await UniTask.Yield();
+            }
+
+            animationComplete = true;
+            Debug.Log("ANIMATION COMPLETE FOR TRANSITION ALPHA");
 
         }
 
@@ -430,90 +528,91 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             List<UniTask> animationTasks = new List<UniTask>();
-            animationComplete = false;
+            // animationComplete = false;
             int animateIDX = 0;
-            foreach (var sr in bodyPartsMap.Values)
-            {
-                Debug.LogFormat("sr in bodyPartsMap.Values: {0}", sr);
-                try
-                {
-                    if (sr.material.GetTexture("NewTex") != null)
-                    {
-                        // TODO: THIS IS THE COROUTINE VERSION.
-                        // NEED IT INSTEAD OF THE ANIMATION LIBRARY TWEEN.
+            // foreach (var sr in bodyPartsMap.Values)
+            // {
+            //     Debug.LogFormat("sr in bodyPartsMap.Values: {0}", sr);
+            //     try
+            //     {
+            //         if (sr.material.GetTexture("NewTex") != null)
+            //         {
+            //             // TODO: THIS IS THE COROUTINE VERSION.
+            //             // NEED IT INSTEAD OF THE ANIMATION LIBRARY TWEEN.
 
-                        // animationsRunning[animateIDX] = true;
-                        // // if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
-                        // // {
-                        // Debug.Log("running animation for SR: " + sr.gameObject.name +
-                        //  " with oldTex " + sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
+            //             // animationsRunning[animateIDX] = true;
+            //             // // if (sr.material.GetTexture("NewTex").name != sr.sprite.texture.name)
+            //             // // {
+            //             // Debug.Log("running animation for SR: " + sr.gameObject.name +
+            //             //  " with oldTex " + sr.sprite.texture.name + " and newTex " + sr.material.GetTexture("NewTex").name);
 
-                        // if (transitionDuration != 0)
-                        // {
-                        //     StartCoroutine(I_TransitionMaterial(sr, animateIDX, transitionDuration));
+            //             // if (transitionDuration != 0)
+            //             // {
+            //             //     StartCoroutine(I_TransitionMaterial(sr, animateIDX, transitionDuration));
 
-                        // }
-                        // else
-                        // {
-                        //     Debug.Log("no transition needed for exp change");
-                        //     MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
-                        //     sr.GetPropertyBlock(propBlock, 0);
+            //             // }
+            //             // else
+            //             // {
+            //             //     Debug.Log("no transition needed for exp change");
+            //             //     MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+            //             //     sr.GetPropertyBlock(propBlock, 0);
 
-                        //     propBlock.SetFloat("_TransitionAmount", 1);
-                        //     sr.SetPropertyBlock(propBlock, 0);
-                        //     animationsRunning[animateIDX] = false;
-                        // }
+            //             //     propBlock.SetFloat("_TransitionAmount", 1);
+            //             //     sr.SetPropertyBlock(propBlock, 0);
+            //             //     animationsRunning[animateIDX] = false;
+            //             // }
 
-                        sr.TweenValueFloat(1f, transitionDuration, (v) =>
-                        {
-                            sr.material.SetFloat("_TransitionAmount", v);
-                            // Debug.Log("setting material value");
-                        }).SetFrom(0);
+            //             sr.TweenValueFloat(1f, transitionDuration, (v) =>
+            //             {
+            //                 sr.material.SetFloat("_TransitionAmount", v);
+            //                 // Debug.Log("setting material value");
+            //             }).SetFrom(0);
 
-                        // TECHDEBT: hardcoding the ease =.=
-                        //                         animationTasks.Add(
-                        // Easing.Create<Linear>(start: 0f, end: 1f, duration: transitionDuration)
-                        //                     .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
-                        //                         );
+            //             // TECHDEBT: hardcoding the ease =.=
+            //             //                         animationTasks.Add(
+            //             // Easing.Create<Linear>(start: 0f, end: 1f, duration: transitionDuration)
+            //             //                     .ToMaterialPropertyFloat(sr, "_TransitionAmount", skipToken: skipToken)
+            //             //                         );
 
-                        // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
-                        // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
-                        // .From(0));
-                        // }
-                        // else
-                        // {
-                        //     Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
-                        // }
-                        // animationTasks.Add(U_TransitionMaterial(sr, transitionDuration));
-                    }
-                    else
-                    {
-                        animationsRunning[animateIDX] = false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    animationsRunning[animateIDX] = false;
-                    Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
-                }
-                animateIDX += 1;
-            }
+            //             // sequence.Join(sr.material.DOFloat(1, "_TransitionAmount", transitionDuration)
+            //             // .SetEase(GameManager.Instance.DefaultConfig.expressionTransitionEase)
+            //             // .From(0));
+            //             // }
+            //             // else
+            //             // {
+            //             //     Debug.LogFormat("newTex {0} is same as mainTex {1}", sr.material.GetTexture("NewTex").name, sr.sprite.name);
+            //             // }
+            //             // animationTasks.Add(U_TransitionMaterial(sr, transitionDuration));
+            //         }
+            //         else
+            //         {
+            //             animationsRunning[animateIDX] = false;
+            //         }
+            //     }
+            //     catch (Exception e)
+            //     {
+            //         animationsRunning[animateIDX] = false;
+            //         Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
+            //     }
+            //     animateIDX += 1;
+            // }
 
 
+            await U_TransitionMaterial(transitionDuration);
             // await UniTask.WhenAll(animationTasks);
             await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
 
 
             // await UniTask.WaitUntil(() => IsTransitionComplete() == true);
 
-            foreach (var animate in animates)
-            {
-                if (animate != null)
-                {
-                    StopCoroutine(animate);
-                }
-            }
-            animates.Clear();
+            // foreach (var animate in animates)
+            // {
+            //     if (animate != null)
+            //     {
+            //         StopCoroutine(animate);
+            //     }
+            // }
+            // animates.Clear();
             animationComplete = true;
 
         }
@@ -537,7 +636,7 @@ namespace com.argentgames.visualnoveltemplate
             return true;
 
         }
-        void ResetMainExpression(string expression)
+        async void ResetMainExpression(string expression)
         {
 
             if (expression == "")
@@ -594,8 +693,12 @@ namespace com.argentgames.visualnoveltemplate
                     block = new MaterialPropertyBlock();
                     bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
                     block.SetFloat("_TransitionAmount", 0);
+                    block.SetFloat("Alpha", 1);
                     block.SetTexture("_MainTex", newExpSprite.texture);
                     bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
+
+                    Debug.LogFormat("bsr {0} has tex {1} and trans {2} and alpha {3}", bodyPartSpriteRenderer.name,
+                        block.GetTexture("_MainTex").name, block.GetFloat("_TransitionAmount"), block.GetFloat("Alpha"));
                 }
                 catch
                 {
@@ -633,20 +736,7 @@ namespace com.argentgames.visualnoveltemplate
 
             }
         }
-        public async UniTask ShowCharViaAlpha(float duration)
-        {
-            foreach (var sr in bodyPartsMap.Values)
-            {
-                MaterialPropertyBlock block = new MaterialPropertyBlock();
-                sr.GetPropertyBlock(block, 0);
-                block.SetFloat("_TransitionAmount", 1);
-                block.SetFloat("Alpha", 0);
-                sr.SetPropertyBlock(block, 0);
 
-            }
-
-            await UniTask.Yield();
-        }
         public void ApplyTint(string tintName)
         {
             var tintColor = GetTintColor(tintName);
@@ -688,6 +778,7 @@ namespace com.argentgames.visualnoveltemplate
                 ImageManager.Instance.UnregisterCharacter(selfRegisteredName);
 
             }
+            bodyPartsMap.Clear();
         }
     }
 }

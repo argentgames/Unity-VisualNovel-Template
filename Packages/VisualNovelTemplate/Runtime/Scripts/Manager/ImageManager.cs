@@ -751,8 +751,13 @@ namespace com.argentgames.visualnoveltemplate
             if (spriteWrapperController != null)
             {
                 await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
+                spriteWrapperController.ShaderDebug();
+                spriteWrapperController.Test_SetAlphaDirectly(0);
+                // Debug.Break();
                 // spriteWrapperController.SetInitialExpression(expression);
+                await UniTask.Yield();
                 await spriteWrapperController.ExpressionChange(expression, 0);
+                spriteWrapperController.ShaderDebug();
 
                 if (location == null)
                 {
@@ -788,7 +793,7 @@ namespace com.argentgames.visualnoveltemplate
             // TECHDEBT: need to be able to show a character with an arbitrary transition!
             // Debug.Log("lol am i ever called");
             var go = charactersOnScreen[charName];
-                            AnimateObjectsToggleEnable animator = go.GetComponentInChildren<AnimateObjectsToggleEnable>();
+            AnimateObjectsToggleEnable animator = go.GetComponentInChildren<AnimateObjectsToggleEnable>();
 
             var animationComplete = false;
             if (location != null)
@@ -808,6 +813,7 @@ namespace com.argentgames.visualnoveltemplate
             // {
             duration = GameManager.Instance.DefaultConfig.spawnCharacterDuration;
             // }
+            SpriteWrapperController swc = go.GetComponentInChildren<SpriteWrapperController>();
             if (!go.activeSelf)
             {
                 animationComplete = false;
@@ -850,8 +856,12 @@ namespace com.argentgames.visualnoveltemplate
 
                 // await UniTask.WhenAll(animationTasks);
 
-                await animator.Enable(duration);
+                // swc.ShowChar((float)duration);
+                swc.ShaderDebug();
+                await UniTask.Yield();
+                swc.ShowChar((float)duration);
 
+                swc.ShaderDebug();
                 // animationComplete = true;
 
                 // foreach (var sr in spriteRenderers)
@@ -859,7 +869,9 @@ namespace com.argentgames.visualnoveltemplate
                 //     Debug.LogFormat("alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
                 // }
             }
-            await UniTask.WaitWhile(() => animator.IsRunningEnableAnimation);
+            await UniTask.WaitUntil(() => swc.AnimationComplete);
+            swc.ShaderDebug();
+            // Debug.Break();
             // move the gameobject to Location
             // animate showing with transition and duration
             // TECHDEBT
@@ -900,8 +912,8 @@ namespace com.argentgames.visualnoveltemplate
             { duration = 0; }
             // TECHDEBT:  this skip Token is not going to work as expected.
 
-            AnimateObjectsToggleEnable animator = go.GetComponentInChildren<AnimateObjectsToggleEnable>();
-
+            SpriteWrapperController swc = go.GetComponentInChildren<SpriteWrapperController>();
+            swc.HideChar((float)duration);
 
             // try
             // {
@@ -919,11 +931,10 @@ namespace com.argentgames.visualnoveltemplate
             //     Debug.LogWarningFormat("unable to fire hide char for {0} because SRs are null!", charName);
             // }
 
-            animator.Disable((float)duration);
             if (GameManager.Instance.IsSkipping)
             {
                 ThrowSkipToken();
-                animator.SkipDisableAnimation();
+                swc.ThrowSkipToken();
             }
             // sequence.AppendCallback(() =>
             // {
@@ -956,8 +967,8 @@ namespace com.argentgames.visualnoveltemplate
             // {
             //     Debug.LogWarningFormat("animationTasks was null");
             // }
-// Debug.Break();
-            await UniTask.WaitWhile(() => animator.IsRunningDisableAnimation);
+            // Debug.Break();
+            await UniTask.WaitUntil(() => swc.AnimationComplete);
 
             // Debug.Break();
             go.SetActive(false);

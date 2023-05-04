@@ -108,7 +108,7 @@ namespace com.argentgames.visualnoveltemplate
 
                     float curvePercent = transitionInCurve.Evaluate(elapsedTime / duration);
                     canvasGroup.alpha = curvePercent * endAlpha;
-                    Debug.LogFormat("fading in canvas group: {0}", curvePercent);
+                    // Debug.LogFormat("fading in canvas group: {0}", curvePercent);
                     yield return null;
                 }
             }
