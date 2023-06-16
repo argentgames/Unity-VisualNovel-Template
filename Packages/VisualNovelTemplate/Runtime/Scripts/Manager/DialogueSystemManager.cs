@@ -180,6 +180,8 @@ namespace com.argentgames.visualnoveltemplate
 
 
             }
+
+            HideAllDialogueWindows();
         }
         public static event Action<Story> OnCreateStory;
         async UniTaskVoid Awake()
