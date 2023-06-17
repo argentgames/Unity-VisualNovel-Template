@@ -84,6 +84,7 @@ namespace com.argentgames.visualnoveltemplate
         saveFiles = new Dictionary<string, SaveData>();
         await UniTask.WaitWhile(() => GameManager.Instance == null);
         LoadSaveFiles().Forget();
+        LoadPersistent();
         }
 
         async UniTask AutoSave()
@@ -290,6 +291,25 @@ namespace com.argentgames.visualnoveltemplate
             Debug.Log("saving settings now");
             byte[] bytes = SerializationUtility.SerializeValue(GameManager.Instance.Settings.Save(), DataFormat.JSON);
             File.WriteAllBytes(CreateSavePath("settings.json"), bytes);
+        }
+        public void SavePersistent()
+        {
+            byte[] bytes = SerializationUtility.SerializeValue(GameManager.Instance.PersistentGameData.Save(), DataFormat.JSON);
+            File.WriteAllBytes(CreateSavePath("persistent.json"), bytes);
+        }
+        public void LoadPersistent()
+        {
+            if (File.Exists(CreateSavePath("persistent.json")))
+            {
+               byte[] bytes = File.ReadAllBytes(CreateSavePath("persistent.json"));
+            var persistent = SerializationUtility.DeserializeValue<PersistentGameDataSaveData>(bytes,DataFormat.JSON);
+            GameManager.Instance.PersistentGameData.Load(persistent); 
+            }
+            else
+            {
+                SavePersistent();
+            }
+            
         }
         public void LoadSettings()
         {

@@ -600,6 +600,11 @@ namespace com.argentgames.visualnoveltemplate
                     }
                 }
 
+                GameManager.Instance.PersistentGameData.seenText.Add(
+                    CreateHash(story.currentText + "_" + story.state.currentPathString)
+                );
+                SaveLoadManager.Instance.SavePersistent();
+
                 // is it an action function and thus we want to automatically evaluate it without any user input?
                 if (!IsLoadedGame && NeedToRunActionFunction())
                 {
