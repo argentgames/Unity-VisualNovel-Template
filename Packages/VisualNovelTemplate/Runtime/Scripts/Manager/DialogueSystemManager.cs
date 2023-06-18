@@ -590,7 +590,7 @@ namespace com.argentgames.visualnoveltemplate
                 // turn off skipping if setting is to only skip seen text
                 if (!GameManager.Instance.Settings.skipAllText)
                 {
-                    if (CurrentTextSeenBefore())
+                    if (!CurrentTextSeenBefore())
                     {
                         if (GameManager.Instance.IsSkipping)
                         {
@@ -768,8 +768,12 @@ namespace com.argentgames.visualnoveltemplate
 
             if (dialogue != null)
             {
-                await DisplayLine((Dialogue)dialogue); // ctc will end this by setting isdisplayling line to false
-                await UniTask.Yield();
+                if (((Dialogue)dialogue).text != "")
+                {
+                  await DisplayLine((Dialogue)dialogue); // ctc will end this by setting isdisplayling line to false
+                await UniTask.Yield();  
+                }
+                
             }
 
 
