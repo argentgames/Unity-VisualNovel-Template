@@ -22,6 +22,8 @@ namespace com.argentgames.visualnoveltemplate
         public bool enableScreenShake = true;
         public BoolReactiveProperty useOpenDSFont = new BoolReactiveProperty(false);
         public IntReactiveProperty fontSize = new IntReactiveProperty(1);
+        public BoolReactiveProperty enableClosedCaptions = new BoolReactiveProperty(false);
+        public bool showAdultContent = true;
 
         [Button]
         public virtual void ResetDefaults()
@@ -36,13 +38,16 @@ namespace com.argentgames.visualnoveltemplate
             fontSize.Value = 1;
             skipAllText = false;
             enableScreenShake = true;
+            enableClosedCaptions.Value = false;
+            showAdultContent = true;
 
         }
         public virtual SettingsSaveData Save()
         {
             Debug.Log("the text speed we're saving is: " + TextSpeed.Value.ToString());
             return new SettingsSaveData(MusicVolume.Value, SFXVolume.Value, TextSpeed.Value, AutoSpeed.Value,
-            skipAllText, enableScreenShake, useOpenDSFont.Value, fontSize.Value);
+            skipAllText, enableScreenShake, useOpenDSFont.Value, fontSize.Value,
+            enableClosedCaptions.Value, showAdultContent);
         }
         public virtual void Load(SettingsSaveData data)
         {
@@ -56,6 +61,8 @@ namespace com.argentgames.visualnoveltemplate
             fontSize.Value = data.fontSize;
             skipAllText = data.skipAllText;
             enableScreenShake = data.enableScreenShake;
+            enableClosedCaptions.Value = data.enableClosedCaptions;
+            showAdultContent = data.showAdultContent;
 
         }
 

@@ -8,10 +8,11 @@ namespace com.argentgames.visualnoveltemplate
 {
     public float musicVolume, sfxVolume, textSpeed, autoSpeed;
     public int fontSize;
-    public bool skipAllText, enableScreenShake, useOpenDSFont ;
+    public bool skipAllText, enableScreenShake, useOpenDSFont, enableClosedCaptions, showAdultContent ;
 
     public SettingsSaveData(float music, float sfx, float text, float auto,
-     bool skipAllText, bool enableScreenShake, bool useOpenDSFont, int fontSize)
+     bool skipAllText, bool enableScreenShake, bool useOpenDSFont, int fontSize,
+     bool enableClosedCaptions, bool showAdultContent)
     {
         this.musicVolume = music;
         this.sfxVolume = sfx;
@@ -21,6 +22,8 @@ namespace com.argentgames.visualnoveltemplate
         this.enableScreenShake = enableScreenShake;
         this.useOpenDSFont = useOpenDSFont;
         this.fontSize = fontSize;
+        this.enableClosedCaptions = enableClosedCaptions;
+        this.showAdultContent = showAdultContent;
     }
 }
 }
