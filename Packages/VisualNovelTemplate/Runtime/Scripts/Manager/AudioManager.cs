@@ -158,8 +158,9 @@ namespace com.argentgames.visualnoveltemplate
 
         }
 
+
         [Button]
-        public void PlayMusic(string _name, float fadein = 0f)
+        public void PlayMusic(string _name, float fadein = 0f, bool showClosedCaption = false)
         {
             try
             {
@@ -181,6 +182,18 @@ namespace com.argentgames.visualnoveltemplate
                 fmodEvent.EventInstance = musicInstance;
                 fmodEvent.soundName = _name;
                 eventInstanceMap["music"] = fmodEvent;
+                if (showClosedCaption)
+                {
+if (GameManager.Instance.Settings.enableClosedCaptions.Value)
+                {
+                    if (obj.ClosedCaption != "")
+                    {
+                        NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                    }
+                    
+                }
+                }
+                
             }
             catch
             {
@@ -208,7 +221,7 @@ namespace com.argentgames.visualnoveltemplate
         }
 
         [Button]
-        public void PlayAmbient(string _name, int channel = 0, float fadein = 0f, float fadeout = 0f)
+        public void PlayAmbient(string _name, int channel = 0, float fadein = 0f, float fadeout = 0f, bool showClosedCaption=false)
         {
             try
             {
@@ -228,6 +241,18 @@ namespace com.argentgames.visualnoveltemplate
                 fmodEvent.EventInstance = ambientInstance;
                 fmodEvent.soundName = _name;
                 eventInstanceMap["ambient" + channel.ToString()] = fmodEvent;
+
+                               if (showClosedCaption)
+                {
+if (GameManager.Instance.Settings.enableClosedCaptions.Value)
+                {
+                    if (obj.ClosedCaption != "")
+                    {
+                        NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                    }
+                    
+                }
+                }
 
             }
             catch
@@ -260,13 +285,25 @@ namespace com.argentgames.visualnoveltemplate
             }
         }
         [Button]
-        public void PlaySFX(string _name)
+        public void PlaySFX(string _name, bool showClosedCaption=false)
         {
             try
             {
                 var obj = audioBank.GetSfx(_name);
                 var eventPath = obj.Event;
                 RuntimeManager.PlayOneShot(eventPath);
+
+                                if (showClosedCaption)
+                {
+if (GameManager.Instance.Settings.enableClosedCaptions.Value)
+                {
+                    if (obj.ClosedCaption != "")
+                    {
+                        NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                    }
+                    
+                }
+                }
             }
             catch
             {
