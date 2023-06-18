@@ -25,7 +25,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - NewTex:
-        m_Texture: {fileID: 2800000, guid: ca0667df22473d34789fbc98b8cfd45a, type: 3}
+        m_Texture: {fileID: 2800000, guid: fbf2a37b3fd97d8409a3276529f542c5, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _AlphaTex:
