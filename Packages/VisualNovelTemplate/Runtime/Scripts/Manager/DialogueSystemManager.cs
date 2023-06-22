@@ -719,6 +719,14 @@ namespace com.argentgames.visualnoveltemplate
         }
         public bool CurrentTextSeenBefore()
         {
+            if (GameManager.Instance == null)
+             {
+                return false;
+             }
+             if (GameManager.Instance.PersistentGameData == null)
+             {
+                return false;
+             }
             if (GameManager.Instance.PersistentGameData.seenText.Contains(
                 CreateHash(story.currentText + "_" + story.state.currentPathString)
             ))
