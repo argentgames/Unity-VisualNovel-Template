@@ -223,7 +223,9 @@ namespace com.argentgames.visualnoveltemplate
                 {
 
                     // Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
-                    if (this.gameObject.activeSelf)
+                    if (this.gameObject.activeSelf
+                    && Utilities.GetRootParent(this.gameObject).activeSelf
+                    && duration != 0)
                     {
                         animate = StartCoroutine(I_FadeOutCanvasGroup(duration));
                     }
@@ -241,7 +243,9 @@ namespace com.argentgames.visualnoveltemplate
                 else if (image != null)
                 {
                     // Easing.Create<Linear>(start: endAlpha, end: 0f, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
-                    if (this.gameObject.activeSelf)
+                    if (this.gameObject.activeSelf
+                    && Utilities.GetRootParent(this.gameObject).activeSelf
+                    && duration != 0)
                     {
                         animate = StartCoroutine(I_FadeOutImage(duration));
                     }
@@ -308,7 +312,9 @@ namespace com.argentgames.visualnoveltemplate
                 if (canvasGroup != null)
                 {
                     // Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(canvasGroup, skipToken: GameManager.Instance.SkipToken);
-                    if (this.gameObject.activeSelf)
+                    if (this.gameObject.activeSelf 
+                    && Utilities.GetRootParent(this.gameObject).activeSelf
+                    && duration != 0)
                     {
                         animate = StartCoroutine(I_FadeInCanvasGroup(duration));
                     }
@@ -326,7 +332,9 @@ namespace com.argentgames.visualnoveltemplate
                 else if (image != null)
                 {
                     // Easing.Create<Linear>(start: 0f, end: endAlpha, duration).ToColorA(image, skipToken: GameManager.Instance.SkipToken);
-                    if (this.gameObject.activeSelf)
+                    if (this.gameObject.activeSelf
+                    && Utilities.GetRootParent(this.gameObject).activeSelf
+                    && duration != 0)
                     {
                         animate = StartCoroutine(I_FadeInImage(duration));
                     }
