@@ -17,8 +17,8 @@ namespace com.argentgames.visualnoveltemplate
 {
     public abstract class PersistentGameData_SO : SerializedScriptableObject
     {
-        public List<string> seenText = new List<string>();
-        public List<string> chosenChoices = new List<string>();
+        public HashSet<string> seenText = new HashSet<string>();
+        public HashSet<string> chosenChoices = new HashSet<string>();
         
         /// <summary>
         /// By default, unlockable items start off as LOCKED. If you don't want to lock items,
@@ -43,6 +43,14 @@ namespace com.argentgames.visualnoveltemplate
 
         private void OnEnable()
         {
+            if (seenText == null)
+            {
+                seenText = new HashSet<string>();
+            }
+            if (chosenChoices == null)
+            {
+                chosenChoices = new HashSet<string>();
+            }
             PopulateMaps();
         }
         /// <summary>
@@ -204,8 +212,8 @@ namespace com.argentgames.visualnoveltemplate
     }
 
 public struct PersistentGameDataSaveData {
-    public List<string> seenText;
-    public List<string> chosenChoices;
+    public HashSet<string> seenText;
+    public HashSet<string> chosenChoices;
     public List<UnlockableItemSaveData> cgUnlocked;
     public List<UnlockableItemSaveData> routeUnlocked;
     public List<UnlockableItemSaveData> routeCompleted;
@@ -214,7 +222,7 @@ public struct PersistentGameDataSaveData {
     public bool gdprConsent;
     public int numGamesPlayed;
 
-    public PersistentGameDataSaveData(List<string> seenText, List<string> chosenChoices,
+    public PersistentGameDataSaveData(HashSet<string> seenText, HashSet<string> chosenChoices,
     List<UnlockableItemSaveData> cgUnlocked, List<UnlockableItemSaveData> routeUnlocked, List<UnlockableItemSaveData> routeCompleted,
     bool watchedOP, bool watchedCredits, bool gdprConsent, int numGamesPlayed)
     {
