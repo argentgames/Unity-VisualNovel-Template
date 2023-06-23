@@ -627,10 +627,17 @@ namespace com.argentgames.visualnoveltemplate
         public async UniTask SpawnCharFromSave(string charName, SpriteSaveData saveData)
         {
             var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
+            if (npc == null)
+            {
+                Debug.LogWarningFormat("unable to spawn char from save {0}",charName);
+                return;
+            }
             GameObject charSprite;
-            Debug.Log("need to spawn new char");
+            Debug.LogFormat("need to spawn new char {1}: {0} with data {2}",npc,charName,saveData);
             var layerToSpawn = MidgroundCharacterContainer;
-            switch (npc.spawnLayer)
+            if (npc.spawnLayer != null)
+            {
+                switch (npc.spawnLayer)
             {
                 case ImageLayer.Foreground:
                     layerToSpawn = ForegroundCharacterContainer;
@@ -639,6 +646,8 @@ namespace com.argentgames.visualnoveltemplate
                     layerToSpawn = MidgroundCharacterContainer;
                     break;
             }
+            }
+            
 
             if (npc.UseAddressables)
             {

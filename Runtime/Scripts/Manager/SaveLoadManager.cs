@@ -135,7 +135,7 @@ namespace com.argentgames.visualnoveltemplate
             // #endif
 
             var s = Application.persistentDataPath + "/" + subPath;
-            Debug.Log("our save path is: " + s);
+            // Debug.Log("our save path is: " + s);
             return s;
         }
         [Sirenix.OdinInspector.Button]
@@ -377,10 +377,10 @@ namespace com.argentgames.visualnoveltemplate
         public bool SaveExists(string fileIndex)
         {
             fileIndex = fileIndex.Trim();
-            foreach (var key in saveFiles.Keys)
-            {
-                Debug.Log(key);
-            }
+            // foreach (var key in saveFiles.Keys)
+            // {
+            //     Debug.Log(key);
+            // }
             return saveFiles.ContainsKey(fileIndex.Trim());
         }
         public string SaveFilePath(string saveFileName) 
