@@ -72,10 +72,10 @@ Material:
     - _TransitionAmount: 0
     m_Colors:
     - Color_f4ed679210e043f7a3787be2d0af4065: {r: 0.5660378, g: 0.5366679, b: 0.5366679, a: 0}
-    - TintColor: {r: 0.4525536, g: 0.46226418, b: 0.09812213, a: 0}
+    - TintColor: {r: 0.509434, g: 0.15620112, b: 0.08891065, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Colorization: {r: 1, g: 1, b: 1, a: 1}
+    - _Colorization: {r: 0.7924528, g: 0.47489876, b: 0.41491634, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _SceneColorHackColorization: {r: 1, g: 0.0047169924, b: 0.0047169924, a: 1}
+    - _SceneColorHackColorization: {r: 0.5098039, g: 0.1568627, b: 0.090196066, a: 0.39607844}
   m_BuildTextureStacks: []
