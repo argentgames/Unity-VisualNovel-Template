@@ -270,7 +270,7 @@ void Start()
 
 
             }
-            Debug.LogErrorFormat("Unable to locate expression {0}", expression);
+            Debug.LogWarningFormat("Unable to locate expression {0}", expression);
             return null;
         }
         public Color GetTintColor(string tintName)
@@ -281,7 +281,7 @@ void Start()
             }
             catch
             {
-                Debug.LogErrorFormat("Tint color [{0}] does not exist", tintName);
+                Debug.LogWarningFormat("Tint color [{0}] does not exist", tintName);
                 return Color.white;
             }
         }
@@ -373,7 +373,7 @@ void Start()
                                 }
                                 catch
                                 {
-                                    Debug.LogErrorFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
+                                    Debug.LogWarningFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
                                 }
 
                             }
@@ -395,7 +395,7 @@ void Start()
                     }
                     catch (Exception e)
                     {
-                        Debug.LogErrorFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}",
+                        Debug.LogWarningFormat("failed to find part. Part-{0} _prefix-{1}, exception {2}",
                             part, _prefix, e);
                     }
                     // Debug.Break();
@@ -592,7 +592,7 @@ void Start()
             //     catch (Exception e)
             //     {
             //         animationsRunning[animateIDX] = false;
-            //         Debug.LogErrorFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
+            //         Debug.LogWarningFormat("Could not run expression transition for sr: {0} with exception {1}", sr, e);
             //     }
             //     animateIDX += 1;
             // }
@@ -680,7 +680,7 @@ void Start()
                             }
                             catch
                             {
-                                Debug.LogErrorFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
+                                Debug.LogWarningFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
                             }
 
                         }
@@ -702,7 +702,7 @@ void Start()
                 }
                 catch
                 {
-                    Debug.LogErrorFormat("Unable to locate parts. Prefix-{0}, part-{1}", _prefix, part);
+                    Debug.LogWarningFormat("Unable to locate parts. Prefix-{0}, part-{1}", _prefix, part);
                 }
 
             }

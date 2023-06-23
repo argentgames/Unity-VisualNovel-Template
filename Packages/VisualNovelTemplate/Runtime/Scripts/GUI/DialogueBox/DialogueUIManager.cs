@@ -302,6 +302,12 @@ namespace com.argentgames.visualnoveltemplate
                 UIHolder.SetActive(false);
             }
 
+            // force all animate obj toggle enable to run complete animation ??
+            foreach (var animate in GetComponentsInChildren<AnimateObjectsToggleEnable>() )
+            {
+                animate.CompleteAnimation();
+            }
+
         }
 
         /// <summary>
@@ -346,7 +352,7 @@ namespace com.argentgames.visualnoveltemplate
         /// then we will want to destroy all those channels.
         /// </summary>
         /// <returns></returns>
-        public virtual async UniTask ResetUI()
+        public virtual async UniTask ResetUI(bool fromLoad=false)
         {
 
         }
