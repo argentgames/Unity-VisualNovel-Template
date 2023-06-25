@@ -9,6 +9,7 @@ using Cysharp.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Threading;
 using UniRx;
+using UnityEngine.Events;
 
 /// <summary>
 /// Manages dialogue system and all ink interfacing.
@@ -97,6 +98,8 @@ namespace com.argentgames.visualnoveltemplate
             isLoadedGame = val;
         }
 
+        public UnityEvent OnBeforeRestartGame, OnAfterRestartGame;
+
         /* Utilities */
         CancellationTokenSource cts;
         CancellationToken ct;
@@ -105,6 +108,8 @@ namespace com.argentgames.visualnoveltemplate
         [Sirenix.OdinInspector.Button]
         public void RestartGame()
         {
+            OnBeforeRestartGame?.Invoke();
+
             story = new Story(_story.text);
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
@@ -117,6 +122,7 @@ namespace com.argentgames.visualnoveltemplate
 
             SaveLoadManager.Instance.currentSave.inkData = story.state.ToJson();
 
+            OnAfterRestartGame?.Invoke();
         }
 
 
