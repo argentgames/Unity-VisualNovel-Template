@@ -365,9 +365,9 @@ void Start()
                                     newExpSprite = GetExpressionImage(_depPart);
 
                                     block = new MaterialPropertyBlock();
-                                    bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                                    bodyPartSpriteRenderer.GetPropertyBlock(block);
                                     block.SetTexture("NewTex", newExpSprite.texture);
-                                    bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
+                                    bodyPartSpriteRenderer.SetPropertyBlock(block);
 
 
                                 }
@@ -382,7 +382,7 @@ void Start()
                         bodyPartSpriteRenderer = bodyPartsMap[_prefix];
                         newExpSprite = GetExpressionImage(part);
 
-                        Debug.LogFormat("setting newTex to: {0}", newExpSprite.texture.name);
+                        Debug.LogFormat("setting newTex to: {0} for {1}", newExpSprite.texture.name,gameObject.name);
 
                         block = new MaterialPropertyBlock();
                         bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
@@ -673,10 +673,10 @@ void Start()
                                 // bodyPartSpriteRenderer.sprite = newExpSprite;
 
                                 block = new MaterialPropertyBlock();
-                                bodyPartSpriteRenderer.GetPropertyBlock(block, 0);
+                                bodyPartSpriteRenderer.GetPropertyBlock(block);
                                 block.SetFloat("_TransitionAmount", 0);
                                 block.SetTexture("_MainTex", newExpSprite.texture);
-                                bodyPartSpriteRenderer.SetPropertyBlock(block, 0);
+                                bodyPartSpriteRenderer.SetPropertyBlock(block);
                             }
                             catch
                             {
