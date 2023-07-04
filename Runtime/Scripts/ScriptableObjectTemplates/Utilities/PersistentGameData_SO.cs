@@ -31,6 +31,11 @@ namespace com.argentgames.visualnoveltemplate
         public List<UnlockableItem> routeCompleted = new List<UnlockableItem>();
         public bool watchedOP = false;
         public bool watchedCredits = false;
+        [SerializeField]
+        public HashSet<StringVar> stringVariables = new HashSet<StringVar>();
+        public HashSet<IntVar> intVariables = new HashSet<IntVar>();
+        public HashSet<FloatVar> floatVariables = new HashSet<FloatVar>();
+        public HashSet<BoolVar> boolVariables =  new HashSet<BoolVar>();
         /// <summary>
         /// Used to check for GDPR Consent. Mainly an Advertisements/Mobile thing.
         /// </summary>
@@ -40,6 +45,10 @@ namespace com.argentgames.visualnoveltemplate
         private Dictionary<string, UnlockableItem> cgMap = new Dictionary<string, UnlockableItem>();
         private Dictionary<string, UnlockableItem> routeUnlockedMap = new Dictionary<string, UnlockableItem>();
         private Dictionary<string, UnlockableItem> routeCompletedMap = new Dictionary<string, UnlockableItem>();
+        private Dictionary<string,StringVar> stringVarsMap = new Dictionary<string,StringVar>();
+        private Dictionary<string,FloatVar> floatVarsMap = new Dictionary<string,FloatVar>();
+        private Dictionary<string,IntVar> intVarsMap = new Dictionary<string,IntVar>();
+        private Dictionary<string,BoolVar> boolVarsMap = new Dictionary<string,BoolVar>();
 
         private void OnEnable()
         {
@@ -50,6 +59,22 @@ namespace com.argentgames.visualnoveltemplate
             if (chosenChoices == null)
             {
                 chosenChoices = new HashSet<string>();
+            }
+            if (stringVariables == null)
+            {
+                stringVariables = new HashSet<StringVar>();
+            }
+            if (floatVariables == null)
+            {
+                floatVariables = new HashSet<FloatVar>();
+            }
+            if (intVariables == null)
+            {
+                intVariables = new HashSet<IntVar>();
+            }
+            if (boolVariables == null)
+            {
+                boolVariables = new HashSet<BoolVar>();
             }
             PopulateMaps();
         }
@@ -77,6 +102,38 @@ namespace com.argentgames.visualnoveltemplate
             {
                 routeCompletedMap[route.internalName] = route;
             }
+            foreach (var _var in stringVariables)
+            {
+                stringVarsMap[_var.internalName] = _var;
+            }
+            foreach (var _var in floatVariables)
+            {
+                floatVarsMap[_var.internalName] = _var;
+            }
+            foreach (var _var in boolVariables)
+            {
+                boolVarsMap[_var.internalName] = _var;
+            }
+            foreach (var _var in intVariables)
+            {
+                intVarsMap[_var.internalName] = _var;
+            }
+        }
+        public string GetStringVar(string _name)
+        {
+            return stringVarsMap[_name].value;
+        }
+        public float GetFloatVar(string _name)
+        {
+            return floatVarsMap[_name].value;
+        }
+        public bool GetBoolVar(string _name)
+        {
+            return boolVarsMap[_name].value;
+        }
+        public int GetIntVar(string _name)
+        {
+            return intVarsMap[_name].value;
         }
         [NaughtyAttributes.Button]
         public virtual void ResetDefaults()
@@ -164,7 +221,8 @@ namespace com.argentgames.visualnoveltemplate
         {
             var saveData = new PersistentGameDataSaveData(
                 this.seenText, this.chosenChoices,null,null,null,
-                this.watchedOP,this.watchedCredits,this.gdprConsent,this.numGamesPlayed
+                this.watchedOP,this.watchedCredits,this.gdprConsent,this.numGamesPlayed,
+                this.stringVariables, this.floatVariables, this.intVariables, this.boolVariables
             );
             List<UnlockableItemSaveData> cgsUnlocked = new List<UnlockableItemSaveData>();
             foreach (var cg in cgUnlocked)
@@ -184,6 +242,11 @@ namespace com.argentgames.visualnoveltemplate
             saveData.cgUnlocked = cgsUnlocked;
             saveData.routeUnlocked = routesUnlocked;
             saveData.routeCompleted = routesCompleted;
+            saveData.stringVars = stringVariables;
+            saveData.boolVars = boolVariables;
+            saveData.floatVars = floatVariables;
+            saveData.intVars = intVariables;
+
 
             return saveData;
         }
@@ -207,6 +270,10 @@ namespace com.argentgames.visualnoveltemplate
             this.watchedCredits = saveData.watchedCredits;
             this.gdprConsent = saveData.gdprConsent;
             this.numGamesPlayed = saveData.numGamesPlayed;
+            this.stringVariables = saveData.stringVars;
+            this.boolVariables = saveData.boolVars;
+            this.floatVariables = saveData.floatVars;
+            this.intVariables = saveData.intVars;
         }
 
     }
@@ -221,10 +288,15 @@ public struct PersistentGameDataSaveData {
     public bool watchedCredits;
     public bool gdprConsent;
     public int numGamesPlayed;
+    public HashSet<StringVar> stringVars;
+    public HashSet<FloatVar> floatVars;
+    public HashSet<IntVar> intVars;
+    public HashSet<BoolVar> boolVars;
 
     public PersistentGameDataSaveData(HashSet<string> seenText, HashSet<string> chosenChoices,
     List<UnlockableItemSaveData> cgUnlocked, List<UnlockableItemSaveData> routeUnlocked, List<UnlockableItemSaveData> routeCompleted,
-    bool watchedOP, bool watchedCredits, bool gdprConsent, int numGamesPlayed)
+    bool watchedOP, bool watchedCredits, bool gdprConsent, int numGamesPlayed,
+    HashSet<StringVar> stringVars, HashSet<FloatVar> floatVars, HashSet<IntVar> intVars, HashSet<BoolVar> boolVars)
     {
         this.seenText = seenText;
         this.chosenChoices = chosenChoices;
@@ -235,6 +307,10 @@ public struct PersistentGameDataSaveData {
         this.watchedCredits = watchedCredits;
         this.gdprConsent = gdprConsent;
         this.numGamesPlayed = numGamesPlayed;
+        this.stringVars = stringVars;
+        this.floatVars = floatVars;
+        this.intVars = intVars;
+        this.boolVars = boolVars;
     }
 
 }
