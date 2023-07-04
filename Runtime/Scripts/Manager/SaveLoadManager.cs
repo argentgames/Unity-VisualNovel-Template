@@ -304,6 +304,14 @@ namespace com.argentgames.visualnoveltemplate
                byte[] bytes = File.ReadAllBytes(CreateSavePath("persistent.json"));
             var persistent = SerializationUtility.DeserializeValue<PersistentGameDataSaveData>(bytes,DataFormat.JSON);
             GameManager.Instance.PersistentGameData.Load(persistent); 
+            if (GameManager.Instance.PersistentGameData.seenText == null)
+            {
+                GameManager.Instance.PersistentGameData.seenText = new HashSet<string>();
+            }
+            if (GameManager.Instance.PersistentGameData.chosenChoices == null)
+            {
+                GameManager.Instance.PersistentGameData.chosenChoices = new HashSet<string>();
+            }
             }
             else
             {
