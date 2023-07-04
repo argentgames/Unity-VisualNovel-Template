@@ -129,6 +129,7 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => SaveLoadManager.Instance != null);
             // load settings
             SaveLoadManager.Instance.LoadSettings();
+            SaveLoadManager.Instance.LoadPersistent();
 
 #if PLATFORM_ANDROID
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
