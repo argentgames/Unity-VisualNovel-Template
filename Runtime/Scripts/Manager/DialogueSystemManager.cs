@@ -108,6 +108,8 @@ namespace com.argentgames.visualnoveltemplate
             story = new Story(_story.text);
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
+            IsProcessingLine = false;
+            
 
             // SpawnAllUIWindows().Forget();
             HideAllDialogueWindows();
