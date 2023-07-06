@@ -278,7 +278,7 @@ namespace com.argentgames.visualnoveltemplate
 
     }
 
-public struct PersistentGameDataSaveData {
+public class PersistentGameDataSaveData {
     public HashSet<string> seenText;
     public HashSet<string> chosenChoices;
     public List<UnlockableItemSaveData> cgUnlocked;
