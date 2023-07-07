@@ -77,6 +77,7 @@ namespace com.argentgames.visualnoveltemplate
                 boolVariables = new HashSet<BoolVar>();
             }
             PopulateMaps();
+            ResetDefaults();
         }
         /// <summary>
         ///  Auto save every time any data changes
