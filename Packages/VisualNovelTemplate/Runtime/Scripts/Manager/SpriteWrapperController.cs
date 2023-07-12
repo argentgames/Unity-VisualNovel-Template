@@ -66,6 +66,8 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         Dictionary<string, string> currentExpression = new Dictionary<string, string>();
         [SerializeField] List<bool> animationsRunning = new List<bool>();
+
+        public List<string> doNotRunSWC = new List<string>();
         public void CreateSkipToken()
         {
             this.skipTokenSource = new SkipTokenSource();
@@ -348,6 +350,7 @@ void Start()
                     {
                         continue;
                     }
+                    if (doNotRunSWC.Contains(part)){ continue; }
                     try
                     {
                         var spriteExpression = expressionsMapForHead[_prefix];
@@ -368,6 +371,15 @@ void Start()
                                     bodyPartSpriteRenderer.GetPropertyBlock(block);
                                     block.SetTexture("NewTex", newExpSprite.texture);
                                     bodyPartSpriteRenderer.SetPropertyBlock(block);
+
+                                    Debug.LogFormat("set depPart automatically");
+
+                                    var customSpriteColor = bodyPartSpriteRenderer.gameObject.GetComponent<CustomSpriteColorSaveLoad>();
+                                    if (customSpriteColor != null)
+                                    {
+                                        customSpriteColor.SetCustomColorizationPropertyFlags();
+                                        Debug.Log("manually ran set custom colorization property flags");
+                                    }
 
 
                                 }
@@ -656,6 +668,7 @@ void Start()
                 {
                     continue;
                 }
+                if (doNotRunSWC.Contains(part)){ continue; }
                 try
                 {
                     var spriteExpression = expressionsMapForHead[_prefix];
@@ -677,10 +690,20 @@ void Start()
                                 block.SetFloat("_TransitionAmount", 0);
                                 block.SetTexture("_MainTex", newExpSprite.texture);
                                 bodyPartSpriteRenderer.SetPropertyBlock(block);
+                                Debug.LogFormat("reset depPart automatically: {0}", _depPart);
+
+                                var customSpriteColor = bodyPartSpriteRenderer.gameObject.GetComponent<CustomSpriteColorSaveLoad>();
+                                    if (customSpriteColor != null)
+                                    {
+                                        customSpriteColor.SetCustomColorizationPropertyFlags();
+                                        Debug.Log("manually ran set custom colorization property flags");
+                                    }
+
+
                             }
-                            catch
+                            catch (Exception e)
                             {
-                                Debug.LogWarningFormat("failed to find depPart. Part-{0} depPartPrefix-{1}", _depPart, depPart);
+                                Debug.LogWarningFormat("failed to find depPart. Part-{0} depPartPrefix-{1}, exception {2}", _depPart, depPart,e);
                             }
 
                         }
