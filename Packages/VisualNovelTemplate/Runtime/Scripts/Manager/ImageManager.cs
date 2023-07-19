@@ -11,43 +11,49 @@ using Sirenix.Serialization;
 using System.Threading;
 using NaughtyAttributes;
 using AnimeTask;
+
 /// <summary>
-/// Controls character and background images! Attached to a large prefab. 
-/// 
-/// HOW THIS WORKS: We spawn 
-/// 
+/// Controls character and background images! Attached to a large prefab.
+///
+/// HOW THIS WORKS: We spawn
+///
 /// BACKGROUNDS
-/// 
+///
 /// ProjectedBGObject: The final flat background image visible to the player. Has a shader
 /// that allows transitioning from preTransition ==> postTransition image states.
 /// CurrentBGCamera: Outputs to the preTransition renderTexture
 /// NewBGCamera: Outputs to the postTransition renderTexture. "origin" at (0,1000,0)
-/// 
-/// 1. Spawn a new background under NewBGContainer (which has some weird origin like (0,1000,0) 
+///
+/// 1. Spawn a new background under NewBGContainer (which has some weird origin like (0,1000,0)
 /// so that it's inviisble to the CurrentBGCamera)
 /// 2. Run transition from preTransition ==> postTransition. ProjectedBGObject now shows NewBG.
 /// 3. IN A SINGLE FRAME: parent new newBG to CurrentBGContainer, reset the transform position to (0,0,0) + newBGAnimatinoTransform,
 /// delete currentBG. Reset transition to preTransition state.
 /// 4. DOUBLE CHECK THIS WORKS WITH ANIMATIONS/BG PANNING?? (our cameras are STATIC. any image panning adjusts the image transform, NOT the camera transform)
-/// 
-/// 
-/// 
+///
+///
+///
 /// </summary>
 namespace com.argentgames.visualnoveltemplate
 {
     public class ImageManager : MonoBehaviour
     {
         public static ImageManager Instance { get; set; }
+
         [BoxGroup("Image containers")]
         [SerializeField]
-        GameObject NewBackgroundContainer1, NewBackgroundContainer2;
+        GameObject NewBackgroundContainer1,
+            NewBackgroundContainer2;
+
         [BoxGroup("Image containers")]
         [InfoBox("Parents that hold spawned characters and overlays.")]
         [SerializeField]
         GameObject MidgroundCharacterContainer;
+
         [BoxGroup("Image containers")]
         [SerializeField]
         GameObject ForegroundCharacterContainer;
+
         [BoxGroup("Image containers")]
         [SerializeField]
         GameObject OverlayContainer;
@@ -55,19 +61,23 @@ namespace com.argentgames.visualnoveltemplate
         [BoxGroup("Cameras")]
         [InfoBox("Cameras that view SpriteRenderers and then project them to render textures.")]
         [SerializeField]
-        public Camera CurrentBGCamera, MidgroundCharactersCamera, ForegroundCharactersCamera, NewBGCamera1, NewBGCamera2;
+        public Camera CurrentBGCamera,
+            MidgroundCharactersCamera,
+            ForegroundCharactersCamera,
+            NewBGCamera1,
+            NewBGCamera2;
 
         private MaterialPropertyBlock _propBlock;
+
         [SerializeField]
         GameObject BackgroundProjectedImage;
         Renderer backgroundProjectedImageRenderer;
 
-
-        [InfoBox("Controller for a side portrait that lives on the ForegroundCharacter layer. Only one portrait is allowed on screen at a time!")]
+        [InfoBox(
+            "Controller for a side portrait that lives on the ForegroundCharacter layer. Only one portrait is allowed on screen at a time!"
+        )]
         [SerializeField]
         PortraitPresenter portraitPresenter;
-
-
 
         /// <summary>
         /// Mapping of shots for where to place camera and which background prefab to spawn.
@@ -76,12 +86,15 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="Shot"></typeparam>
         /// <returns></returns>
         Dictionary<string, Shot> cameraShots = new Dictionary<string, Shot>();
+
         [SerializeField]
-        [Tooltip("We automatically load all shots in Resources/shotsPath, but you can also manually add shots here.")]
+        [Tooltip(
+            "We automatically load all shots in Resources/shotsPath, but you can also manually add shots here."
+        )]
         List<Shot> shots = new List<Shot>();
+
         [SerializeField]
         string shotsPath = "Shots";
-
 
         /// <summary>
         /// Keep reference of which characters are currently on screen (including portrait character)
@@ -91,24 +104,26 @@ namespace com.argentgames.visualnoveltemplate
         /// <typeparam name="GameObject"></typeparam>
         /// <returns></returns>
         [SerializeField]
-        private Dictionary<string, GameObject> charactersOnScreen = new Dictionary<string, GameObject>();
+        private Dictionary<string, GameObject> charactersOnScreen =
+            new Dictionary<string, GameObject>();
 
         [Button]
         public GameObject GetCharacterOnScreen(string charName)
         {
-
             if (charactersOnScreen.ContainsKey(charName))
             {
                 return charactersOnScreen[charName];
             }
             else
-
             {
-                Debug.LogWarningFormat("can't get characger on screen with name {0} because it is not on screen", charName);
+                Debug.LogWarningFormat(
+                    "can't get characger on screen with name {0} because it is not on screen",
+                    charName
+                );
                 return null;
             }
-
         }
+
         /// <summary>
         /// Keep track of which characters have what tints currently active. Mainly a save/load thing.
         /// If a character has activeTint="", then no tint is being applied.
@@ -125,14 +140,16 @@ namespace com.argentgames.visualnoveltemplate
         /// Keep track of the current Shot on screen for Save/Load purposes
         /// </summary>
         /// <value></value>
-        public string CurrentCameraShot { get { return currentCameraShot; } }
+        public string CurrentCameraShot
+        {
+            get { return currentCameraShot; }
+        }
         private string currentCameraShot;
 
         private CancellationTokenSource cts = new CancellationTokenSource();
         private CancellationToken ct;
         SkipTokenSource skipTokenSource = new SkipTokenSource();
         SkipToken skipToken;
-
 
         [SerializeField]
         GameObject particleSystemHolder;
@@ -165,22 +182,31 @@ namespace com.argentgames.visualnoveltemplate
             }
             animationTasks.Clear();
             _propBlock = new MaterialPropertyBlock();
-            backgroundProjectedImageRenderer = BackgroundProjectedImage.GetComponentInChildren<Renderer>();
+            backgroundProjectedImageRenderer =
+                BackgroundProjectedImage.GetComponentInChildren<Renderer>();
             backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
             Debug.LogFormat("propblock {0}", _propBlock.GetFloat("TransitionAmount"));
             _propBlock.SetFloat("TransitionAmount", 1);
-            Debug.LogFormat("propblock after set float to 1 {0}", _propBlock.GetFloat("TransitionAmount"));
+            Debug.LogFormat(
+                "propblock after set float to 1 {0}",
+                _propBlock.GetFloat("TransitionAmount")
+            );
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
             backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
-            Debug.LogFormat("propblock after assign mbp to renderer {0}", _propBlock.GetFloat("TransitionAmount"));
+            Debug.LogFormat(
+                "propblock after assign mbp to renderer {0}",
+                _propBlock.GetFloat("TransitionAmount")
+            );
             CreateCancellationToken();
             CreateSkipToken();
         }
+
         public void CreateSkipToken()
         {
             this.skipTokenSource = new SkipTokenSource();
             skipToken = skipTokenSource.Token;
         }
+
         public void ThrowSkipToken()
         {
             Debug.Log("throwing skip token from IM");
@@ -203,26 +229,30 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 else
                 {
-                    Debug.LogWarningFormat("can't throw skipToken for {0} bc character is null", key);
+                    Debug.LogWarningFormat(
+                        "can't throw skipToken for {0} bc character is null",
+                        key
+                    );
                     charsToRemove.Add(key);
                 }
-
             }
             foreach (var ctr in charsToRemove)
             {
                 charactersOnScreen.Remove(ctr);
             }
         }
+
         public void CreateCancellationToken()
         {
-
             this.cts = new CancellationTokenSource();
             this.ct = this.cts.Token;
         }
+
         public void ThrowCancellationToken()
         {
             cts.Cancel();
         }
+
         public void UnregisterCharacter(string charName)
         {
             Debug.Log("trying to unregister char " + charName);
@@ -232,6 +262,7 @@ namespace com.argentgames.visualnoveltemplate
                 charactersOnScreen.Remove(charName);
             }
         }
+
         public void SetAllCharactersOnScreenActive()
         {
             foreach (var v in charactersOnScreen.Values)
@@ -239,11 +270,13 @@ namespace com.argentgames.visualnoveltemplate
                 v.SetActive(true);
             }
         }
+
         public void RegisterCharacter(string charName, GameObject go)
         {
             Debug.Log("registering character " + charName);
             charactersOnScreen[charName] = go;
         }
+
         public void ClearCharactersOnScreen()
         {
             // for (int i = 0; i < MidgroundCharacterContainer.transform.childCount; i++)
@@ -254,10 +287,10 @@ namespace com.argentgames.visualnoveltemplate
             HideAllChar();
             foreach (var key in charactersOnScreen.Keys)
             {
-
                 UnregisterCharacter(key);
             }
         }
+
         public Dictionary<string, SpriteSaveData> GetAllCharacterOnScreenSaveData()
         {
             var spriteSaveDatas = new Dictionary<string, SpriteSaveData>();
@@ -276,10 +309,14 @@ namespace com.argentgames.visualnoveltemplate
                 //     s += " " + sr.sprite.texture.name;
                 // }
                 // spriteSaveData.expressionImageName = kv.Value.GetComponent<SpriteWrapperController>().currentExpression;
-                spriteSaveDatas.Add(kv.Key, kv.Value.GetComponentInChildren<SpriteWrapperController>().Save());
+                spriteSaveDatas.Add(
+                    kv.Key,
+                    kv.Value.GetComponentInChildren<SpriteWrapperController>().Save()
+                );
             }
             return spriteSaveDatas;
         }
+
         public void SetCameraShot(Camera camera, Vector3? position, Vector3? rotation, float? size)
         {
             if (position != null)
@@ -295,7 +332,6 @@ namespace com.argentgames.visualnoveltemplate
             if (rotation != null)
             {
                 camera.transform.rotation = Quaternion.Euler((Vector3)rotation);
-
             }
             if (size != null)
             {
@@ -308,10 +344,12 @@ namespace com.argentgames.visualnoveltemplate
                 camera.orthographicSize = _s;
             }
         }
+
         public void SetCurrentBGCameraShot(Vector3? position, Vector3? rotation, float? size)
         {
             SetCameraShot(CurrentBGCamera, position, rotation, size);
         }
+
         public void SetNewBGCameraShot(Vector3? position, Vector3? rotation, float? size)
         {
             Vector3 pos = newBGContainerPosition;
@@ -387,7 +425,10 @@ namespace com.argentgames.visualnoveltemplate
             {
                 var bgAsset = shot.bgAssetReference;
                 // first spawn the prefab
-                newBGGO = await AssetRefLoader.Instance.LoadAsset(bgAsset, newBGContainer.transform);
+                newBGGO = await AssetRefLoader.Instance.LoadAsset(
+                    bgAsset,
+                    newBGContainer.transform
+                );
             }
             else
             {
@@ -417,7 +458,6 @@ namespace com.argentgames.visualnoveltemplate
 
             _propBlock.SetFloat("TransitionAmount", 0);
             _propBlock.SetTexture("NewTex", newBGRT);
-
 
             SetNewBGCameraShot(shot.position, shot.rotation, shot.size);
 
@@ -463,9 +503,13 @@ namespace com.argentgames.visualnoveltemplate
                 _propBlock.SetFloat("_DoAlpha", 1);
 
                 backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
-                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
-                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken);
-
+                await Easing
+                    .Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
+                    .ToMaterialPropertyFloat(
+                        backgroundProjectedImageRenderer,
+                        "TransitionAmount",
+                        skipToken: GameManager.Instance.SkipToken
+                    );
             }
             else
             {
@@ -474,12 +518,15 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("now doing a wipe animation");
 
                 backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
-                await Easing.Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
-                .ToMaterialPropertyFloat(backgroundProjectedImageRenderer, "TransitionAmount", skipToken: GameManager.Instance.SkipToken)
-                                ;
+                await Easing
+                    .Create<InCubic>(start: 0f, end: 1f, duration: (float)duration)
+                    .ToMaterialPropertyFloat(
+                        backgroundProjectedImageRenderer,
+                        "TransitionAmount",
+                        skipToken: GameManager.Instance.SkipToken
+                    );
                 Debug.Log("done doing wipe   animation");
             }
-
 
             // sequence.Join(newBGMaterial.DOFloat(1, "TransitionAmount", duration).SetEase(ease).From(0));
             // TECHDEBT: add noise animation delay later
@@ -524,8 +571,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
 
-
-            // reset transitionAmount 
+            // reset transitionAmount
             backgroundProjectedImageRenderer.GetPropertyBlock(_propBlock);
             _propBlock.SetFloat("TransitionAmount", 0);
             _propBlock.SetTexture("_MainTex", newBGRT);
@@ -534,51 +580,62 @@ namespace com.argentgames.visualnoveltemplate
 
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 
-
-
             Debug.Log("done running showbg");
-
-
-
         }
 
         public void HideBG(string bgName, string transition = "dissolve", float duration = .4f)
         {
             ShowBG("black", duration: duration);
         }
+
         public async UniTaskVoid MoveCam(string moveType, Vector3 newPosition, float duration = 0f)
         {
-
             animationTasks.Clear();
 
             if (GameManager.Instance.IsSkipping)
-            { duration = 0.002f; }
+            {
+                duration = 0.002f;
+            }
             switch (moveType)
             {
                 case "position":
                     if (newPosition.z == 0)
                     {
-                        newPosition.z = GameManager.Instance.DefaultConfig.defaultBGCameraPosition.z;
+                        newPosition.z = GameManager
+                            .Instance
+                            .DefaultConfig
+                            .defaultBGCameraPosition
+                            .z;
                     }
 
                     animationTasks.Add(
-                        Easing.Create<InQuart>(to: newPosition, duration: duration).ToLocalPosition(CurrentBGCamera.transform)
+                        Easing
+                            .Create<InQuart>(to: newPosition, duration: duration)
+                            .ToLocalPosition(CurrentBGCamera.transform)
                     );
-
 
                     break;
                 case "rotation":
                     animationTasks.Add(
-                        Easing.Create<InQuart>(to: Quaternion.Euler(newPosition.x, newPosition.y, newPosition.z), duration: duration)
-                        .ToLocalRotation(CurrentBGCamera.transform)
+                        Easing
+                            .Create<InQuart>(
+                                to: Quaternion.Euler(newPosition.x, newPosition.y, newPosition.z),
+                                duration: duration
+                            )
+                            .ToLocalRotation(CurrentBGCamera.transform)
                     );
 
                     break;
                 case "size":
 
                     animationTasks.Add(
-                        Easing.Create<InQuart>(CurrentBGCamera.orthographicSize, newPosition.x, duration: duration)
-                        .ToAction<float>(x => CurrentBGCamera.orthographicSize = x)
+                        Easing
+                            .Create<InQuart>(
+                                CurrentBGCamera.orthographicSize,
+                                newPosition.x,
+                                duration: duration
+                            )
+                            .ToAction<float>(x => CurrentBGCamera.orthographicSize = x)
                     );
 
                     break;
@@ -587,6 +644,7 @@ namespace com.argentgames.visualnoveltemplate
                     break;
             }
         }
+
         public void ShakeCam(float duration = .6f)
         {
             if (GameManager.Instance.Settings.enableScreenShake)
@@ -594,12 +652,13 @@ namespace com.argentgames.visualnoveltemplate
                 // CurrentBGCamera.DOShakePosition(duration, 1.3f, 4);
                 // MidgroundCharactersCamera.DOShakePosition(duration, 1.3f, 4);
             }
-
         }
+
         async UniTaskVoid FireBGTween()
         {
             await UniTask.WhenAll(animationTasks);
         }
+
         public void PlayBGTween()
         {
             FireBGTween().Forget();
@@ -609,17 +668,20 @@ namespace com.argentgames.visualnoveltemplate
                 GameManager.Instance.ThrowSkipToken();
             }
         }
+
         public void SkipBGTween()
         {
             GameManager.Instance.ThrowSkipToken();
             ResetBGTween();
-
         }
+
         public bool NeedToCompleteTweensEarly = false;
+
         public void ResetBGTween()
         {
             animationTasks.Clear();
         }
+
         // public void PlayBGAnimation(string animationName)
         // {
         //     BackgroundHolder.transform.GetChild(0).GetComponent<ImageAnimations>().PlayAnimation(animationName);
@@ -629,36 +691,40 @@ namespace com.argentgames.visualnoveltemplate
             var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
             if (npc == null)
             {
-                Debug.LogWarningFormat("unable to spawn char from save {0}",charName);
+                Debug.LogWarningFormat("unable to spawn char from save {0}", charName);
                 return;
             }
             GameObject charSprite;
-            Debug.LogFormat("need to spawn new char {1}: {0} with data {2}",npc,charName,saveData);
+            Debug.LogFormat(
+                "need to spawn new char {1}: {0} with data {2}",
+                npc,
+                charName,
+                saveData
+            );
             var layerToSpawn = MidgroundCharacterContainer;
             if (npc.spawnLayer != null)
             {
                 switch (npc.spawnLayer)
-            {
-                case ImageLayer.Foreground:
-                    layerToSpawn = ForegroundCharacterContainer;
-                    break;
-                case ImageLayer.Midground:
-                    layerToSpawn = MidgroundCharacterContainer;
-                    break;
+                {
+                    case ImageLayer.Foreground:
+                        layerToSpawn = ForegroundCharacterContainer;
+                        break;
+                    case ImageLayer.Midground:
+                        layerToSpawn = MidgroundCharacterContainer;
+                        break;
+                }
             }
-            }
-            
 
             if (npc.UseAddressables)
             {
                 AssetReference assetToLoad = new AssetReference();
 
-
                 assetToLoad = npc.charGameObjectAssetRef;
 
-
-                charSprite = await AssetRefLoader.Instance.LoadAsset(npc.charGameObjectAssetRef, layerToSpawn.transform);
-
+                charSprite = await AssetRefLoader.Instance.LoadAsset(
+                    npc.charGameObjectAssetRef,
+                    layerToSpawn.transform
+                );
             }
             else
             {
@@ -672,13 +738,15 @@ namespace com.argentgames.visualnoveltemplate
                 charactersOnScreen.Add(charName.TrimStart(null).TrimEnd(null), charSprite);
             }
 
-            var charSpriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
+            var charSpriteWrapperController =
+                charSprite.GetComponentInChildren<SpriteWrapperController>();
 
             Debug.Log("save data expression: " + saveData.expressionImageName);
             charSpriteWrapperController.ExpressionChange(saveData.expressionImageName, 0);
             Debug.LogFormat("position to spawn at {0}", saveData.position);
             ShowChar(charName, saveData.position, duration: 0);
         }
+
         // [Button]
         /// <summary>
         /// Character does not exist on screen. Spawn it with provided expression.
@@ -690,8 +758,13 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="transition">Transition type, e.g. dissolve, slideFromRight</param>
         /// <param name="duration">transition duration</param>
         /// <returns></returns>
-        public async UniTask SpawnChar(string charName, string expression, Vector3? location = null,
-        string transition = "dissolve", float? duration = null)
+        public async UniTask SpawnChar(
+            string charName,
+            string expression,
+            Vector3? location = null,
+            string transition = "dissolve",
+            float? duration = null
+        )
         {
             if (duration == null)
             {
@@ -710,7 +783,10 @@ namespace com.argentgames.visualnoveltemplate
             Debug.LogFormat("SpawnChar parmas: {0}, {1}, {2}", charName, expression, location);
             if (charactersOnScreen.ContainsKey(charName.TrimStart(null).TrimEnd(null)))
             {
-                Debug.LogWarningFormat("wanted to reuse char except the go was null. removing manually within spawnChar for char {0}", charName);
+                Debug.LogWarningFormat(
+                    "wanted to reuse char except the go was null. removing manually within spawnChar for char {0}",
+                    charName
+                );
                 if (charactersOnScreen[charName.TrimStart(null).TrimEnd(null)] == null)
                 {
                     charactersOnScreen.Remove(charName.TrimStart(null).TrimEnd(null));
@@ -735,12 +811,12 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     AssetReference assetToLoad = new AssetReference();
 
-
                     assetToLoad = npc.charGameObjectAssetRef;
 
-
-                    charSprite = await AssetRefLoader.Instance.LoadAsset(npc.charGameObjectAssetRef, layerToSpawn.transform);
-
+                    charSprite = await AssetRefLoader.Instance.LoadAsset(
+                        npc.charGameObjectAssetRef,
+                        layerToSpawn.transform
+                    );
                 }
                 else
                 {
@@ -756,23 +832,36 @@ namespace com.argentgames.visualnoveltemplate
                 charSprite = charactersOnScreen[charName.TrimStart(null).TrimEnd(null)];
             }
             // Debug.Break();
-            var spriteWrapperController = charSprite.GetComponentInChildren<SpriteWrapperController>();
+            var spriteWrapperController =
+                charSprite.GetComponentInChildren<SpriteWrapperController>();
             if (spriteWrapperController != null)
             {
                 await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
-                spriteWrapperController.ShaderDebug();
+                // spriteWrapperController.ShaderDebug();
                 spriteWrapperController.Test_SetAlphaDirectly(0);
+
                 // Debug.Break();
                 // spriteWrapperController.SetInitialExpression(expression);
                 await UniTask.Yield();
+                charSprite.SetActive(true);
                 await spriteWrapperController.ExpressionChange(expression, 0);
-                spriteWrapperController.ShaderDebug();
+                Debug.LogFormat(
+                    "done setting up spawned sprite with new expression {0}",
+                    expression
+                );
+
+                // Debug.Break();
+                // spriteWrapperController.ShaderDebug();
 
                 if (location == null)
                 {
                     location = spriteWrapperController.defaultSpawnPosition;
                 }
-
+            }
+            else
+            {
+                Debug.LogWarning("swc when spawning char is null, exiting");
+                return;
             }
 
             // move char to location
@@ -793,21 +882,30 @@ namespace com.argentgames.visualnoveltemplate
             // {
             //     duration = 0;
             // }
-            await ShowChar(charName, location, transition: transition, duration: (float)duration);
-            // OnscreenSpriteCamera.Render();
 
+            await ShowChar(charName, location, transition: transition, duration: (float)duration);
+
+            // OnscreenSpriteCamera.Render();
         }
-        public async UniTask ShowChar(string charName, Vector3? location, string transition = "dissolve", float duration = 1f)
+
+        public async UniTask ShowChar(
+            string charName,
+            Vector3? location,
+            string transition = "dissolve",
+            float duration = 1f
+        )
         {
             // TECHDEBT: need to be able to show a character with an arbitrary transition!
             // Debug.Log("lol am i ever called");
             var go = charactersOnScreen[charName];
-            AnimateObjectsToggleEnable animator = go.GetComponentInChildren<AnimateObjectsToggleEnable>();
+            AnimateObjectsToggleEnable animator =
+                go.GetComponentInChildren<AnimateObjectsToggleEnable>();
 
             var animationComplete = false;
             if (location != null)
             {
-                await Easing.Create<InQuart>(to: (Vector3)location, duration: duration)
+                await Easing
+                    .Create<InQuart>(to: (Vector3)location, duration: duration)
                     .ToLocalPosition(go, skipToken: GameManager.Instance.SkipToken);
                 animationComplete = true;
             }
@@ -823,80 +921,34 @@ namespace com.argentgames.visualnoveltemplate
             duration = GameManager.Instance.DefaultConfig.spawnCharacterDuration;
             // }
             SpriteWrapperController swc = go.GetComponentInChildren<SpriteWrapperController>();
-            if (!go.activeSelf)
-            {
-                animationComplete = false;
-                var spriteRenderers = go.GetComponentsInChildren<SpriteRenderer>();
-                animationTasks.Clear();
+            await UniTask.Yield();
+            swc.ShowChar((float)duration);
 
-                // foreach (var sr in spriteRenderers)
-                // {
-                //     Debug.LogFormat("before transition alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
-
-                //     animationTasks.Add(
-                //     Easing.Create<InCubic>(start: 0f, end: 1f, duration: duration)
-                //     .ToMaterialPropertyFloat(sr, "Alpha", skipToken: GameManager.Instance.SkipToken)
-                //     );
-
-
-                //     // if (sr.material.HasProperty("DoTint"))
-                //     // {
-                //     //     if (this.darkTintOn)
-                //     //     {
-                //     //         Debug.Log("turn tint on");
-                //     //         // 1 is true
-                //     //         sr.material.SetFloat("DoTint", 1);
-                //     //     }
-                //     //     else
-                //     //     {
-                //     //         Debug.Log("turn tint off");
-                //     //         sr.material.SetFloat("DoTint", 0);
-                //     //     }
-                //     // }
-
-
-                // }
-                // go.SetActive(true);
-                // await UniTask.Yield();
-                // foreach (var sr in spriteRenderers)
-                // {
-                //     Debug.LogFormat("after start transition alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
-                // }
-
-                // await UniTask.WhenAll(animationTasks);
-
-                // swc.ShowChar((float)duration);
-                swc.ShaderDebug();
-                await UniTask.Yield();
-                swc.ShowChar((float)duration);
-
-                swc.ShaderDebug();
-                // animationComplete = true;
-
-                // foreach (var sr in spriteRenderers)
-                // {
-                //     Debug.LogFormat("alpha {0} for sr {1}", sr.material.GetFloat("Alpha"), sr.name);
-                // }
-            }
             await UniTask.WaitUntil(() => swc.AnimationComplete);
-            swc.ShaderDebug();
+            // swc.ShaderDebug();
             // Debug.Break();
             // move the gameobject to Location
             // animate showing with transition and duration
             // TECHDEBT
             // if (!GameManager.Instance.IsSkipping)
             // {
-            await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText), cancellationToken: ct);
+            await UniTask.Delay(
+                TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText),
+                cancellationToken: ct
+            );
             // }
             // else
             // {
             //     await UniTask.Delay(TimeSpan.FromSeconds(.002f), cancellationToken: this.ct);
             // }
-
-
         }
+
         // [Button]
-        public async UniTask FireHideChar(string charName, string transition = "fade", float? duration = null)
+        public async UniTask FireHideChar(
+            string charName,
+            string transition = "fade",
+            float? duration = null
+        )
         {
             if (!charactersOnScreen.ContainsKey(charName))
             {
@@ -904,12 +956,14 @@ namespace com.argentgames.visualnoveltemplate
                 return;
             }
 
-
             animationTasks.Clear();
             var go = charactersOnScreen[charName];
             if (go == null)
             {
-                Debug.LogWarningFormat("Character {0} go doesn't exist, can't hide. Removing from charactersOnScreenMap!", charName);
+                Debug.LogWarningFormat(
+                    "Character {0} go doesn't exist, can't hide. Removing from charactersOnScreenMap!",
+                    charName
+                );
                 UnregisterCharacter(charName);
                 return;
             }
@@ -918,7 +972,9 @@ namespace com.argentgames.visualnoveltemplate
                 duration = GameManager.Instance.DefaultConfig.hideCharacterDuration;
             }
             if (GameManager.Instance.IsSkipping)
-            { duration = 0; }
+            {
+                duration = 0;
+            }
             // TECHDEBT:  this skip Token is not going to work as expected.
 
             SpriteWrapperController swc = go.GetComponentInChildren<SpriteWrapperController>();
@@ -991,24 +1047,29 @@ namespace com.argentgames.visualnoveltemplate
             // Debug.Break();
 
             Destroy(go);
-
-
-
         }
+
         // TODO: figure out how we want to do the awaiting for hide char...........
         public void HideChar(string charName, string transition = "fade", float? duration = null)
         {
             FireHideChar(charName, transition, duration).Forget();
         }
-        public async UniTask AsyncHideChar(string charName, string transition = "fade", float? duration = null)
+
+        public async UniTask AsyncHideChar(
+            string charName,
+            string transition = "fade",
+            float? duration = null
+        )
         {
             await FireHideChar(charName, transition, duration);
         }
+
         public void DestroyChar(string charName)
         {
             Destroy(charactersOnScreen[charName].gameObject);
             charactersOnScreen.Remove(charName);
         }
+
         // [Button]
         public async UniTask HideAllChar(float? duration = null)
         {
@@ -1022,9 +1083,10 @@ namespace com.argentgames.visualnoveltemplate
             await UniTask.WaitUntil(() => charactersOnScreen.Count == 0);
             // do an extra destroy all chars JUST IN CASE OF BUGGIES??
             Utilities.DestroyAllChildGameObjects(MidgroundCharacterContainer);
-
         }
+
         private GameObject char_;
+
         /// <summary>
         /// Change the expression of a specific character!
         /// Returns UniTask<bool> because we want to check whether we needed to show the portrait.
@@ -1033,13 +1095,17 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="expression">The new expression</param>
         /// <param name="duration">The transition duration</param>
         /// <returns></returns>
-        public async UniTask<bool> ExpressionChange(string charName, string expression, float? duration = .35f)
+        public async UniTask<bool> ExpressionChange(
+            string charName,
+            string expression,
+            float? duration = .35f
+        )
         {
             Debug.LogFormat("expchange args for char {0}: {1}", charName, expression);
             // OnscreenSpriteCamera.Render();
 
-            //exp sandwich is currExp > newExp 
-            // set new exp, fade out currexp, set currexp=newexp, 
+            //exp sandwich is currExp > newExp
+            // set new exp, fade out currexp, set currexp=newexp,
             var npc = (NPC_SO)DialogueSystemManager.Instance.GetNPC(charName);
 
             // if it's a portrait char, then get the portrait one, otherwise get the main big sprite
@@ -1050,7 +1116,6 @@ namespace com.argentgames.visualnoveltemplate
                 char_ = charactersOnScreen[charName];
             }
             else
-
             {
                 Debug.LogFormat("num chars on screen: {0}", charactersOnScreen.Count);
                 foreach (var k in charactersOnScreen.Keys)
@@ -1085,13 +1150,18 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 else
                 {
-                    Debug.LogErrorFormat("could not get sprite wrapper controller for char {0}", char_.name);
+                    Debug.LogErrorFormat(
+                        "could not get sprite wrapper controller for char {0}",
+                        char_.name
+                    );
                 }
             }
 
             if (!GameManager.Instance.IsSkipping)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText));
+                await UniTask.Delay(
+                    TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayBeforeShowText)
+                );
             }
             else
             {
@@ -1101,12 +1171,13 @@ namespace com.argentgames.visualnoveltemplate
             // Debug.LogFormat("do i need to show portrait?: {0}", needToShowPortrait);
             // OnscreenSpriteCamera.Render();
             return needToShowPortrait;
-
         }
+
         public void ShowPortrait()
         {
             portraitPresenter.ShowPortrait();
         }
+
         public void HidePortrait()
         {
             portraitPresenter.HidePortrait();
