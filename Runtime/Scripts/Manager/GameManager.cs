@@ -12,10 +12,9 @@ using UnityEngine.Networking;
 using NaughtyAttributes;
 
 using AnimeTask;
+
 namespace com.argentgames.visualnoveltemplate
 {
-
-
     /// <summary>
     /// The big brain in the game~!
     /// Holds all the config and defaults.
@@ -25,28 +24,48 @@ namespace com.argentgames.visualnoveltemplate
     {
         public static GameManager Instance { get; set; }
 
-        [Tooltip("Default config values such as transition rate between backgrounds, transition texture, text unwrap speed, etc.")]
+        [Tooltip(
+            "Default config values such as transition rate between backgrounds, transition texture, text unwrap speed, etc."
+        )]
         [SerializeField]
         [Required]
         private DefaultConfig defaultConfig;
-        public DefaultConfig DefaultConfig { get { return defaultConfig; } }
+        public DefaultConfig DefaultConfig
+        {
+            get { return defaultConfig; }
+        }
 
         [SerializeField]
-        [Tooltip("Persistent game settings across all game sessions such as volume and screen resolution.")]
+        [Tooltip(
+            "Persistent game settings across all game sessions such as volume and screen resolution."
+        )]
         [Required]
         private Settings_SO settings;
-        public Settings_SO Settings { get { return settings; } }
+        public Settings_SO Settings
+        {
+            get { return settings; }
+        }
 
         [SerializeField]
-        [Tooltip("Persistent game data such as all texts seen, routes currently unlocked, and cgs current unlocked.")]
+        [Tooltip(
+            "Persistent game data such as all texts seen, routes currently unlocked, and cgs current unlocked."
+        )]
         [Required]
         private PersistentGameData_SO persistentGameData;
-        public PersistentGameData_SO PersistentGameData { get { return persistentGameData; } }
+        public PersistentGameData_SO PersistentGameData
+        {
+            get { return persistentGameData; }
+        }
 
         [SerializeField]
-        [Tooltip("Texts that are reused throughout the game, such as quote characters and menu texts.")]
+        [Tooltip(
+            "Texts that are reused throughout the game, such as quote characters and menu texts."
+        )]
         private GenericTexts_SO genericTexts;
-        public GenericTexts_SO GenericTexts { get { return genericTexts; } }
+        public GenericTexts_SO GenericTexts
+        {
+            get { return genericTexts; }
+        }
 
         [SerializeField]
         [Tooltip("All characters that speak in the game.")]
@@ -61,14 +80,18 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         Dictionary<string, Wipe_SO> wipes = new Dictionary<string, Wipe_SO>();
 
-
-
         // public Camera bgCamera, spriteCamera;
 
         public BoolReactiveProperty isAuto = new BoolReactiveProperty(false);
-        public bool IsAuto { get { return isAuto.Value; } }
+        public bool IsAuto
+        {
+            get { return isAuto.Value; }
+        }
         public BoolReactiveProperty isSkipping = new BoolReactiveProperty(false);
-        public bool IsSkipping { get { return isSkipping.Value; } }
+        public bool IsSkipping
+        {
+            get { return isSkipping.Value; }
+        }
         public bool isGamePaused = false;
         public Texture2D currentScreenshot;
 
@@ -79,16 +102,35 @@ namespace com.argentgames.visualnoveltemplate
         SkipTokenSource skipTokenSource = new SkipTokenSource();
         SkipToken skipToken;
         public SkipToken SkipToken => skipToken;
+
         /// <summary>
         /// This assumes there is one qmenu in the game, usually only found in the Ingame scene.
         /// Does not have to be used!!! You can have individual qmenus attached to dialogue windows.
         /// </summary>
         public QMenu globalQmenu;
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken;
+        public CancellationToken CancellationToken => cancellationToken;
+
+        public void CreateCancellationToken()
+        {
+            this.cancellationTokenSource = new CancellationTokenSource();
+            cancellationToken = cancellationTokenSource.Token;
+        }
+
+        public void ThrowCancellationToken()
+        {
+            Debug.Log("throwing gm cancellation token");
+            cancellationTokenSource.Cancel();
+            CreateCancellationToken();
+        }
+
         public void CreateSkipToken()
         {
             this.skipTokenSource = new SkipTokenSource();
             skipToken = skipTokenSource.Token;
         }
+
         public void ThrowSkipToken()
         {
             Debug.Log("throwing gm skip token");
@@ -101,12 +143,13 @@ namespace com.argentgames.visualnoveltemplate
             // Debug.Log("someone set skipping to: " + val.ToString());
             isSkipping.Value = val;
         }
+
         public void SetAuto(bool val)
         {
             // Debug.Log("someone set auto to: " + val.ToString());
             isAuto.Value = val;
-
         }
+
         async UniTaskVoid Awake()
         {
             if (Instance != null && Instance != this)
@@ -125,18 +168,16 @@ namespace com.argentgames.visualnoveltemplate
                 wipes.Add(w.internalName, w);
             }
 
-
             await UniTask.WaitUntil(() => SaveLoadManager.Instance != null);
             // load settings
             SaveLoadManager.Instance.LoadSettings();
             SaveLoadManager.Instance.LoadPersistent();
 
 #if PLATFORM_ANDROID
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
 #endif
 
             this.currentScreenshot = defaultConfig.defaultNullTexture;
-
         }
 
         public Wipe_SO GetWipe(string wipeName)
@@ -155,45 +196,43 @@ namespace com.argentgames.visualnoveltemplate
         public NPC_SO GetNPC(string npcName)
         {
             return characterDatabase.GetNPC(npcName);
-
         }
-
 
         // TECHDEBT: clear out the currentScreenshot so it's not always held in memory the entire game
         public async UniTask TakeScreenshot()
         {
-// byte[] bytes = tex.EncodeToPNG();
-// Object.Destroy(tex);
+            // byte[] bytes = tex.EncodeToPNG();
+            // Object.Destroy(tex);
 
             try
             {
-//                 string sspath = "";
-// #if PLATFORM_ANDROID
-//             sspath = "current.PNG";
-// #else
-//                 SaveLoadManager.Instance.CreateSavePath("current.PNG");
-// #endif
+                //                 string sspath = "";
+                // #if PLATFORM_ANDROID
+                //             sspath = "current.PNG";
+                // #else
+                //                 SaveLoadManager.Instance.CreateSavePath("current.PNG");
+                // #endif
 
-//                 var actualSavedFP = SaveLoadManager.Instance.CreateSavePath("current.PNG");
+                //                 var actualSavedFP = SaveLoadManager.Instance.CreateSavePath("current.PNG");
 
-//                 Debug.Log("trying to save screenshot to " + actualSavedFP);
-//                 // if (File.Exists(actualSavedFP))
-//                 // {
-//                 //     File.Delete(actualSavedFP);
-//                 //     Console.WriteLine("The file exists.");
-//                 // }
-//                 ScreenCapture.CaptureScreenshot(actualSavedFP);
-//                 await UniTask.WaitUntil(() => File.Exists(actualSavedFP));
+                //                 Debug.Log("trying to save screenshot to " + actualSavedFP);
+                //                 // if (File.Exists(actualSavedFP))
+                //                 // {
+                //                 //     File.Delete(actualSavedFP);
+                //                 //     Console.WriteLine("The file exists.");
+                //                 // }
+                //                 ScreenCapture.CaptureScreenshot(actualSavedFP);
+                //                 await UniTask.WaitUntil(() => File.Exists(actualSavedFP));
                 //Read
-// #if PLATFORM_ANDROID
-//             actualSavedFP = "file://" + actualSavedFP;
-// #endif
+                // #if PLATFORM_ANDROID
+                //             actualSavedFP = "file://" + actualSavedFP;
+                // #endif
                 // var bytes = (await UnityWebRequest.Get(actualSavedFP).SendWebRequest()).downloadHandler.data;
                 // // byte[] bytes = File.ReadAllBytes(sspath);
                 // //Convert image to texture
                 // Texture2D loadTexture = new Texture2D(2, 2);
                 // loadTexture.LoadImage(bytes);
-                // // resize texture because we only need a tiny screenshot 
+                // // resize texture because we only need a tiny screenshot
                 // currentScreenshot = loadTexture;
 
 
@@ -205,29 +244,35 @@ namespace com.argentgames.visualnoveltemplate
                 // currentScreenshot = Resize(currentScreenshot, 419, 213);
 
 
-await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
-                currentScreenshot = new Texture2D(Screen.width, Screen.height,TextureFormat.RGB24, true);
+                await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+                currentScreenshot = new Texture2D(
+                    Screen.width,
+                    Screen.height,
+                    TextureFormat.RGB24,
+                    true
+                );
 
-await UniTask.WaitForEndOfFrame(this);
+                await UniTask.WaitForEndOfFrame(this);
 
-currentScreenshot.ReadPixels(new Rect(0,0,Screen.width,Screen.height),0,0);
-currentScreenshot.LoadRawTextureData(currentScreenshot.GetRawTextureData());
-currentScreenshot.Apply();
-currentScreenshot = Resize(currentScreenshot, 419, 213);
-// byte[] bytes = tex.EncodeToPNG();
-// Object.Destroy(tex);
-
+                currentScreenshot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+                currentScreenshot.LoadRawTextureData(currentScreenshot.GetRawTextureData());
+                currentScreenshot.Apply();
+                currentScreenshot = Resize(currentScreenshot, 419, 213);
+                // byte[] bytes = tex.EncodeToPNG();
+                // Object.Destroy(tex);
             }
             catch (Exception e)
             {
-                Debug.LogErrorFormat("couldn't save screenshot, using default null textureee, exception {0}", e);
+                Debug.LogErrorFormat(
+                    "couldn't save screenshot, using default null textureee, exception {0}",
+                    e
+                );
                 currentScreenshot = DefaultConfig.defaultNullTexture;
             }
 
-// #if PLATFORM_ANDROID
-//         await UniTask.WaitWhile(() => currentScreenshot == null);
-// #endif
-
+            // #if PLATFORM_ANDROID
+            //         await UniTask.WaitWhile(() => currentScreenshot == null);
+            // #endif
         }
 
         Texture2D Resize(Texture2D texture2D, int targetX, int targetY)
@@ -244,7 +289,7 @@ currentScreenshot = Resize(currentScreenshot, 419, 213);
         [Button]
         public void PauseGame()
         {
-            // the only thing we need to do 
+            // the only thing we need to do
             isGamePaused = true;
             Time.timeScale = 0;
             if (SceneManager.GetActiveScene().name == "Ingame")
@@ -252,6 +297,7 @@ currentScreenshot = Resize(currentScreenshot, 419, 213);
                 DialogueSystemManager.Instance.DialogueUIManager.PauseTypewriter();
             }
         }
+
         [Button]
         public void ResumeGame()
         {
@@ -262,9 +308,7 @@ currentScreenshot = Resize(currentScreenshot, 419, 213);
                 if (DialogueSystemManager.Instance.DialogueUIManager.IsDisplayingLine)
                 {
                     DialogueSystemManager.Instance.DialogueUIManager.ContinueTypewriter();
-
                 }
-
             }
         }
 
@@ -275,7 +319,7 @@ currentScreenshot = Resize(currentScreenshot, 419, 213);
 
             string sspath = "";
 #if PLATFORM_ANDROID
-        sspath = "current.PNG";
+            sspath = "current.PNG";
 #else
             SaveLoadManager.Instance.CreateSavePath("current.PNG");
 #endif
@@ -285,6 +329,7 @@ currentScreenshot = Resize(currentScreenshot, 419, 213);
                 File.Delete(sspath);
             }
         }
+
         void OnApplicationPause()
         {
             Debug.Log("is on apllication pause ever called");
@@ -292,7 +337,7 @@ currentScreenshot = Resize(currentScreenshot, 419, 213);
 
             string sspath = "";
 #if PLATFORM_ANDROID
-        sspath = "current.PNG";
+            sspath = "current.PNG";
 #else
             SaveLoadManager.Instance.CreateSavePath("current.PNG");
 #endif
