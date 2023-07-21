@@ -48,7 +48,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             if (!allNPCDatabase.ContainsKey(npcName))
             {
-                Debug.LogErrorFormat("{0} not in npcDatabase!", npcName);
+                Debug.LogErrorFormat("{0} not in npcDatabase!, abort", npcName);
                 return null;
             }
             return allNPCDatabase[npcName];
