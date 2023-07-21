@@ -114,7 +114,7 @@ namespace com.argentgames.visualnoveltemplate
             story.ChoosePathString(GameManager.Instance.DefaultConfig.startSceneName);
             SetEndGame(false);
             IsProcessingLine = false;
-            
+
 
             // SpawnAllUIWindows().Forget();
             HideAllDialogueWindows();
@@ -231,7 +231,6 @@ namespace com.argentgames.visualnoveltemplate
 
         }
 
-        // URGENT: Need to update this because DSM is now persistent across all scenes, not just ingame!!!
         public async UniTaskVoid RunStory()
         {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -242,64 +241,6 @@ namespace com.argentgames.visualnoveltemplate
             Debug.Log("scene transition manager has finished loading");
             MenuManager.Instance.EnableSettingsUIControls();
             SetDialogueWindow(currentDialogueWindow.Value);
-
-            // if (SaveLoadManager.Instance.currentSave != null)
-            // {
-            //     // if (DialogueSystemManager.Instance.NeedToDisplayChoices())
-            //     // {
-            //     //     await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-            //     //     if (!dialogueUIManager.DisplayLineBeforeChoiceOnLoad)
-            //     //     {
-            //     //         await RunDisplayChoicesOnlyForSaveLoad();
-
-            //     //     }
-
-            //     //     RunContinueStory().Forget();
-
-            //     //     // DialogueSystemManager.Instance.DisplayChoices().Forget();
-
-            //     //     // await dialogueUIManager.ShowUI();
-            //     //     // // await dialogueUIManager.DisplayLine(ct);
-
-            //     //     // dialogueUIManager.PlayerAllowedToHideUI = true;
-            //     //     // dialogueUIManager.HideCTC();
-            //     //     // SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-
-            //     // }
-            //     // else 
-            //     if (DialogueSystemManager.Instance.NeedToRunActionFunction())
-            //     {
-            //         await DialogueSystemManager.Instance.RunActionFunction();
-            //         await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-
-
-            //     }
-            //     else
-            //     {
-            //         await SceneTransitionManager.Instance.FadeIn(GameManager.Instance.DefaultConfig.sceneFadeInDuration);
-            //         RunContinueStory().Forget();
-            //     }
-            //     Debug.Log("fading in ds from a save");
-            // }
-            // else
-            // {
-            //     Debug.Log("fading in from ds no save");
-
-
-            //     Debug.Log("done fading in with 0");
-            //     Debug.Log("running node: " + story.state.currentPathString);
-            //     RunContinueStory().Forget();
-            //     await SceneTransitionManager.Instance.FadeIn(0f);
-            // }
-
-            // if (DialogueSystemManager.Instance.NeedToDisplayChoices())
-            //     {
-            //         if (!dialogueUIManager.DisplayLineBeforeChoiceOnLoad)
-            //         {
-            //             await RunDisplayChoicesOnlyForSaveLoad();
-
-            //         }
-            //     }
 
             RunContinueStory().Forget();
 
@@ -582,7 +523,7 @@ namespace com.argentgames.visualnoveltemplate
             while (true)
             {
                 Debug.Log("running node: " + story.state.currentPathString);
-                if (story.canContinue)
+                if (story.canContinue && !IsLoadedGame)
                 {
                     story.Continue();
                     Debug.Log("run story.Continue()");
@@ -651,7 +592,7 @@ namespace com.argentgames.visualnoveltemplate
                         {
                             CurrentProcessedDialogue = null;
                         }
-                        SetIsLoadedGame(false);
+                        
 
                         ShowDialogueWindow(currentDialogueWindow.Value);
 
@@ -683,7 +624,14 @@ namespace com.argentgames.visualnoveltemplate
 
                 // finally add the line to our persistent seen text so we know when to stop skipping
                 AddCurrentStoryTextToPersistentHistory();
+                if (IsLoadedGame)
+            {
+                Debug.Log("toggling off IsLoadedGame flag");
+                SetIsLoadedGame(false);
             }
+            }
+
+        
 
         }
         public void ClearCurrentChoices()
@@ -728,13 +676,13 @@ namespace com.argentgames.visualnoveltemplate
         public bool CurrentTextSeenBefore()
         {
             if (GameManager.Instance == null)
-             {
+            {
                 return false;
-             }
-             if (GameManager.Instance.PersistentGameData == null)
-             {
+            }
+            if (GameManager.Instance.PersistentGameData == null)
+            {
                 return false;
-             }
+            }
             if (GameManager.Instance.PersistentGameData.seenText.Contains(
                 CreateHash(story.currentText + "_" + story.state.currentPathString)
             ))
@@ -786,10 +734,28 @@ namespace com.argentgames.visualnoveltemplate
             {
                 if (((Dialogue)dialogue).text != "")
                 {
-                  await DisplayLine((Dialogue)dialogue); // ctc will end this by setting isdisplayling line to false
+                    await DisplayLine((Dialogue)dialogue); // ctc will end this by setting isdisplayling line to false
+                    await UniTask.Yield();
                 await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
+                await UniTask.Yield();  
+                    await UniTask.Yield();
                 }
-                
+
             }
 
 
