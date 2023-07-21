@@ -29,6 +29,10 @@ namespace com.argentgames.visualnoveltemplate
 
             if (multiply)
             {
+                if (materialPropertyBlockUtilities == null)
+                {
+                    materialPropertyBlockUtilities = GetComponent<MaterialPropertyBlockUtilities>();
+                }
                 materialPropertyBlockUtilities.UpdateProperties(
                     new Tuple<string, float>("_NeedsMultiply", 1)
                 );
