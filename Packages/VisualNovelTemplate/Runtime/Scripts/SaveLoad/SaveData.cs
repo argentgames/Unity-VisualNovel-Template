@@ -46,7 +46,7 @@ namespace com.argentgames.visualnoveltemplate
         }
         public SaveData()
         {
-
+            currentDialogue = null;
         }
         public void Save(string filePath,DataFormat format)
         {

@@ -182,7 +182,9 @@ namespace com.argentgames.visualnoveltemplate
                 image.color = targetColor;
                 yield break;
             }
-            while (elapsedTime < disableAnimationDuration &&
+            Debug.LogFormat("elapsedTime {0}, disableAnimationDuration {1}, image.color {2}, targetColor {3}",
+            elapsedTime,disableAnimationDuration,image.color,targetColor);
+            while (elapsedTime < disableAnimationDuration ||
             image.color != targetColor)
             {
                 elapsedTime += Time.deltaTime;
@@ -195,6 +197,8 @@ namespace com.argentgames.visualnoveltemplate
                 image.color = Color.LerpUnclamped(image.color, targetColor, curvePercent);
                 Debug.LogFormat("targetColor {0} curvePercent {1}", targetColor, curvePercent);
                 yield return null;
+                Debug.LogFormat("elapsedTime {0}, disableAnimationDuration {1}, image.color {2}, targetColor {3}",
+            elapsedTime,disableAnimationDuration,image.color,targetColor);
             }
         }
 

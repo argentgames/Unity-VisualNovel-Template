@@ -738,11 +738,33 @@ namespace com.argentgames.visualnoveltemplate
                 charactersOnScreen.Add(charName.TrimStart(null).TrimEnd(null), charSprite);
             }
 
-            var charSpriteWrapperController =
+            var spriteWrapperController =
                 charSprite.GetComponentInChildren<SpriteWrapperController>();
 
             Debug.Log("save data expression: " + saveData.expressionImageName);
-            charSpriteWrapperController.ExpressionChange(saveData.expressionImageName, 0);
+            if (spriteWrapperController != null)
+            {
+                await UniTask.WaitUntil(() => spriteWrapperController.InitComplete);
+                // spriteWrapperController.ShaderDebug();
+                spriteWrapperController.Test_SetAlphaDirectly(0);
+
+                // Debug.Break();
+                // spriteWrapperController.SetInitialExpression(expression);
+                await UniTask.Yield();
+                charSprite.SetActive(true);
+                await spriteWrapperController.ExpressionChange(saveData.expressionImageName, 0);
+                Debug.LogFormat(
+                    "done setting up spawned sprite with new expression {0}",
+                    saveData.expressionImageName
+                );
+
+            }
+            else
+            {
+                Debug.LogWarning("swc when spawning char is null, exiting");
+                return;
+            }
+            spriteWrapperController.ExpressionChange(saveData.expressionImageName, 0);
             Debug.LogFormat("position to spawn at {0}", saveData.position);
             ShowChar(charName, saveData.position, duration: 0);
         }
