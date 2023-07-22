@@ -162,6 +162,7 @@ namespace com.argentgames.visualnoveltemplate
 
             if (doSelfRegister)
             {
+                Debug.Log("self registering, waiting for imgmanager not null");
                 await UniTask.WaitUntil(() => ImageManager.Instance != null);
                 ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject);
             }
@@ -171,6 +172,7 @@ namespace com.argentgames.visualnoveltemplate
             // set our initial/default expression
             bodyPartsMap.Clear();
             currentExpression.Clear();
+            Debug.Log("mapping bodyparts");
             foreach (var part in bodyParts)
             {
                 bodyPartsMap[part.prefix] = part.gameObject.GetComponentInChildren<SpriteRenderer>(
@@ -182,8 +184,10 @@ namespace com.argentgames.visualnoveltemplate
             GenerateExpressionsMapForHead();
             await UniTask.Yield();
             await UniTask.Yield();
+            Debug.Log("setting new experssion");
             SetNewExpression(defaultExpression);
             await UniTask.Yield();
+            Debug.Log("resetting main expression");
             ResetMainExpression(defaultExpression);
             Debug.Log("done initializing sprite with default expression");
             // Debug.Break();
@@ -217,6 +221,23 @@ namespace com.argentgames.visualnoveltemplate
         void Start()
         {
             // SetNewExpression();
+        }
+
+        public bool MainExpressionIsReset {
+            get
+            {
+                foreach (var mbpu in GetComponentsInChildren<MaterialPropertyBlockUtilities>())
+                {
+                    Debug.LogFormat("maintex {0} == newTex {1}, {2}",mbpu.GetTexture("_MainTex").name
+                    ,mbpu.GetTexture("NewTex").name,
+                    mbpu.GetTexture("_MainTex").name == mbpu.GetTexture("NewTex").name);
+                    if (mbpu.GetTexture("_MainTex").name != mbpu.GetTexture("NewTex").name)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         public void Test_SetAlphaDirectly(float val)
@@ -315,6 +336,7 @@ namespace com.argentgames.visualnoveltemplate
 
         public void GenerateExpressionsMapForHead()
         {
+            Debug.Log("generating expressions map for head");
             expressionsMapForHead = new Dictionary<string, SpriteExpression>();
             expressionsMapForHead.Clear();
             foreach (var exp in expressions)

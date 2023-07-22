@@ -17,6 +17,12 @@ namespace com.argentgames.visualnoveltemplate
             propBlock = new MaterialPropertyBlock();
         }
 
+        public Texture GetTexture(string propName)
+        {
+            spriteRenderer.GetPropertyBlock(propBlock);
+            return propBlock.GetTexture(propName);
+        }
+
         public void UpdateProperties(Tuple<string, float> prop, int materialIndex = 0)
         {
             if (spriteRenderer == null)
