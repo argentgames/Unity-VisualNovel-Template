@@ -277,14 +277,14 @@ namespace com.argentgames.visualnoveltemplate
             charactersOnScreen[charName] = go;
         }
 
-        public void ClearCharactersOnScreen()
+        public async UniTask ClearCharactersOnScreen()
         {
             // for (int i = 0; i < MidgroundCharacterContainer.transform.childCount; i++)
             // {
             //     AssetRefLoader.Instance.ReleaseAsset(MidgroundCharacterContainer.transform.GetChild(i).gameObject);
             //     // Destroy(CharacterLayer.transform.GetChild(i).gameObject);
             // }
-            HideAllChar();
+            await HideAllChar();
             foreach (var key in charactersOnScreen.Keys)
             {
                 UnregisterCharacter(key);
@@ -764,7 +764,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.LogWarning("swc when spawning char is null, exiting");
                 return;
             }
-            spriteWrapperController.ExpressionChange(saveData.expressionImageName, 0);
+            // spriteWrapperController.ExpressionChange(saveData.expressionImageName, 0);
             Debug.LogFormat("position to spawn at {0}", saveData.position);
             ShowChar(charName, saveData.position, duration: 0);
         }
