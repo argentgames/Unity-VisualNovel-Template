@@ -735,25 +735,27 @@ namespace com.argentgames.visualnoveltemplate
                 if (((Dialogue)dialogue).text != "")
                 {
                     await DisplayLine((Dialogue)dialogue); // ctc will end this by setting isdisplayling line to false
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
-                await UniTask.Yield();  
-                    await UniTask.Yield();
+
+                    // this ugly block was causing lot of delay in performance
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
+                // await UniTask.Yield();  
+                //     await UniTask.Yield();
                 }
 
             }
