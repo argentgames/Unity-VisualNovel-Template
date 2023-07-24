@@ -37,7 +37,7 @@ namespace com.argentgames.visualnoveltemplate
         public DialogueUIManager DialogueUIManager { get { return dialogueUIManager; } }
         private StringReactiveProperty currentDialogueWindow = new StringReactiveProperty("");
         public StringReactiveProperty CurrentDialogueWindow { get { return currentDialogueWindow; } set { currentDialogueWindow = value; } }
-
+        public HashSet<string> VisibleUIWindows = new HashSet<string>();
 
         [SerializeField]
         [PropertyTooltip("The different types of dialogue textbox UIs we want to use, such as ADV and NVL.")]
@@ -922,6 +922,8 @@ namespace com.argentgames.visualnoveltemplate
                     }
                     await dialogueUIManager.ShowUI(duration);
                     dialogueUIManager.PlayerAllowedToHideUI = true;
+
+                    VisibleUIWindows.Add(internalName);
                 }
                 else
                 {
@@ -936,6 +938,13 @@ namespace com.argentgames.visualnoveltemplate
         }
         public async UniTask HideDialogueWindow(float duration = -1)
         {
+            if (VisibleUIWindows.Contains(
+                CurrentDialogueWindow.Value
+            ))
+            {
+                VisibleUIWindows.Remove(CurrentDialogueWindow.Value);
+            }
+
             dialogueUIManager.PlayerAllowedToHideUI = false;
             if (duration == -1)
             {
@@ -973,15 +982,29 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("loading dialogue window: " + window.name);
             }
             await UniTask.WhenAll(windowLoading);
+            VisibleUIWindows.Clear();
+            foreach (var win in SaveLoadManager.Instance.currentSave.currentVisibleDialogueUIs)
+            {
+                VisibleUIWindows.Add(win);
+            }
             // Debug.Break();
         }
         public void SaveDialogueWindowStates(string saveIndex)
         {
-            foreach (var window in dialogueWindows.Values)
+            SaveLoadManager.Instance.currentSave.currentVisibleDialogueUIs.Clear();
+            foreach (var win in VisibleUIWindows)
             {
-                window.GetComponentInChildren<DialogueUIManager>()
-                .Save(saveIndex);
+                SaveLoadManager.Instance.currentSave.currentVisibleDialogueUIs.Add(win);
             }
+            foreach (var kv in dialogueWindows)
+            {
+                var window = kv.Value;
+                var duim = window.GetComponentInChildren<DialogueUIManager>();
+                
+                duim.Save(saveIndex);
+
+            }
+           
         }
         public async UniTask ShowNVLWindow(string internalName)
         {
