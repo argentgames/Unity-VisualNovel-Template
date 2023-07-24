@@ -314,7 +314,7 @@ namespace com.argentgames.visualnoveltemplate
 
         void OnApplicationQuit()
         {
-            Debug.Log("is on application quit ever called");
+            // Debug.Log("is on application quit ever called");
             // SaveLoadManager.Instance.SaveSettings();
 
             string sspath = "";
@@ -332,7 +332,7 @@ namespace com.argentgames.visualnoveltemplate
 
         void OnApplicationPause()
         {
-            Debug.Log("is on apllication pause ever called");
+            // Debug.Log("is on apllication pause ever called");
             // SaveLoadManager.Instance.SaveSettings();
 
             string sspath = "";

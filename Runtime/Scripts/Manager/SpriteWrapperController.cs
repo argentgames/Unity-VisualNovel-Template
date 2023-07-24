@@ -228,9 +228,9 @@ namespace com.argentgames.visualnoveltemplate
             {
                 foreach (var mbpu in GetComponentsInChildren<MaterialPropertyBlockUtilities>())
                 {
-                    Debug.LogFormat("maintex {0} == newTex {1}, {2}",mbpu.GetTexture("_MainTex").name
-                    ,mbpu.GetTexture("NewTex").name,
-                    mbpu.GetTexture("_MainTex").name == mbpu.GetTexture("NewTex").name);
+                    // Debug.LogFormat("maintex {0} == newTex {1}, {2}",mbpu.GetTexture("_MainTex").name
+                    // ,mbpu.GetTexture("NewTex").name,
+                    // mbpu.GetTexture("_MainTex").name == mbpu.GetTexture("NewTex").name);
                     if (mbpu.GetTexture("_MainTex").name != mbpu.GetTexture("NewTex").name)
                     {
                         return false;
@@ -242,7 +242,7 @@ namespace com.argentgames.visualnoveltemplate
 
         public void Test_SetAlphaDirectly(float val)
         {
-            Debug.LogFormat("setting alpha directly with val {0}", val);
+            // Debug.LogFormat("setting alpha directly with val {0}", val);
             foreach (var mpbu in GetComponentsInChildren<MaterialPropertyBlockUtilities>())
             {
                 // var mpbu = part.GetComponent<MaterialPropertyBlockUtilities>();
@@ -304,11 +304,11 @@ namespace com.argentgames.visualnoveltemplate
             var prefix = splitExpression[0];
             var segment = new ArraySegment<string>(splitExpression, 1, splitExpression.Length - 1);
             var noPrefixExpression = string.Join("_", segment);
-            Debug.LogFormat(
-                "Looking for expression image: prefix-{0} noPrefix-{1}",
-                prefix,
-                noPrefixExpression
-            );
+            // Debug.LogFormat(
+            //     "Looking for expression image: prefix-{0} noPrefix-{1}",
+            //     prefix,
+            //     noPrefixExpression
+            // );
             var part = expressionsMapForHead[prefix];
             foreach (var exp in part.expressionDatas)
             {
@@ -381,7 +381,7 @@ namespace com.argentgames.visualnoveltemplate
         [Button]
         void SetNewExpression(string expression = "")
         {
-            Debug.LogFormat("setting NewTex expression to {0}", expression);
+            // Debug.LogFormat("setting NewTex expression to {0}", expression);
             if (expression == "")
             {
                 return;
@@ -424,7 +424,7 @@ namespace com.argentgames.visualnoveltemplate
                                         splitExpression.Length
                                     )
                                 );
-                                Debug.LogFormat("depPart we are looking for: {0}", _depPart);
+                                // Debug.LogFormat("depPart we are looking for: {0}", _depPart);
                                 bodyPartSpriteRenderer = bodyPartsMap[depPart];
                                 newExpSprite = GetExpressionImage(_depPart);
 
@@ -435,7 +435,7 @@ namespace com.argentgames.visualnoveltemplate
                                     mpbu.UpdateProperties(
                                         new Tuple<string, Texture2D>("NewTex", newExpSprite.texture)
                                     );
-                                    Debug.LogFormat("set depPart automatically");
+                                    // Debug.LogFormat("set depPart automatically");
                                 }
                                 else
                                 {
@@ -447,9 +447,9 @@ namespace com.argentgames.visualnoveltemplate
                                 if (customSpriteColor != null)
                                 {
                                     customSpriteColor.SetCustomColorizationPropertyFlags();
-                                    Debug.Log(
-                                        "manually ran set custom colorization property flags"
-                                    );
+                                    // Debug.Log(
+                                    //     "manually ran set custom colorization property flags"
+                                    // );
                                 }
                             }
                             catch
@@ -466,11 +466,11 @@ namespace com.argentgames.visualnoveltemplate
                     bodyPartSpriteRenderer = bodyPartsMap[_prefix];
                     newExpSprite = GetExpressionImage(part);
 
-                    Debug.LogFormat(
-                        "setting newTex to: {0} for {1}",
-                        newExpSprite.texture.name,
-                        gameObject.name
-                    );
+                    // Debug.LogFormat(
+                    //     "setting newTex to: {0} for {1}",
+                    //     newExpSprite.texture.name,
+                    //     gameObject.name
+                    // );
 
                     bodyPartSpriteRenderer
                         .GetComponent<MaterialPropertyBlockUtilities>()
@@ -509,10 +509,10 @@ namespace com.argentgames.visualnoveltemplate
             // make sure transition starts from 0
             MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
             sr.GetPropertyBlock(propBlock, 0);
-            Debug.LogFormat(
-                "current value of _transition amount before transitioning is: {0}",
-                propBlock.GetFloat("_TransitionAmount")
-            );
+            // Debug.LogFormat(
+            //     "current value of _transition amount before transitioning is: {0}",
+            //     propBlock.GetFloat("_TransitionAmount")
+            // );
 
             propBlock.SetFloat("_TransitionAmount", 0);
             sr.SetPropertyBlock(propBlock, 0);
@@ -600,22 +600,22 @@ namespace com.argentgames.visualnoveltemplate
                     curvePercent = transitionInCurve.Evaluate(elaspedTime / transitionDuration);
                 }
 
-                Debug.LogFormat(
-                    "elapsed time: {0}, curvePercent {1}, transDur {2}, fadeIn {3}",
-                    elaspedTime,
-                    curvePercent,
-                    transitionDuration,
-                    fadein
-                );
+                // Debug.LogFormat(
+                //     "elapsed time: {0}, curvePercent {1}, transDur {2}, fadeIn {3}",
+                //     elaspedTime,
+                //     curvePercent,
+                //     transitionDuration,
+                //     fadein
+                // );
 
                 if (fadein)
                 {
-                    Debug.Log("fadein");
+                    // Debug.Log("fadein");
                     Test_SetAlphaDirectly(curvePercent);
                 }
                 else
                 {
-                    Debug.Log("fadeout");
+                    // Debug.Log("fadeout");
                     Test_SetAlphaDirectly(1 - curvePercent);
                 }
 
@@ -702,7 +702,7 @@ namespace com.argentgames.visualnoveltemplate
 
         async void ResetMainExpression(string expression)
         {
-            Debug.LogFormat("resetting _MainTex expression to {0}", expression);
+            // Debug.LogFormat("resetting _MainTex expression to {0}", expression);
             if (expression == "")
             {
                 return;
@@ -744,7 +744,7 @@ namespace com.argentgames.visualnoveltemplate
                                         splitExpression.Length
                                     )
                                 );
-                                Debug.LogFormat("depPart we are looking for: {0}", _depPart);
+                                // Debug.LogFormat("depPart we are looking for: {0}", _depPart);
                                 bodyPartSpriteRenderer = bodyPartsMap[depPart];
                                 newExpSprite = GetExpressionImage(_depPart);
                                 // bodyPartSpriteRenderer.sprite = newExpSprite;
@@ -760,7 +760,7 @@ namespace com.argentgames.visualnoveltemplate
                                         )
                                     );
                                     // bodyPartSpriteRenderer.texture = newExpSprite.texture;
-                                    Debug.LogFormat("set depPart automatically");
+                                    // Debug.LogFormat("set depPart automatically");
                                 }
                                 else
                                 {
@@ -772,9 +772,9 @@ namespace com.argentgames.visualnoveltemplate
                                 if (customSpriteColor != null)
                                 {
                                     customSpriteColor.SetCustomColorizationPropertyFlags();
-                                    Debug.Log(
-                                        "manually ran set custom colorization property flags"
-                                    );
+                                    // Debug.Log(
+                                    //     "manually ran set custom colorization property flags"
+                                    // );
                                 }
                             }
                             catch (Exception e)
@@ -808,7 +808,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
             }
 
-            Debug.Log("done resetting main expression");
+            // Debug.Log("done resetting main expression");
         }
 
         public async UniTask ExpressionChange(

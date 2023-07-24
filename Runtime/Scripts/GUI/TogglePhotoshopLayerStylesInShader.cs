@@ -55,7 +55,7 @@ namespace com.argentgames.visualnoveltemplate
                 // image.GetPropertyBlock(_propBlock);
                 // _propBlock.SetFloat("_NeedsMultiply", 1);
                 // image.SetPropertyBlock(_propBlock);
-                Debug.Log("done running multiply");
+                // Debug.Log("done running multiply");
             }
         }
     }
