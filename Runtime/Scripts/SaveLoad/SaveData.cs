@@ -64,13 +64,6 @@ namespace com.argentgames.visualnoveltemplate
                 currentVisibleDialogueUIs.Add(win);
             }
 
-            var s = "";
-            foreach (var win in currentVisibleDialogueUIs)
-            {
-                s += " " + win + " ";
-            }
-            Debug.Log(s);
-
             byte[] bytes = SerializationUtility.SerializeValue(this,format);
             File.WriteAllBytes(filePath, bytes);
 
@@ -107,7 +100,15 @@ namespace com.argentgames.visualnoveltemplate
             this.dialogueHistory = save.dialogueHistory;
             this.isTinted = save.isTinted;
             this.currentDialogueWindowMode = save.currentDialogueWindowMode;
-            this.currentVisibleDialogueUIs = save.currentVisibleDialogueUIs;
+            if (save.currentVisibleDialogueUIs != null)
+            {
+                this.currentVisibleDialogueUIs = save.currentVisibleDialogueUIs;
+            }
+            else
+            {
+                this.currentVisibleDialogueUIs = new List<string>();
+            }
+            
 
             var s = "";
             foreach (var win in currentVisibleDialogueUIs)
