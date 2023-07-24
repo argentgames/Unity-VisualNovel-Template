@@ -36,6 +36,7 @@ namespace com.argentgames.visualnoveltemplate
         public float currentBGSize;
         public List<DialogueHistoryLine> dialogueHistory = new List<DialogueHistoryLine>();
         public bool isTinted = false;
+        public List<string> currentVisibleDialogueUIs = new List<string>();
         public string currentDialogueWindowMode = "";
         public SaveData(string saveData, Texture2D texture, string dateTime)
         {
@@ -56,6 +57,19 @@ namespace com.argentgames.visualnoveltemplate
             dialogue.text,
             dialogue.npc.internalName,
             dialogue.duration);
+
+            currentVisibleDialogueUIs.Clear();
+            foreach (var win in DialogueSystemManager.Instance.VisibleUIWindows)
+            {
+                currentVisibleDialogueUIs.Add(win);
+            }
+
+            var s = "";
+            foreach (var win in currentVisibleDialogueUIs)
+            {
+                s += " " + win + " ";
+            }
+            Debug.Log(s);
 
             byte[] bytes = SerializationUtility.SerializeValue(this,format);
             File.WriteAllBytes(filePath, bytes);
@@ -93,6 +107,14 @@ namespace com.argentgames.visualnoveltemplate
             this.dialogueHistory = save.dialogueHistory;
             this.isTinted = save.isTinted;
             this.currentDialogueWindowMode = save.currentDialogueWindowMode;
+            this.currentVisibleDialogueUIs = save.currentVisibleDialogueUIs;
+
+            var s = "";
+            foreach (var win in currentVisibleDialogueUIs)
+            {
+                s += " " + win + " ";
+            }
+            Debug.Log(s);
             
 
             var ss = File.ReadAllBytes(filePath + ".PNG");
