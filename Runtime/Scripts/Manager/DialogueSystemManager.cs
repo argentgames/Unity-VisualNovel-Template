@@ -552,7 +552,7 @@ namespace com.argentgames.visualnoveltemplate
                 GameManager.Instance.PersistentGameData.seenText.Add(
                     CreateHash(story.currentText + "_" + story.state.currentPathString)
                 );
-                SaveLoadManager.Instance.SavePersistent();
+                
 
                 // is it an action function and thus we want to automatically evaluate it without any user input?
                 if (!IsLoadedGame && NeedToRunActionFunction())
@@ -624,6 +624,8 @@ namespace com.argentgames.visualnoveltemplate
 
                 // finally add the line to our persistent seen text so we know when to stop skipping
                 AddCurrentStoryTextToPersistentHistory();
+                // only save persistent after every line
+                SaveLoadManager.Instance.SavePersistent();
                 if (IsLoadedGame)
             {
                 Debug.Log("toggling off IsLoadedGame flag");
