@@ -35,7 +35,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             spriteRenderer.GetPropertyBlock(propBlock);
 
-            Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
+            // Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
             propBlock.SetFloat(prop.Item1, prop.Item2);
 
             spriteRenderer.SetPropertyBlock(propBlock);
@@ -53,18 +53,18 @@ namespace com.argentgames.visualnoveltemplate
             }
             spriteRenderer.GetPropertyBlock(propBlock);
 
-            Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
+            // Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
             propBlock.SetTexture(prop.Item1, prop.Item2);
 
             spriteRenderer.SetPropertyBlock(propBlock);
 
             spriteRenderer.GetPropertyBlock(propBlock);
-            Debug.LogFormat(
-                "after setting property for go {1} with parent {2}, we have current val {0}",
-                propBlock.GetTexture(prop.Item1).name,
-                this.gameObject.name,
-                this.gameObject.transform.parent.name
-            );
+            // Debug.LogFormat(
+            //     "after setting property for go {1} with parent {2}, we have current val {0}",
+            //     propBlock.GetTexture(prop.Item1).name,
+            //     this.gameObject.name,
+            //     this.gameObject.transform.parent.name
+            // );
         }
 
         public void UpdateProperties(Tuple<string, Color> prop, int materialIndex = 0)
@@ -79,7 +79,7 @@ namespace com.argentgames.visualnoveltemplate
             }
             spriteRenderer.GetPropertyBlock(propBlock);
 
-            Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
+            // Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
             propBlock.SetColor(prop.Item1, prop.Item2);
 
             spriteRenderer.SetPropertyBlock(propBlock);
@@ -98,7 +98,7 @@ namespace com.argentgames.visualnoveltemplate
             spriteRenderer.GetPropertyBlock(propBlock);
             foreach (var prop in props)
             {
-                Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
+                // Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
                 propBlock.SetFloat(prop.Item1, prop.Item2);
             }
 
@@ -118,7 +118,7 @@ namespace com.argentgames.visualnoveltemplate
             spriteRenderer.GetPropertyBlock(propBlock);
             foreach (var prop in props)
             {
-                Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
+                // Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
                 propBlock.SetTexture(prop.Item1, prop.Item2);
             }
 
@@ -138,7 +138,7 @@ namespace com.argentgames.visualnoveltemplate
             spriteRenderer.GetPropertyBlock(propBlock);
             foreach (var prop in props)
             {
-                Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
+                // Debug.LogFormat("setting property {0} to val {1}", prop.Item1, prop.Item2);
                 propBlock.SetColor(prop.Item1, prop.Item2);
             }
 
