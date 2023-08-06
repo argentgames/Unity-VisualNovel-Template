@@ -10,46 +10,48 @@ using Sirenix.Serialization;
 using Sirenix.OdinInspector;
 using UnityEngine.SceneManagement;
 using NaughtyAttributes;
+
 public struct SpriteSaveData
 {
     public string expressionImageName;
     public Vector3 position;
     public string activeTintColor;
 }
+
 namespace com.argentgames.visualnoveltemplate
 {
-
-
-
     public class SaveLoadManager : SerializedMonoBehaviour
     {
         public static SaveLoadManager Instance { get; set; }
 
         public SaveData currentSave;
 
-
         // each saveFile is a json
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="string">base fileIndex name without any extensions or prefixes. Not full path!!!</typeparam>
         /// <typeparam name="SaveData"></typeparam>
         /// <returns></returns>
         [SerializeField]
         public Dictionary<string, SaveData> saveFiles = new Dictionary<string, SaveData>();
+
         [SerializeField]
         public string saveFileNamePrefix = "gameSave_";
         public string autoSaveNamePrefix = "autosave";
-        
+
         [SerializeField]
         string saveDir = "Saves";
+
         [SerializeField]
         bool jsonFormat = true;
+
         [SerializeField]
         public DataFormat format = DataFormat.JSON;
         public string extension = ".json";
 
         public bool DoneLoadingSaves = false;
+
         async UniTaskVoid Awake()
         {
             if (Instance != null && Instance != this)
@@ -66,7 +68,6 @@ namespace com.argentgames.visualnoveltemplate
                 extension = ".save";
             }
 
-
             if (!Directory.Exists(CreateSavePath("Saves")))
             {
                 Debug.Log("saves directory doesnt exist, creating now");
@@ -75,16 +76,16 @@ namespace com.argentgames.visualnoveltemplate
             // await LoadSaveFiles();
 
 #if PLATFORM_ANDROID
-        // auto save game if we are ingame, every 5? minutes
-        InvokeRepeating("AutoSave", 3f,30f);
+            // auto save game if we are ingame, every 5? minutes
+            InvokeRepeating("AutoSave", 3f, 30f);
 #endif
 
-        currentSave = new SaveData();
-        Debug.LogFormat("current state of curretnSave is... {0}",currentSave);
-        saveFiles = new Dictionary<string, SaveData>();
-        await UniTask.WaitWhile(() => GameManager.Instance == null);
-        LoadSaveFiles().Forget();
-        LoadPersistent();
+            currentSave = new SaveData();
+            Debug.LogFormat("current state of curretnSave is... {0}", currentSave);
+            saveFiles = new Dictionary<string, SaveData>();
+            await UniTask.WaitWhile(() => GameManager.Instance == null);
+            LoadSaveFiles().Forget();
+            LoadPersistent();
         }
 
         async UniTask AutoSave()
@@ -93,12 +94,15 @@ namespace com.argentgames.visualnoveltemplate
             // {
             if (SceneManager.GetActiveScene().name == "Ingame")
             {
-
                 await GameManager.Instance.TakeScreenshot();
-                string date = "Autosave: " + System.DateTime.Now.ToString("dddd, MMM dd yyyy, hh:mm");
+                string date =
+                    "Autosave: " + System.DateTime.Now.ToString("dddd, MMM dd yyyy, hh:mm");
 
-                var save = new SaveData(DialogueSystemManager.Instance.Story.state.ToJson(),
-                GameManager.Instance.currentScreenshot, date);
+                var save = new SaveData(
+                    DialogueSystemManager.Instance.Story.state.ToJson(),
+                    GameManager.Instance.currentScreenshot,
+                    date
+                );
 
                 save.spriteSaveDatas = ImageManager.Instance.GetAllCharacterOnScreenSaveData();
 
@@ -107,8 +111,16 @@ namespace com.argentgames.visualnoveltemplate
                 // save.currentAmbient3 = AudioManager.Instance.currentAmbient3;
                 save.currentMusic = AudioManager.Instance.GetCurrentPlayingMusic();
 
-                save.currentBGCameraPosition = ImageManager.Instance.CurrentBGCamera.transform.position;
-                save.currentBGCameraRotation = ImageManager.Instance.CurrentBGCamera.transform.eulerAngles;
+                save.currentBGCameraPosition = ImageManager
+                    .Instance
+                    .CurrentBGCamera
+                    .transform
+                    .position;
+                save.currentBGCameraRotation = ImageManager
+                    .Instance
+                    .CurrentBGCamera
+                    .transform
+                    .eulerAngles;
                 ;
                 save.currentBGSize = ImageManager.Instance.CurrentBGCamera.orthographicSize;
                 save.currentShot = ImageManager.Instance.CurrentCameraShot;
@@ -120,11 +132,10 @@ namespace com.argentgames.visualnoveltemplate
                 this.saveFiles[autoSaveNamePrefix] = save;
                 Debug.Log("auto saving now...");
             }
-            // }    
+            // }
         }
 
         public string CreateSavePath(string subPath)
-
         {
             // var s = "";
             // #if PLATFORM_ANDROID && !UNITY_EDITOR
@@ -135,9 +146,13 @@ namespace com.argentgames.visualnoveltemplate
             // #endif
 
             var s = Application.persistentDataPath + "/" + subPath;
+
+            System.IO.Directory.CreateDirectory(Path.GetDirectoryName(s));
+
             // Debug.Log("our save path is: " + s);
             return s;
         }
+
         [Sirenix.OdinInspector.Button]
         public async UniTask LoadSaveFiles()
         {
@@ -150,9 +165,11 @@ namespace com.argentgames.visualnoveltemplate
                 for (int i = 0; i < fileArray.Length; i++)
                 {
                     Debug.Log(fileArray[i]);
-                    taskList.Add(LoadSaveFile(SaveFilePath( Path.GetFileName(fileArray[i]).Split('_')[1].Split('.')[0])));
-
-
+                    taskList.Add(
+                        LoadSaveFile(
+                            SaveFilePath(Path.GetFileName(fileArray[i]).Split('_')[1].Split('.')[0])
+                        )
+                    );
                 }
 
                 await UniTask.WhenAll(taskList);
@@ -164,8 +181,8 @@ namespace com.argentgames.visualnoveltemplate
 
             DoneLoadingSaves = true;
             Debug.LogFormat("done loading save files");
-
         }
+
         /// <summary>
         /// Helper function so we can load multiple saves simultaneously. Mostly an Android thing
         /// because loading up images is slow (for screenshot)
@@ -176,29 +193,32 @@ namespace com.argentgames.visualnoveltemplate
         {
             // try
             // {
-                Debug.Log("reading save file..." + filePath);
+            Debug.Log("reading save file..." + filePath);
 
             // byte[] bytes = File.ReadAllBytes(filePath);
 
             var save = new SaveData();
-            save.Load(filePath,format);// SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
+            save.Load(filePath, format); // SerializationUtility.DeserializeValue<SaveData>(bytes, DataFormat.JSON);
 
-            Debug.LogFormat("our loaded save object has date: {0}",save.dateTime);
+            Debug.LogFormat("our loaded save object has date: {0}", save.dateTime);
 
             await UniTask.Yield();
             await UniTask.Yield();
 
             // var saveData = File.ReadAllText(fileArray[i]);
             // SaveData save = JsonUtility.FromJson<SaveData>(saveData);
-            Debug.LogFormat("we have added this save to savefiles with name: {0}",Path.GetFileName(filePath));
+            Debug.LogFormat(
+                "we have added this save to savefiles with name: {0}",
+                Path.GetFileName(filePath)
+            );
             saveFiles[Path.GetFileName(filePath).Split('_')[1].Split('.')[0]] = save;
             // }
             // catch (System.Exception e)
             // {
             //     Debug.LogErrorFormat("failed to load save from: {0}, {1}",filePath, e);
             // }
-            
         }
+
         public async UniTaskVoid LoadGame(string fileIndex)
         {
             Debug.Log("loading game from: " + fileIndex);
@@ -222,8 +242,8 @@ namespace com.argentgames.visualnoveltemplate
             {
                 Debug.Log("dont need to close settings when loading game?");
             }
-
         }
+
         /// <summary>
         /// DELETE
         /// </summary>
@@ -232,17 +252,14 @@ namespace com.argentgames.visualnoveltemplate
         public void SaveGame(string filePath, SaveData save)
         {
             Debug.Log("saving game to: " + filePath);
-            save.Save(filePath,format);
+            save.Save(filePath, format);
             // byte[] bytes = SerializationUtility.SerializeValue(save, DataFormat.JSON);
             // File.WriteAllBytes(filePath, bytes);
 
             // string saveToJson = JsonUtility.ToJson(save, true);
             // File.WriteAllText(filePath, saveToJson);
-
-
-
-
         }
+
         /// <summary>
         /// This is the actually used function.
         /// </summary>
@@ -251,10 +268,16 @@ namespace com.argentgames.visualnoveltemplate
         {
             Debug.Log("run save game from slm please");
             string filePath = SaveFilePath(fileName);
-            string date = System.DateTime.Now.ToString("dddd, MMM dd yyyy, hh:mm", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"));
+            string date = System.DateTime.Now.ToString(
+                "dddd, MMM dd yyyy, hh:mm",
+                System.Globalization.CultureInfo.CreateSpecificCulture("en-US")
+            );
 
-            var save = new SaveData(DialogueSystemManager.Instance.Story.state.ToJson(),
-            GameManager.Instance.currentScreenshot, date);
+            var save = new SaveData(
+                DialogueSystemManager.Instance.Story.state.ToJson(),
+                GameManager.Instance.currentScreenshot,
+                date
+            );
 
             save.spriteSaveDatas = ImageManager.Instance.GetAllCharacterOnScreenSaveData();
 
@@ -262,63 +285,82 @@ namespace com.argentgames.visualnoveltemplate
             save.currentAmbients = AudioManager.Instance.GetCurrentPlayingAmbients();
 
             save.currentBGCameraPosition = ImageManager.Instance.CurrentBGCamera.transform.position;
-            save.currentBGCameraRotation = ImageManager.Instance.CurrentBGCamera.transform.eulerAngles;
-            
+            save.currentBGCameraRotation = ImageManager
+                .Instance
+                .CurrentBGCamera
+                .transform
+                .eulerAngles;
+
             save.currentBGSize = ImageManager.Instance.CurrentBGCamera.orthographicSize;
             save.currentShot = ImageManager.Instance.CurrentCameraShot;
 
             save.dialogueHistory = DialogueSystemManager.Instance.currentSessionDialogueHistory;
             save.currentDialogue = DialogueSystemManager.Instance.CurrentProcessedDialogue;
-            save.currentDialogueWindowMode = DialogueSystemManager.Instance.CurrentDialogueWindow.Value;
+            save.currentDialogueWindowMode = DialogueSystemManager
+                .Instance
+                .CurrentDialogueWindow
+                .Value;
 
-            save.Save(filePath,format);
+            save.Save(filePath, format);
 
             saveFiles[fileName] = save;
-
         }
+
         /// <summary>
         /// Unsure if this is needed if we modify the save after it's been Saved...
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="save"></param>
-        public void UpdateSaveFile(string fileName,SaveData save)
+        public void UpdateSaveFile(string fileName, SaveData save)
         {
             saveFiles[fileName] = save;
         }
+
         public void SaveSettings()
         {
             Debug.Log("save path to save settings to is: " + CreateSavePath("settings.json"));
             Debug.Log("saving settings now");
-            byte[] bytes = SerializationUtility.SerializeValue(GameManager.Instance.Settings.Save(), DataFormat.JSON);
+            byte[] bytes = SerializationUtility.SerializeValue(
+                GameManager.Instance.Settings.Save(),
+                DataFormat.JSON
+            );
             File.WriteAllBytes(CreateSavePath("settings.json"), bytes);
         }
+
         public void SavePersistent()
         {
-            byte[] bytes = SerializationUtility.SerializeValue(GameManager.Instance.PersistentGameData.Save(), DataFormat.JSON);
+            byte[] bytes = SerializationUtility.SerializeValue(
+                GameManager.Instance.PersistentGameData.Save(),
+                DataFormat.JSON
+            );
             File.WriteAllBytes(CreateSavePath("persistent.json"), bytes);
         }
+
         public void LoadPersistent()
         {
             if (File.Exists(CreateSavePath("persistent.json")))
             {
-               byte[] bytes = File.ReadAllBytes(CreateSavePath("persistent.json"));
-            var persistent = SerializationUtility.DeserializeValue<PersistentGameDataSaveData>(bytes,DataFormat.JSON);
-            GameManager.Instance.PersistentGameData.Load(persistent); 
-            if (GameManager.Instance.PersistentGameData.seenText == null)
-            {
-                GameManager.Instance.PersistentGameData.seenText = new HashSet<string>();
-            }
-            if (GameManager.Instance.PersistentGameData.chosenChoices == null)
-            {
-                GameManager.Instance.PersistentGameData.chosenChoices = new HashSet<string>();
-            }
+                byte[] bytes = File.ReadAllBytes(CreateSavePath("persistent.json"));
+                var persistent = SerializationUtility.DeserializeValue<PersistentGameDataSaveData>(
+                    bytes,
+                    DataFormat.JSON
+                );
+                GameManager.Instance.PersistentGameData.Load(persistent);
+                if (GameManager.Instance.PersistentGameData.seenText == null)
+                {
+                    GameManager.Instance.PersistentGameData.seenText = new HashSet<string>();
+                }
+                if (GameManager.Instance.PersistentGameData.chosenChoices == null)
+                {
+                    GameManager.Instance.PersistentGameData.chosenChoices = new HashSet<string>();
+                }
             }
             else
             {
                 SavePersistent();
             }
-            
         }
+
         public void LoadSettings()
         {
             // if settings file doesn't exist, do nothing
@@ -334,13 +376,14 @@ namespace com.argentgames.visualnoveltemplate
             {
                 Debug.Log("loading settings");
                 byte[] bytes = File.ReadAllBytes(savePath);
-                var settings = SerializationUtility.DeserializeValue<SettingsSaveData>(bytes, DataFormat.JSON);
+                var settings = SerializationUtility.DeserializeValue<SettingsSaveData>(
+                    bytes,
+                    DataFormat.JSON
+                );
                 GameManager.Instance.Settings.Load(settings);
             }
-
         }
 
-        
         private Texture2D ConvertToTextureAndLoad(string path)
         {
             //Read
@@ -355,15 +398,13 @@ namespace com.argentgames.visualnoveltemplate
 
         public void SetCurrentSave(string saveName)
         {
-            try {
+            try
+            {
                 currentSave = GetSaveData(saveName);
-
-                
-            
             }
             catch
             {
-                Debug.LogErrorFormat("failed to set currentSave to: {0}",saveName);
+                Debug.LogErrorFormat("failed to set currentSave to: {0}", saveName);
             }
         }
 
@@ -372,16 +413,15 @@ namespace com.argentgames.visualnoveltemplate
             fileIndex = fileIndex.Trim();
             if (SaveExists(fileIndex))
             {
-            return saveFiles[fileIndex];
+                return saveFiles[fileIndex];
             }
             else
-
             {
-                Debug.LogErrorFormat("save {0} doesn't exist in our loaded saves map!!",fileIndex);
+                Debug.LogErrorFormat("save {0} doesn't exist in our loaded saves map!!", fileIndex);
                 return null;
             }
-            
         }
+
         public bool SaveExists(string fileIndex)
         {
             fileIndex = fileIndex.Trim();
@@ -391,11 +431,10 @@ namespace com.argentgames.visualnoveltemplate
             // }
             return saveFiles.ContainsKey(fileIndex.Trim());
         }
-        public string SaveFilePath(string saveFileName) 
-        { 
+
+        public string SaveFilePath(string saveFileName)
+        {
             return CreateSavePath(saveDir) + "/" + saveFileNamePrefix + saveFileName + extension;
         }
-
-
     }
 }
