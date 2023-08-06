@@ -58,6 +58,10 @@ namespace com.argentgames.visualnoveltemplate
         {
             _playerControls.Enable();
         }
+        public Video_SO GetVideo(string _internalName)
+        {
+            return videoBank.GetVideo(_internalName);
+        }
         [Sirenix.OdinInspector.Button]
         public async UniTask PlayVideo(string videoName)
         {
