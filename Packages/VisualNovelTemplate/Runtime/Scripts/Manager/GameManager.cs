@@ -94,6 +94,8 @@ namespace com.argentgames.visualnoveltemplate
         }
         public bool isGamePaused = false;
         public Texture2D currentScreenshot;
+        [SerializeField]
+        int resizeScreenshotWidth=480,resizeScreenshotHeight=270;
 
         /// <summary>
         /// Globally used skip token. Mainly used for skipping animations and transitions.
@@ -257,7 +259,7 @@ namespace com.argentgames.visualnoveltemplate
                 currentScreenshot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
                 currentScreenshot.LoadRawTextureData(currentScreenshot.GetRawTextureData());
                 currentScreenshot.Apply();
-                currentScreenshot = Resize(currentScreenshot, 419, 213);
+                currentScreenshot = Resize(currentScreenshot, resizeScreenshotWidth, resizeScreenshotHeight);
                 // byte[] bytes = tex.EncodeToPNG();
                 // Object.Destroy(tex);
             }
