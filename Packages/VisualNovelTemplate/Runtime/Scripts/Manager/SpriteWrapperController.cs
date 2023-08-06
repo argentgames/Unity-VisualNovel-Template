@@ -166,8 +166,6 @@ namespace com.argentgames.visualnoveltemplate
                 await UniTask.WaitUntil(() => ImageManager.Instance != null);
                 ImageManager.Instance.RegisterCharacter(selfRegisteredName, this.gameObject);
             }
-            await UniTask.Yield();
-            await UniTask.Yield();
 
             // set our initial/default expression
             bodyPartsMap.Clear();
@@ -182,8 +180,6 @@ namespace com.argentgames.visualnoveltemplate
                 currentExpression[part.prefix] = "";
             }
             GenerateExpressionsMapForHead();
-            await UniTask.Yield();
-            await UniTask.Yield();
             Debug.Log("setting new experssion");
             SetNewExpression(defaultExpression);
             await UniTask.Yield();
@@ -214,7 +210,6 @@ namespace com.argentgames.visualnoveltemplate
             // set all alpha to 0 so the character isn't shown when spawned
             //    Test_SetAlphaDirectly(0);
 
-            await UniTask.Yield();
             initComplete = true;
         }
 
@@ -223,7 +218,8 @@ namespace com.argentgames.visualnoveltemplate
             // SetNewExpression();
         }
 
-        public bool MainExpressionIsReset {
+        public bool MainExpressionIsReset
+        {
             get
             {
                 foreach (var mbpu in GetComponentsInChildren<MaterialPropertyBlockUtilities>())
@@ -619,7 +615,21 @@ namespace com.argentgames.visualnoveltemplate
                     Test_SetAlphaDirectly(1 - curvePercent);
                 }
 
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: GameManager.Instance.CancellationToken);
+
+                if (GameManager.Instance.CancellationToken.IsCancellationRequested)
+                {
+                    if (fadein)
+                    {
+                        Test_SetAlphaDirectly(1);
+                    }
+                    else
+                    {
+                        Test_SetAlphaDirectly(0);
+                    }
+
+                    break;
+                }
             }
 
             animationComplete = true;
@@ -668,7 +678,10 @@ namespace com.argentgames.visualnoveltemplate
 
             await U_TransitionMaterial(transitionDuration);
             // await UniTask.WhenAll(animationTasks);
-            await UniTask.Delay(TimeSpan.FromSeconds(transitionDuration)); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
+            await UniTask.Delay(
+                TimeSpan.FromSeconds(transitionDuration),
+                cancellationToken: GameManager.Instance.CancellationToken
+            ); // TODO ADD GLOBAL ANIMATION CANCELLATION TOKEN
 
             // await UniTask.WaitUntil(() => IsTransitionComplete() == true);
 
@@ -819,9 +832,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             SetNewExpression(expression);
             await RunExpressionTransition(transitionDuration, transition);
-            await UniTask.Yield();
-            await UniTask.Yield();
-            await UniTask.Yield();
+            await UniTask.Yield(cancellationToken: GameManager.Instance.CancellationToken);
             ResetMainExpression(expression);
         }
 
