@@ -20,7 +20,7 @@ namespace com.argentgames.visualnoveltemplate
     public struct FMODEventInstanceData
     {
         public SoundType soundType;
-        private EventInstance? eventInstance;
+        private EventInstance eventInstance;
         public EventInstance EventInstance
         {
             get { return (EventInstance)eventInstance; }
@@ -33,7 +33,7 @@ namespace com.argentgames.visualnoveltemplate
 
         public FMODEventInstanceData(
             SoundType soundType,
-            EventInstance? eventInstance,
+            EventInstance eventInstance,
             string soundName,
             bool isplaying,
             float trackvolume
