@@ -11,7 +11,7 @@ using System;
 /// <summary>
 /// Ingame audio management. Access your typical sound control methods such as Play/Stop music/ambient/sfx.
 /// We have Music, SFX, and (almost) unlimited Ambient audio tracks. The volume of these tracks are controlled
-/// by their respective buses, + a master bus. 
+/// by their respective buses, + a master bus.
 /// Sometimes we can't fit an Ambient volume control in our UI (or it seems too unintuitive), so we will expose
 /// only Master, Music, and SFX volume controls.
 /// </summary>
@@ -21,13 +21,23 @@ namespace com.argentgames.visualnoveltemplate
     {
         public SoundType soundType;
         private EventInstance? eventInstance;
-        public EventInstance EventInstance { get { return (EventInstance)eventInstance; } set { eventInstance = value; } }
+        public EventInstance EventInstance
+        {
+            get { return (EventInstance)eventInstance; }
+            set { eventInstance = value; }
+        }
         public string soundName;
+
         // QUESTION @Dovah: is it possible to have individual eventInstance volumes, separate from the Bus?
         public float trackVolume;
 
-        public FMODEventInstanceData(SoundType soundType, EventInstance? eventInstance,
-        string soundName, bool isplaying, float trackvolume)
+        public FMODEventInstanceData(
+            SoundType soundType,
+            EventInstance? eventInstance,
+            string soundName,
+            bool isplaying,
+            float trackvolume
+        )
         {
             this.soundType = soundType;
             this.eventInstance = eventInstance;
@@ -53,25 +63,32 @@ namespace com.argentgames.visualnoveltemplate
         [SerializeField]
         AudioBank_SO audioBank;
         public AudioBank_SO AudioBank => audioBank;
+
         [SerializeField]
-        [InfoBox("How many ambient tracks do we want to be able to play simultaneously? 3 is a pretty safe number, increase at your own risk of confusion!")]
+        [InfoBox(
+            "How many ambient tracks do we want to be able to play simultaneously? 3 is a pretty safe number, increase at your own risk of confusion!"
+        )]
         int numAmbientTracks = 3;
 
-        private Dictionary<string, FMODEventInstanceData> eventInstanceMap = new Dictionary<string, FMODEventInstanceData>();
+        private Dictionary<string, FMODEventInstanceData> eventInstanceMap =
+            new Dictionary<string, FMODEventInstanceData>();
 
         private FMODEventInstanceData fmodEvent;
-        private EventInstance musicInstance, ambientInstance, sfxInstance;
+        private EventInstance musicInstance,
+            ambientInstance,
+            sfxInstance;
 
         FMOD.Studio.Bus MusicBus;
         FMOD.Studio.Bus SFXBus;
         FMOD.Studio.Bus MasterBus;
+
         // TODO: add ambient bus
 
         private async UniTaskVoid Awake()
         {
             Instance = this;
 
-            // TECHDEBT: We really need to understand how/when OnEnable is run so that we aren't 
+            // TECHDEBT: We really need to understand how/when OnEnable is run so that we aren't
             // constantly calling this.
             // populate our audio bank on awake just in case it doesn't populate correctly.
             audioBank.PopulateMaps();
@@ -80,20 +97,36 @@ namespace com.argentgames.visualnoveltemplate
 
             eventInstanceMap = new Dictionary<string, FMODEventInstanceData>();
 
-
             // create all our eventInstanceMap so we can have unlimited ambient tracks :>
-            eventInstanceMap["music"] = new FMODEventInstanceData(SoundType.Music, new EventInstance(), "", false, 1.0f);
-            eventInstanceMap["sfx"] = new FMODEventInstanceData(SoundType.SFX, new EventInstance(), "", false, 1.0f);
+            eventInstanceMap["music"] = new FMODEventInstanceData(
+                SoundType.Music,
+                new EventInstance(),
+                "",
+                false,
+                1.0f
+            );
+            eventInstanceMap["sfx"] = new FMODEventInstanceData(
+                SoundType.SFX,
+                new EventInstance(),
+                "",
+                false,
+                1.0f
+            );
             Debug.Log(eventInstanceMap["music"].EventInstance);
             for (int i = 0; i < numAmbientTracks; i++)
             {
-                eventInstanceMap["ambient" + i.ToString()] = new FMODEventInstanceData(SoundType.Ambient, new EventInstance(), "", false, 1.0f);
+                eventInstanceMap["ambient" + i.ToString()] = new FMODEventInstanceData(
+                    SoundType.Ambient,
+                    new EventInstance(),
+                    "",
+                    false,
+                    1.0f
+                );
             }
 
             await UniTask.WaitUntil(() => GameManager.Instance != null);
 
             SetRXSubscriptions();
-
         }
 
         /// <summary>
@@ -113,6 +146,7 @@ namespace com.argentgames.visualnoveltemplate
                 return "";
             }
         }
+
         public List<Tuple<string, int>> GetCurrentPlayingAmbients()
         {
             List<Tuple<string, int>> currAmbs = new List<Tuple<string, int>>();
@@ -135,29 +169,32 @@ namespace com.argentgames.visualnoveltemplate
             MasterBus = FMODUnity.RuntimeManager.GetBus("bus:/Master");
         }
 
-
         private void SetRXSubscriptions()
         {
-            GameManager.Instance.Settings.MusicVolume.Subscribe(val =>
-            {
-                MusicBus.setVolume(val);
-            }).AddTo(this);
-            GameManager.Instance.Settings.SFXVolume.Subscribe(val =>
-            {
-                SFXBus.setVolume(val);
-            }).AddTo(this);
-            GameManager.Instance.Settings.MasterVolume.Subscribe(val =>
-            {
-                MasterBus.setVolume(val);
-            }).AddTo(this);
+            GameManager.Instance.Settings.MusicVolume
+                .Subscribe(val =>
+                {
+                    MusicBus.setVolume(val);
+                })
+                .AddTo(this);
+            GameManager.Instance.Settings.SFXVolume
+                .Subscribe(val =>
+                {
+                    SFXBus.setVolume(val);
+                })
+                .AddTo(this);
+            GameManager.Instance.Settings.MasterVolume
+                .Subscribe(val =>
+                {
+                    MasterBus.setVolume(val);
+                })
+                .AddTo(this);
             // TODO: uncomment after adding ambient bus
             // GameManager.Instance.Settings.AmbientVolume.Subscribe(val =>
             // {
             //     AmbientBus.setVolume(val);
             // }).AddTo(this);
-
         }
-
 
         [Button]
         public void PlayMusic(string _name, float fadein = 0f, bool showClosedCaption = false)
@@ -168,7 +205,7 @@ namespace com.argentgames.visualnoveltemplate
                 var obj = audioBank.GetMusic(_name);
                 var eventPath = obj.Event;
 
-                // if music is currently playing, we need to stop it before making a new 
+                // if music is currently playing, we need to stop it before making a new
                 // music instance, otherwise we will lose the reference to the musicInstance
                 // and it will overlap with new music.
                 musicInstance = fmodEvent.EventInstance;
@@ -184,44 +221,54 @@ namespace com.argentgames.visualnoveltemplate
                 eventInstanceMap["music"] = fmodEvent;
                 if (showClosedCaption)
                 {
-if (GameManager.Instance.Settings.enableClosedCaptions.Value)
-                {
-                    if (obj.ClosedCaption != "")
+                    if (GameManager.Instance.Settings.enableClosedCaptions.Value)
                     {
-                        NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                        if (obj.ClosedCaption != "")
+                        {
+                            NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                        }
                     }
-                    
                 }
-                }
-                
             }
             catch
             {
                 Debug.LogErrorFormat("Unable to play music: [{0}]", _name);
             }
-
         }
+
         [Button]
         public void StopMusic(float fadeout = 0f)
         {
-            // Debug.Log("now stopping music");
-            fmodEvent = eventInstanceMap["music"];
-            musicInstance = fmodEvent.EventInstance;
-            if (fadeout == 0)
+            try
             {
-                musicInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-                musicInstance.release();
+                // Debug.Log("now stopping music");
+                fmodEvent = eventInstanceMap["music"];
+                musicInstance = fmodEvent.EventInstance;
+                if (fadeout == 0)
+                {
+                    musicInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                    musicInstance.release();
+                }
+                else
+                {
+                    StartCoroutine(FadeVolume(1f, 0, fadeout, musicInstance));
+                    //musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                }
             }
-            else
+            catch (Exception e)
             {
-                StartCoroutine(FadeVolume(1f, 0, fadeout, musicInstance));
-                //musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                Debug.LogWarningFormat("unable to stop music with error {0}", e);
             }
-
         }
 
         [Button]
-        public void PlayAmbient(string _name, int channel = 0, float fadein = 0f, float fadeout = 0f, bool showClosedCaption=false)
+        public void PlayAmbient(
+            string _name,
+            int channel = 0,
+            float fadein = 0f,
+            float fadeout = 0f,
+            bool showClosedCaption = false
+        )
         {
             try
             {
@@ -242,50 +289,61 @@ if (GameManager.Instance.Settings.enableClosedCaptions.Value)
                 fmodEvent.soundName = _name;
                 eventInstanceMap["ambient" + channel.ToString()] = fmodEvent;
 
-                               if (showClosedCaption)
+                if (showClosedCaption)
                 {
-if (GameManager.Instance.Settings.enableClosedCaptions.Value)
-                {
-                    if (obj.ClosedCaption != "")
+                    if (GameManager.Instance.Settings.enableClosedCaptions.Value)
                     {
-                        NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                        if (obj.ClosedCaption != "")
+                        {
+                            NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                        }
                     }
-                    
                 }
-                }
-
             }
             catch
             {
                 Debug.LogErrorFormat("Unable to play Ambient: [{0}]", _name);
             }
-
         }
+
         [Button]
         public void StopAmbient(float fadeout = 0f, int channel = 0)
         {
-            fmodEvent = eventInstanceMap["ambient" + channel.ToString()];
-            ambientInstance = fmodEvent.EventInstance;
-            if (fadeout == 0)
+            try
             {
-                ambientInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-                ambientInstance.release();
+                fmodEvent = eventInstanceMap["ambient" + channel.ToString()];
+                ambientInstance = fmodEvent.EventInstance;
+                if (fadeout == 0)
+                {
+                    ambientInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                    ambientInstance.release();
+                }
+                else
+                {
+                    StartCoroutine(FadeVolume(1f, 0, fadeout, ambientInstance));
+                }
             }
-            else
+            catch (Exception e)
             {
-
-                StartCoroutine(FadeVolume(1f, 0, fadeout, ambientInstance));
+                Debug.LogWarningFormat(
+                    "unable to stop ambient on channel {0} with exception {1}",
+                    channel,
+                    e
+                );
             }
         }
+
         public void StopAllAmbient(float fadeout = 0f)
         {
-            for (int i = 0; i < numAmbientTracks; i++)
+            var currentPlayingAmbients = GetCurrentPlayingAmbients();
+            for (int i = 0; i < currentPlayingAmbients.Count; i++)
             {
-                StopAmbient(fadeout, i);
+                StopAmbient(fadeout, currentPlayingAmbients[i].Item2);
             }
         }
+
         [Button]
-        public void PlaySFX(string _name, bool showClosedCaption=false)
+        public void PlaySFX(string _name, bool showClosedCaption = false)
         {
             try
             {
@@ -293,23 +351,21 @@ if (GameManager.Instance.Settings.enableClosedCaptions.Value)
                 var eventPath = obj.Event;
                 RuntimeManager.PlayOneShot(eventPath);
 
-                                if (showClosedCaption)
+                if (showClosedCaption)
                 {
-if (GameManager.Instance.Settings.enableClosedCaptions.Value)
-                {
-                    if (obj.ClosedCaption != "")
+                    if (GameManager.Instance.Settings.enableClosedCaptions.Value)
                     {
-                        NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                        if (obj.ClosedCaption != "")
+                        {
+                            NotificationManager.Instance.ShowTextNotification(obj.ClosedCaption);
+                        }
                     }
-                    
-                }
                 }
             }
             catch
             {
                 Debug.LogErrorFormat("Unable to play sfx: [{0}]", _name);
             }
-
         }
 
         public void PlayUIEvent(UIEventType eventType)
@@ -362,12 +418,7 @@ if (GameManager.Instance.Settings.enableClosedCaptions.Value)
                 }
 
                 yield return null;
-
             }
-
         }
-
     }
-
-
 }
