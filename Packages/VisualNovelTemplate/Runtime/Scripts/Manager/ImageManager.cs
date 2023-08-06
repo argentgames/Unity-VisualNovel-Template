@@ -581,6 +581,7 @@ namespace com.argentgames.visualnoveltemplate
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 
             Debug.Log("done running showbg");
+            newBGRT.Release();
         }
 
         public void HideBG(string bgName, string transition = "dissolve", float duration = .4f)
@@ -757,7 +758,6 @@ namespace com.argentgames.visualnoveltemplate
                     "done setting up spawned sprite with new expression {0}",
                     saveData.expressionImageName
                 );
-
             }
             else
             {
