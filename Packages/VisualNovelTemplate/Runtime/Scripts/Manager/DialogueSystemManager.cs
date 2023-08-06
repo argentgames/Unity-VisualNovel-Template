@@ -578,9 +578,8 @@ namespace com.argentgames.visualnoveltemplate
                     }
                 }
 
-                GameManager.Instance.PersistentGameData.seenText.Add(
-                    CreateHash(story.currentText + "_" + story.state.currentPathString)
-                );
+                // finally add the line to our persistent seen text so we know when to stop skipping
+                AddCurrentStoryTextToPersistentHistory();
 
                 // is it an action function and thus we want to automatically evaluate it without any user input?
                 if (!IsLoadedGame && NeedToRunActionFunction())
@@ -657,8 +656,6 @@ namespace com.argentgames.visualnoveltemplate
                     Debug.Log("done running regular line");
                 }
 
-                // finally add the line to our persistent seen text so we know when to stop skipping
-                AddCurrentStoryTextToPersistentHistory();
                 // only save persistent after every line
                 SaveLoadManager.Instance.SavePersistent();
                 if (IsLoadedGame)
@@ -726,8 +723,10 @@ namespace com.argentgames.visualnoveltemplate
                 return false;
             }
             if (
+                // GameManager.Instance.PersistentGameData.seenText.Contains(
+                //     CreateHash(story.currentText + "_" + story.state.currentPathString)
                 GameManager.Instance.PersistentGameData.seenText.Contains(
-                    CreateHash(story.currentText + "_" + story.state.currentPathString)
+                    CreateHash(story.state.currentPathString)
                 )
             )
             {
@@ -748,20 +747,6 @@ namespace com.argentgames.visualnoveltemplate
 
         public async UniTask DisplayLine(Dialogue dialogue)
         {
-            Debug.LogFormat(
-                "Seen text before: {0}; {1} ",
-                CurrentTextSeenBefore(),
-                (
-                    (GameManager.Instance.IsSkipping && GameManager.Instance.Settings.skipAllText)
-                    || (
-                        GameManager.Instance.IsSkipping
-                        && (
-                            !GameManager.Instance.Settings.skipAllText
-                            && DialogueSystemManager.Instance.CurrentTextSeenBefore()
-                        )
-                    )
-                )
-            );
             // Debug.Log(story.currentText);
             dialogueUIManager.CurrentTags = story.currentTags;
             // TODO: Turn this into an await for animation to show UI
