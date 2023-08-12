@@ -372,6 +372,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="duration"></param>
         /// <returns></returns>
         // [Button]
+        RenderTexture newBGRT;
         public async UniTask ShowBG(string bgName, string transition = "w9", float? duration = null)
         {
             if (bgName == "")
@@ -404,7 +405,7 @@ namespace com.argentgames.visualnoveltemplate
             GameObject newBGGO;
             // which newbgcontainer do we want to spawn under?
             GameObject newBGContainer;
-            RenderTexture newBGRT;
+            
             if (currentNewBGSet == 2)
             {
                 Debug.Log("using newbg1");
@@ -581,7 +582,9 @@ namespace com.argentgames.visualnoveltemplate
             backgroundProjectedImageRenderer.SetPropertyBlock(_propBlock);
 
             Debug.Log("done running showbg");
-            newBGRT.Release();
+
+            // We can't release because it causes a single frame black screen blink |:
+            // newBGRT.Release();
         }
 
         public void HideBG(string bgName, string transition = "dissolve", float duration = .4f)
