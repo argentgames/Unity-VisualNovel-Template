@@ -663,6 +663,11 @@ namespace com.argentgames.visualnoveltemplate
                     Debug.Log("toggling off IsLoadedGame flag");
                     SetIsLoadedGame(false);
                 }
+
+                if (GameManager.Instance.IsSkipping)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayAfterSkipInkStoryLine));
+                }
             }
         }
 
@@ -986,6 +991,8 @@ namespace com.argentgames.visualnoveltemplate
                 SetDialogueWindow(internalName);
                 if (dialogueUIManager != null)
                 {
+                    // make sure it's higher than whatever our default is so that we can see the ui window <_<
+                    // dialogueUIManager.SetCanvasSortOrder(GameManager.Instance.DefaultConfig.dialogueUISortOrder + VisibleUIWindows.Count + 1);
                     float duration = -1f;
                     if (GameManager.Instance.IsSkipping)
                     {
@@ -1026,6 +1033,7 @@ namespace com.argentgames.visualnoveltemplate
             {
                 await dialogueUIManager.HideUI(duration);
             }
+            // dialogueUIManager.SetCanvasSortOrder(GameManager.Instance.DefaultConfig.dialogueUISortOrder);
         }
 
         public async UniTask HideAllDialogueWindows()

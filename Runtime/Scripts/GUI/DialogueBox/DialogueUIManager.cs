@@ -531,6 +531,10 @@ namespace com.argentgames.visualnoveltemplate
         public virtual void Save(string saveIndex) { }
         public virtual async UniTask Load(string saveIndex) { }
 
+        public virtual void SetCanvasSortOrder(int value)
+        {
+            GetComponentInChildren<Canvas>(true).sortingOrder = value;
+        }
         void OnDestroy()
         {
             RemoveVNControlSubscriptions();
