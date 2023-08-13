@@ -363,6 +363,11 @@ namespace com.argentgames.visualnoveltemplate
 
         int currentNewBGSet = 0;
 
+        public bool ContainsShot(string shot)
+        {
+            return cameraShots.ContainsKey(shot);
+        }
+
         /// <summary>
         /// Show a new background with a given transition such as a dissolve or wipe.
         /// TECHDEBT: in future we should be able to supply an arbitrary transition!!! not just wipe/dissolve!!!
