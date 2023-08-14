@@ -21,6 +21,7 @@ namespace com.argentgames.visualnoveltemplate
                 UpdateToggleObjectsList();
             }
         }
+
         public void UpdateToggleObjectsList()
         {
             toggleGroupObjects.Clear();
@@ -29,17 +30,31 @@ namespace com.argentgames.visualnoveltemplate
                 toggleGroupObjects.Add(gameObject.transform.GetChild(idx).gameObject);
             }
         }
+
         public void EnableGameObject(GameObject gameObject)
         {
+            List<GameObject> nullGos = new List<GameObject>();
             foreach (var go in toggleGroupObjects)
             {
+                if (go == null)
+                {
+                    nullGos.Add(go);
+                    continue;
+                }
                 if (go != gameObject)
                 {
+                    Debug.LogFormat("disabling go {0}", go.name);
                     go.SetActive(false);
                 }
             }
             gameObject.SetActive(true);
+
+            for (int _i = 0; _i < nullGos.Count; _i++)
+            {
+                RemoveToggleGameObject(nullGos[_i]);
+            }
         }
+
         public void DisableAllGameObjects()
         {
             foreach (var go in toggleGroupObjects)
@@ -47,9 +62,11 @@ namespace com.argentgames.visualnoveltemplate
                 go.SetActive(false);
             }
         }
+
         public void RemoveToggleGameObject(GameObject go)
         {
             toggleGroupObjects.Remove(go);
+            UpdateToggleObjectsList();
         }
     }
 }
