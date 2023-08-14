@@ -134,7 +134,7 @@ namespace com.argentgames.visualnoveltemplate
         Hash128 hash128 = new Hash128();
 
         [Sirenix.OdinInspector.Button]
-        public void RestartGame()
+        public async void RestartGame()
         {
             OnBeforeRestartGame?.Invoke();
 
@@ -145,7 +145,7 @@ namespace com.argentgames.visualnoveltemplate
 
             // SpawnAllUIWindows().Forget();
             HideAllDialogueWindows();
-            ResetAllDialogueWindows();
+            await ResetAllDialogueWindows();
             currentSessionDialogueHistory.Clear();
 
             SaveLoadManager.Instance.currentSave.inkData = story.state.ToJson();
@@ -666,7 +666,11 @@ namespace com.argentgames.visualnoveltemplate
 
                 if (GameManager.Instance.IsSkipping)
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(GameManager.Instance.DefaultConfig.delayAfterSkipInkStoryLine));
+                    await UniTask.Delay(
+                        TimeSpan.FromSeconds(
+                            GameManager.Instance.DefaultConfig.delayAfterSkipInkStoryLine
+                        )
+                    );
                 }
             }
         }
@@ -897,6 +901,7 @@ namespace com.argentgames.visualnoveltemplate
             else
             {
                 Debug.LogFormat("available ct: {0}", ct.CanBeCanceled);
+                // Debug.Break();
                 await customActionFunctions.ActionFunction(story.currentText, this.ct);
             }
             // InkContinueStory();
@@ -1049,12 +1054,14 @@ namespace com.argentgames.visualnoveltemplate
             VisibleUIWindows.Clear();
         }
 
-        public void ResetAllDialogueWindows()
+        public async UniTask ResetAllDialogueWindows()
         {
+            List<UniTask> tasks = new List<UniTask>();
             foreach (var window in dialogueWindows.Values)
             {
-                window.GetComponentInChildren<DialogueUIManager>().ResetUI();
+                tasks.Add(window.GetComponentInChildren<DialogueUIManager>().ResetUI());
             }
+            await UniTask.WhenAll(tasks);
         }
 
         public async UniTask LoadDialogueWindowStates(string saveIndex)

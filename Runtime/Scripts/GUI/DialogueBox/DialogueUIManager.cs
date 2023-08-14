@@ -17,12 +17,12 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
+
 namespace com.argentgames.visualnoveltemplate
 {
-
     /// <summary>
     /// A dialogue box used to display ink script. At minimum, we need a dialogue text object
-    /// to display the ink line, a choices parent to hold choices, and a choice prefab to 
+    /// to display the ink line, a choices parent to hold choices, and a choice prefab to
     /// instantiate choices.
     /// </summary>
     public abstract class DialogueUIManager : SerializedMonoBehaviour
@@ -51,29 +51,55 @@ namespace com.argentgames.visualnoveltemplate
         [Tooltip("the literal ctc used to continue. usually not visible to player.")]
         public Button actualCTC;
 
-
         // NOTE: Unused. Inkscript lets you add tags to the end of lines, so instead of parsing information at the beginning of a line (e.g. speaker name)
         // you could attach stuff to tags.
         private List<string> currentTags = new List<string>();
-        public List<string> CurrentTags { get { return currentTags; } set { currentTags = value; } }
+        public List<string> CurrentTags
+        {
+            get { return currentTags; }
+            set { currentTags = value; }
+        }
 
         private bool isDisplayingLine = false;
-        public bool IsDisplayingLine { get { return isDisplayingLine; } set { isDisplayingLine = value; } }
+        public bool IsDisplayingLine
+        {
+            get { return isDisplayingLine; }
+            set { isDisplayingLine = value; }
+        }
 
         private bool waitingForPlayerToSelectChoice = false;
-        public bool WaitingForPlayerToSelectChoice { get { return waitingForPlayerToSelectChoice; } set { waitingForPlayerToSelectChoice = value; } }
+        public bool WaitingForPlayerToSelectChoice
+        {
+            get { return waitingForPlayerToSelectChoice; }
+            set { waitingForPlayerToSelectChoice = value; }
+        }
         private bool waitingForPlayerContinueStory = false;
-        public bool WaitingForPlayerContinueStory { get { return waitingForPlayerContinueStory; } set { waitingForPlayerContinueStory = value; } }
+        public bool WaitingForPlayerContinueStory
+        {
+            get { return waitingForPlayerContinueStory; }
+            set { waitingForPlayerContinueStory = value; }
+        }
 
         private bool playerHidUI = false;
-        public bool PlayerHidUI { get { return playerHidUI; } set { playerHidUI = value; } }
+        public bool PlayerHidUI
+        {
+            get { return playerHidUI; }
+            set { playerHidUI = value; }
+        }
         private bool playerAllowedToHideUI = false;
-        public bool PlayerAllowedToHideUI { get { return playerAllowedToHideUI; } set { playerAllowedToHideUI = value; } }
+        public bool PlayerAllowedToHideUI
+        {
+            get { return playerAllowedToHideUI; }
+            set { playerAllowedToHideUI = value; }
+        }
 
         Coroutine ctcDelay;
         public float delayBeforeAllowCTCLogic = .1f;
         bool isRunningCTCDelay = false;
-        [Tooltip("When we load a save at a choice, do we want to display the previous dialogue line alongside the choice?")]
+
+        [Tooltip(
+            "When we load a save at a choice, do we want to display the previous dialogue line alongside the choice?"
+        )]
         public bool DisplayLineBeforeChoiceOnLoad = false;
 
         #region Click to continue
@@ -81,7 +107,6 @@ namespace com.argentgames.visualnoveltemplate
         {
             var wasSkipping = GameManager.Instance.IsSkipping;
             GameManager.Instance.SetSkipping(false);
-
 
             GameManager.Instance.SetAuto(false);
 
@@ -93,15 +118,16 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             // see if we need to skip through any dialogue window animations.
-            var animateObjects = GetComponentsInChildren<AnimateObjectsToggleEnable>(includeInactive: false);
-
+            var animateObjects = GetComponentsInChildren<AnimateObjectsToggleEnable>(
+                includeInactive: false
+            );
 
             if (DialogueSystemManager.Instance.IsRunningActionFunction)
             {
                 Debug.Log("running action function, do nothing except turn off skipping");
                 ImageManager.Instance.ThrowSkipToken();
                 GameManager.Instance.ThrowSkipToken();
-                DialogueSystemManager.Instance.RunCancellationToken();
+                // DialogueSystemManager.Instance.RunCancellationToken();
 
                 if (animateObjects != null)
                 {
@@ -119,7 +145,6 @@ namespace com.argentgames.visualnoveltemplate
                                 ao.SkipDisableAnimation();
                             }
                         }
-
                     }
                     else
                     {
@@ -130,14 +155,11 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     Debug.Log("no animate objects to skip animation on.");
                 }
-
-
             }
             else if (WaitingForPlayerToSelectChoice)
             {
                 Debug.Log("do nothing, waiting for player to select choice");
             }
-
             else
             {
                 if (!wasSkipping)
@@ -152,20 +174,25 @@ namespace com.argentgames.visualnoveltemplate
                             {
                                 if (ao.IsRunningEnableAnimation)
                                 {
-                                    Debug.LogFormat("skipping enable animation for {0} with parent {1}", 
-                                    ao.gameObject.name,Utilities.GetRootParent(ao.gameObject).name);
+                                    Debug.LogFormat(
+                                        "skipping enable animation for {0} with parent {1}",
+                                        ao.gameObject.name,
+                                        Utilities.GetRootParent(ao.gameObject).name
+                                    );
                                     ao.SkipEnableAnimation();
                                     neededToSkipAnimations = true;
                                 }
                                 else if (ao.IsRunningDisableAnimation)
                                 {
-                                    Debug.LogFormat("skipping disable animation for {0}", ao.gameObject.name);
+                                    Debug.LogFormat(
+                                        "skipping disable animation for {0}",
+                                        ao.gameObject.name
+                                    );
 
                                     neededToSkipAnimations = true;
                                     ao.SkipDisableAnimation();
                                 }
                             }
-
                         }
                         else
                         {
@@ -183,15 +210,13 @@ namespace com.argentgames.visualnoveltemplate
                         DialogueSystemManager.Instance.waitingToContinueStory = false;
                         Debug.Log("not was skipping, please continue the story as normal");
                     }
-
                 }
-
             }
 
             isRunningCTCDelay = true;
             ctcDelay = StartCoroutine(RunCTCDelay());
-
         }
+
         public virtual async UniTaskVoid CTCLogicForAutoOrSkip()
         {
             if (DialogueSystemManager.Instance.IsRunningActionFunction)
@@ -199,7 +224,7 @@ namespace com.argentgames.visualnoveltemplate
                 Debug.Log("running action function, do nothing except turn off skipping");
                 ImageManager.Instance.ThrowSkipToken();
                 GameManager.Instance.ThrowSkipToken();
-                DialogueSystemManager.Instance.RunCancellationToken();
+                // DialogueSystemManager.Instance.RunCancellationToken();
             }
             else if (WaitingForPlayerToSelectChoice)
             {
@@ -210,10 +235,9 @@ namespace com.argentgames.visualnoveltemplate
                 // ClearText();
                 waitingForPlayerContinueStory = false;
                 DialogueSystemManager.Instance.waitingToContinueStory = false;
-
-
             }
         }
+
         public virtual void TurnOnSkipOrAuto()
         {
             if (DialogueSystemManager.Instance.IsRunningActionFunction)
@@ -223,18 +247,15 @@ namespace com.argentgames.visualnoveltemplate
                 GameManager.Instance.ThrowSkipToken();
                 // DialogueSystemManager.Instance.RunCancellationToken();
             }
-
             // might need an else? not sure
             else
-
             {
                 // ClearText();
                 waitingForPlayerContinueStory = false;
                 DialogueSystemManager.Instance.waitingToContinueStory = false;
             }
-
-
         }
+
         IEnumerator RunCTCDelay()
         {
             Debug.Log("is runnin gtct delay");
@@ -242,18 +263,16 @@ namespace com.argentgames.visualnoveltemplate
             isRunningCTCDelay = false;
             Debug.Log("done running tc delay");
         }
+
         /// <summary>
         /// Do not allow the player to interact with the CTC, even if it is currently visible.
         /// </summary>
-        public virtual void DisableCTC()
-        {
-        }
+        public virtual void DisableCTC() { }
+
         /// <summary>
         /// Allow the player to interact with the CTC.
         /// </summary>
-        public virtual void EnableCTC()
-        {
-        }
+        public virtual void EnableCTC() { }
 
         /// <summary>
         /// If we have a CTC for the player to select, then hide it.
@@ -262,6 +281,7 @@ namespace com.argentgames.visualnoveltemplate
         {
             actualCTC.gameObject.SetActive(false);
         }
+
         /// <summary>
         /// The click to continue button that advances text. Usually invisible and activated separately from
         /// any visible click to continue indicators.
@@ -281,7 +301,6 @@ namespace com.argentgames.visualnoveltemplate
         /// <returns></returns>
         public virtual async UniTask HideUI(float duration = .3f)
         {
-
             var animator = UIHolder.GetComponent<AnimateObjectsToggleEnable>();
             if (animator != null)
             {
@@ -292,9 +311,11 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 catch (NullReferenceException)
                 {
-                    Debug.LogErrorFormat("unable to hide UI, GO {0} was destroyed", this.gameObject.name);
+                    Debug.LogErrorFormat(
+                        "unable to hide UI, GO {0} was destroyed",
+                        this.gameObject.name
+                    );
                 }
-
             }
             else
             {
@@ -303,11 +324,10 @@ namespace com.argentgames.visualnoveltemplate
             }
 
             // force all animate obj toggle enable to run complete animation ??
-            foreach (var animate in GetComponentsInChildren<AnimateObjectsToggleEnable>() )
+            foreach (var animate in GetComponentsInChildren<AnimateObjectsToggleEnable>())
             {
                 animate.CompleteAnimation();
             }
-
         }
 
         /// <summary>
@@ -332,30 +352,23 @@ namespace com.argentgames.visualnoveltemplate
                 UIHolder.SetActive(true);
             }
             Debug.Log("done showing dialogue ui");
-
         }
+
         /// <summary>
         /// If your dialogue window has a separate NVL panel, maybe you want to manually show it with different timing and pauses
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public virtual async UniTask ShowNVL(float duration = .3f)
-        {
+        public virtual async UniTask ShowNVL(float duration = .3f) { }
 
-        }
-        public virtual async UniTask HideNVL(float duration = .3f)
-        {
+        public virtual async UniTask HideNVL(float duration = .3f) { }
 
-        }
         /// <summary>
         /// Reset the UI to its default state. For example, if we spawned some channels in a chat messenger and we want to restart the game,
         /// then we will want to destroy all those channels.
         /// </summary>
         /// <returns></returns>
-        public virtual async UniTask ResetUI(bool fromLoad=false)
-        {
-
-        }
+        public virtual async UniTask ResetUI(bool fromLoad = false) { }
 
         /// <summary>
         /// If UI is showing, then hide it, otherwise show it without.
@@ -375,14 +388,15 @@ namespace com.argentgames.visualnoveltemplate
         /// <summary>
         /// Show UI in its current state. Same as ShowUI in this abstract class...
         /// </summary>
-        public virtual void ShowUIWithoutClearing()
-        {
+        public virtual void ShowUIWithoutClearing() { }
 
-        }
         public void TogglePlayerOpenedQMenu()
         {
-            DialogueSystemManager.Instance.SetPlayerOpenedQmenu(!DialogueSystemManager.Instance.PlayerOpenedQMenu);
+            DialogueSystemManager.Instance.SetPlayerOpenedQmenu(
+                !DialogueSystemManager.Instance.PlayerOpenedQMenu
+            );
         }
+
         public virtual void ToggleQMenu(float duration = -1)
         {
             // qmenu is already open, so we need to close it
@@ -397,10 +411,13 @@ namespace com.argentgames.visualnoveltemplate
                 OpenQMenu(duration);
             }
         }
+
         public virtual void OpenQMenu(float duration = -1)
         {
-
-            Debug.Log("did player open qmenu?: " + DialogueSystemManager.Instance.PlayerOpenedQMenu.ToString());
+            Debug.Log(
+                "did player open qmenu?: "
+                    + DialogueSystemManager.Instance.PlayerOpenedQMenu.ToString()
+            );
             // don't open if it's already open...
 
             var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
@@ -416,10 +433,8 @@ namespace com.argentgames.visualnoveltemplate
             {
                 QMenu.SetActive(true);
             }
-
-
-
         }
+
         public virtual void CloseQmenu(float duration = -1)
         {
             var animator = QMenu.GetComponent<AnimateObjectsToggleEnable>();
@@ -454,7 +469,6 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     return false;
                 }
-
             }
         }
         #endregion
@@ -474,9 +488,7 @@ namespace com.argentgames.visualnoveltemplate
         /// <summary>
         /// Clear the dialogue box of any visible text.
         /// </summary>
-        public virtual void ClearText()
-        {
-        }
+        public virtual void ClearText() { }
 
         /// <summary>
         /// How we display choice options to the player.
@@ -485,7 +497,12 @@ namespace com.argentgames.visualnoveltemplate
         /// <param name="story"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public abstract UniTask DisplayChoices(List<Choice> choices, Story story, CancellationToken ct);
+        public abstract UniTask DisplayChoices(
+            List<Choice> choices,
+            Story story,
+            CancellationToken ct
+        );
+
         /// <summary>
         /// What do we do when the player selects a choice?
         /// </summary>
@@ -494,8 +511,11 @@ namespace com.argentgames.visualnoveltemplate
 
         // TECHDEBT: What's difference between this and ClearText?
         public virtual void ClearUI() { }
+
         public virtual void KillTypewriter() { }
+
         public virtual void PauseTypewriter() { }
+
         public virtual void ContinueTypewriter() { }
 
         /// <summary>
@@ -503,7 +523,7 @@ namespace com.argentgames.visualnoveltemplate
         /// or by setting subscriptions to the PlayerControls VNGameplay input map. If we change between
         /// different UIs, then we need to remove our previous UI's control scheme otherwise we will start
         /// stacking up many UI continue logic subscriptions !
-        /// 
+        ///
         /// We usually want BOTH a button and a VNGameplay input map subscription because it can be difficult
         /// to select QMenu buttons when the VNGameplay input map is active, as there isn't anything blocking that input
         /// (and checking for mouse over UI elements is not very reliable). We want a VNGameplay input map so that
@@ -511,6 +531,7 @@ namespace com.argentgames.visualnoveltemplate
         /// </summary>
         public abstract void RemoveVNControlSubscriptions();
         public abstract void AddVNControlSubscriptions();
+
         public virtual void HideUILogic(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
         {
             if (DialogueSystemManager.Instance.DialogueUIManager.PlayerAllowedToHideUI)
@@ -519,28 +540,25 @@ namespace com.argentgames.visualnoveltemplate
                 GameManager.Instance.SetAuto(false);
                 GameManager.Instance.SetSkipping(false);
                 PlayerHidUI = !PlayerHidUI;
-
             }
         }
-
 
         /// <summary>
         /// These are mostly for more compliex dialogue windows like Messenger chats if we want to recreate what chats
         /// and channels are visible when save/loaded, instead of just save/loading into a clean ui window.
         /// </summary>
         public virtual void Save(string saveIndex) { }
+
         public virtual async UniTask Load(string saveIndex) { }
 
         public virtual void SetCanvasSortOrder(int value)
         {
             GetComponentInChildren<Canvas>(true).sortingOrder = value;
         }
+
         void OnDestroy()
         {
             RemoveVNControlSubscriptions();
         }
-
     }
-
 }
-
