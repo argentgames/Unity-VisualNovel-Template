@@ -30,7 +30,7 @@ namespace com.argentgames.visualnoveltemplate
 
                 s += new string('-',(i+1)*2)  + hierarchyNames[i]+"\n";
             }
-            Debug.Log(s);
+            // Debug.Log(s);
             return parent;
         }
         public static void DestroyAllChildGameObjects(GameObject parent)

@@ -197,9 +197,9 @@ namespace com.argentgames.visualnoveltemplate
                 image.color = Color.LerpUnclamped(image.color, targetColor, curvePercent);
                 Debug.LogFormat("targetColor {0} curvePercent {1}", targetColor, curvePercent);
                 yield return null;
-                Debug.LogFormat("elapsedTime {0}, disableAnimationDuration {1}, image.color {2}, targetColor {3}",
-            elapsedTime,disableAnimationDuration,image.color,targetColor);
-            }
+            //     Debug.LogFormat("elapsedTime {0}, disableAnimationDuration {1}, image.color {2}, targetColor {3}",
+            // elapsedTime,disableAnimationDuration,image.color,targetColor);
+            // }
         }
 
         public async override UniTask Disable(float duration = -1, bool destroyOnDisable = false)
@@ -221,7 +221,7 @@ namespace com.argentgames.visualnoveltemplate
                 {
                     duration = disableAnimationDuration;
                 }
-                Debug.LogFormat("disable duration: {0}", duration);
+                // Debug.LogFormat("disable duration: {0}", duration);
 
                 if (canvasGroup != null)
                 {
