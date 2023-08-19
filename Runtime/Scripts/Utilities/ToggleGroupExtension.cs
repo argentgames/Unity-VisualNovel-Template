@@ -43,7 +43,7 @@ namespace com.argentgames.visualnoveltemplate
                 }
                 if (go != gameObject)
                 {
-                    Debug.LogFormat("disabling go {0}", go.name);
+                    // Debug.LogFormat("disabling go {0}", go.name);
                     go.SetActive(false);
                 }
             }
